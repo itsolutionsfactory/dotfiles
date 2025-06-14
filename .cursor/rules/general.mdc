@@ -1,0 +1,1591 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Objectives for the project 
+
+Create a project to setup a laptop on Ubuntu 24 LTS.
+
+# Tools to use
+
+For the project to work, the target is to use : 
+- stow to create links to have the configuration at the right location
+- apt or snap to manage all packages
+
+# Structure
+
+The Project is located in either `$HOME/projects/` OR `$HOME/IdeaProjects/` directory.
+
+## Root Directory Structure
+The root directory contains the following essential files:
+- `README.md` - Project documentation describing all configured tools and setup instructions
+- `CHANGELOG.md` - Version history and changes for the project
+- `install.sh` - Main installation script that handles dependencies and module installation
+- `test-all.sh` - Script to run tests across all modules
+- `Dockerfile` - Container definition for testing the setup
+- `docker-compose.yml` - Container orchestration for testing
+- `entrypoint.sh` - Container entrypoint script for testing
+
+## Module Directory Structure
+Each module (tool configuration) should be in its own directory with the following structure:
+```
+module_name/
+├── .config/                    # Configuration directory
+│   └── module_name/           # Module-specific config files
+│       ├── config_file1.conf
+│       └── config_file2.conf
+├── install.sh                 # Installation script
+└── test.sh                   # Test script
+```
+
+For more detailed information about the project structure and configuration, please refer to the [README.md](mdc:README.md) file.
+
+# Colors
+For colors, when possible, I want to use the catpuccin schema
+
+# Color Scheme Guidelines
+
+## Catppuccin Mocha Color Palette
+
+### Base Colors
+```bash
+# Base colors
+BASE="\033[0m"                    # Reset
+TEXT="\033[38;2;205;214;244m"     # Text (Default text color)
+SUBTEXT="\033[38;2;166;173;200m"  # Subtext (Secondary text)
+OVERLAY="\033[38;2;108;112;134m"  # Overlay (Muted text)
+SURFACE="\033[38;2;49;50;68m"     # Surface (Background)
+BASE_COLOR="\033[38;2;30;30;46m"  # Base (Main background)
+MANTLE="\033[38;2;24;24;37m"      # Mantle (Darker background)
+CRUST="\033[38;2;17;17;27m"       # Crust (Darkest background)
+```
+
+### Accent Colors
+```bash
+# Accent colors
+RED="\033[38;2;243;139;168m"      # Red (Errors, warnings)
+GREEN="\033[38;2;166;227;161m"    # Green (Success, completion)
+YELLOW="\033[38;2;249;226;175m"   # Yellow (Warnings, attention)
+BLUE="\033[38;2;137;180;250m"     # Blue (Info, status)
+PINK="\033[38;2;245;194;231m"     # Pink (Highlights, emphasis)
+MAUVE="\033[38;2;203;166;247m"    # Mauve (Headers, titles)
+TEAL="\033[38;2;148;226;213m"     # Teal (Special indicators)
+```
+
+## Color Usage Guidelines
+
+### 1. Status Messages
+```bash
+# Success messages
+print_success() {
+    echo -e "${GREEN}[✓]${BASE} $1"
+}
+
+# Error messages
+print_error() {
+    echo -e "${RED}[✗]${BASE} $1"
+}
+
+# Warning messages
+print_warning() {
+    echo -e "${YELLOW}[!]${BASE} $1"
+}
+
+# Info messages
+print_status() {
+    echo -e "${BLUE}[i]${BASE} $1"
+}
+
+# Headers
+print_header() {
+    echo -e "\n${MAUVE}=== $1 ===${BASE}\n"
+}
+```
+
+### 2. Message Types and Colors
+- **Success Messages**: Use GREEN
+  - Installation completion
+  - Operation success
+  - Verification passed
+
+- **Error Messages**: Use RED
+  - Installation failures
+  - Operation errors
+  - Validation failures
+
+- **Warning Messages**: Use YELLOW
+  - Potential issues
+  - Deprecation notices
+  - Manual intervention needed
+
+- **Info Messages**: Use BLUE
+  - Progress updates
+  - Status information
+  - Operation details
+
+- **Headers**: Use MAUVE
+  - Section titles
+  - Module headers
+  - Process stages
+
+- **Special Indicators**: Use TEAL
+  - Special states
+  - Unique conditions
+  - Custom indicators
+
+### 3. Text Formatting
+```bash
+# Bold text
+BOLD="\033[1m"
+
+# Italic text
+ITALIC="\033[3m"
+
+# Underline text
+UNDERLINE="\033[4m"
+
+# Example usage
+print_important() {
+    echo -e "${BOLD}${MAUVE}[!]${BASE} ${BOLD}$1${BASE}"
+}
+```
+
+### 4. Color Combinations
+```bash
+# Error with bold
+print_critical_error() {
+    echo -e "${BOLD}${RED}[CRITICAL]${BASE} ${BOLD}$1${BASE}"
+}
+
+# Success with highlight
+print_success_highlight() {
+    echo -e "${GREEN}[✓]${BASE} ${TEAL}$1${BASE}"
+}
+
+# Warning with emphasis
+print_warning_emphasis() {
+    echo -e "${YELLOW}[!]${BASE} ${PINK}$1${BASE}"
+}
+```
+
+## Implementation Guidelines
+
+### 1. Consistency
+- Use the same color for the same type of message
+- Maintain consistent formatting across all scripts
+- Follow the established color hierarchy
+
+### 2. Readability
+- Ensure sufficient contrast between text and background
+- Use colors to enhance, not obscure, information
+- Consider color-blind users when choosing combinations
+
+### 3. Performance
+- Define colors at the start of the script
+- Use variables for color codes
+- Reset colors after each use
+
+### 4. Best Practices
+- Always reset colors after use
+- Use colors sparingly and purposefully
+- Test output in different terminal environments
+
+## Example Usage
+
+### Basic Message
+```bash
+print_status "Installing module..."
+print_success "Module installed successfully"
+print_warning "Some features may require manual configuration"
+print_error "Failed to install module"
+```
+
+### Complex Message
+```bash
+print_header "Module Installation"
+print_status "Checking dependencies..."
+print_success "All dependencies satisfied"
+print_warning "Some optional features are not available"
+print_error "Failed to install optional features"
+print_success_highlight "Core functionality installed successfully"
+```
+
+# Install principales
+
+## For the root install file [install.sh](mdc:install.sh)
+The file must be located at the root of the project
+
+### Dependencies Management
+- Uses arrays to manage dependencies:
+  ```bash
+  declare -a REQUIRED_APT_PACKAGES=(
+      "stow"
+      "git"
+  )
+  
+  declare -a REQUIRED_SNAP_PACKAGES=(
+      # Add snap packages here as needed
+  )
+  ```
+- Automatically checks and installs missing dependencies
+- Supports both apt and snap package managers
+
+### Command Line Parameters
+- `--all`: Install all modules without prompts
+- `--backup`: Only handle backup of existing .config
+- `--help` or `-h`: Show help message
+
+### Backup System
+
+## Backup Strategy Overview
+The project implements a two-level backup system:
+1. Root-level backup of the entire `.config` directory
+2. Module-specific backups for individual configurations
+
+## Backup Directory Structure
+```
+backup/
+├── root/                    # Root-level backups
+│   └── YYYY-MM-DD_HH-MM/   # Timestamped backups
+│       └── .config/        # Full .config backup
+└── modules/                # Module-specific backups
+    └── module_name/        # Per-module backups
+        └── YYYY-MM-DD_HH-MM/
+```
+
+## Root-Level Backup
+- Triggered by the main `install.sh` script
+- Creates timestamped backup of entire `.config` directory
+- Options:
+  - Create backup (recommended)
+  - Overwrite existing .config
+  - Exit installation
+- Backup format: `backup/root/YYYY-MM-DD_HH-MM/.config/`
+
+## Module-Level Backup
+- Triggered by each module's `install.sh` script
+- Creates timestamped backup of module-specific configuration
+- Only backs up the specific module's configuration
+- Backup format: `backup/modules/module_name/YYYY-MM-DD_HH-MM/`
+
+## Backup Process
+1. Check if backup directory exists, create if missing
+2. Generate timestamp for backup
+3. Create backup directory structure
+4. Copy existing configuration to backup location
+5. Verify backup integrity
+6. Proceed with new configuration installation
+
+## Backup Verification
+- Verify backup directory creation
+- Check file permissions
+- Validate file integrity
+- Ensure all files are copied
+- Log backup operation
+
+## Backup Restoration
+- Root-level restoration:
+  ```bash
+  cp -r backup/root/YYYY-MM-DD_HH-MM/.config/* $HOME/.config/
+  ```
+- Module-level restoration:
+  ```bash
+  cp -r backup/modules/module_name/YYYY-MM-DD_HH-MM/* $HOME/.config/module_name/
+  ```
+
+## Backup Cleanup
+- Keep last 5 root-level backups
+- Keep last 3 module-level backups per module
+- Remove older backups automatically
+- Log cleanup operations
+
+### Module Management
+- Each module is in its own directory
+- Modules must have an install.sh script
+- Supports:
+  - Installing all modules
+  - Selecting specific modules
+  - Interactive module selection
+
+### Visual Interface
+- Uses Catppuccin Mocha color scheme
+- Color-coded status messages:
+  - Green for success
+  - Red for errors
+  - Yellow for warnings
+  - Blue for info
+  - Mauve for headers
+- Unicode symbols for status indicators
+- Clear menu system with numbered options
+
+### Error Handling
+- Exits on any error (set -e)
+- Validates all user inputs
+- Provides clear error messages
+- Ensures backup directory exists before operations
+
+### Installation Process
+1. Check and install required tools
+2. Handle existing .config directory
+3. Show installation menu or process command line parameters
+4. Install selected modules
+5. Provide status feedback throughout the process
+
+## For any module install file 
+1. Check if this module already exist and installed
+2. Check if all the plugins / themes / addons are also installed
+3. Check if an existing configuration exist and make a backup in the backup directory of the project
+4. Install what is missing from the list
+5. Apply the configuration with stow. DO NOT COPY ANY FILE
+
+### Module Install Script Standard Format
+Each module's install.sh should follow this structure:
+
+```bash
+#!/bin/bash
+
+# Exit on any error
+set -e
+
+# Script directory and module info
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BACKUP_DIR="$SCRIPT_DIR/../backup"
+MODULE_NAME="module_name"
+
+# Catppuccin Mocha color scheme
+# Base colors
+BASE="\033[0m"
+TEXT="\033[38;2;205;214;244m"      # Text
+SUBTEXT="\033[38;2;166;173;200m"   # Subtext
+OVERLAY="\033[38;2;108;112;134m"   # Overlay
+SURFACE="\033[38;2;49;50;68m"      # Surface
+BASE_COLOR="\033[38;2;30;30;46m"   # Base
+MANTLE="\033[38;2;24;24;37m"       # Mantle
+CRUST="\033[38;2;17;17;27m"        # Crust
+
+# Accent colors
+RED="\033[38;2;243;139;168m"       # Red
+GREEN="\033[38;2;166;227;161m"     # Green
+YELLOW="\033[38;2;249;226;175m"    # Yellow
+BLUE="\033[38;2;137;180;250m"      # Blue
+PINK="\033[38;2;245;194;231m"      # Pink
+MAUVE="\033[38;2;203;166;247m"     # Mauve
+TEAL="\033[38;2;148;226;213m"      # Teal
+
+# Print functions
+print_status() {
+    echo -e "${BLUE}[i]${BASE} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[✓]${BASE} $1"
+}
+
+print_error() {
+    echo -e "${RED}[✗]${BASE} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[!]${BASE} $1"
+}
+
+print_header() {
+    echo -e "\n${MAUVE}=== $1 ===${BASE}\n"
+}
+
+# Print module header
+print_header "Installing $MODULE_NAME configuration"
+
+# Module-specific installation steps here
+# ...
+
+# Use stow to create symlinks
+print_status "Installing $MODULE_NAME configuration..."
+if ! stow -t "$HOME" .; then
+    print_error "Failed to install $MODULE_NAME configuration"
+    exit 1
+fi
+
+print_success "$MODULE_NAME configuration installed successfully!"
+```
+
+Key requirements for module install scripts:
+1. Must use the Catppuccin Mocha color scheme
+2. Must include proper error handling
+3. Must create backups before modifying existing configurations
+4. Must use stow for configuration management
+5. Must provide clear status messages
+6. Must exit with appropriate error codes
+7. Must use consistent naming and formatting
+
+### Module Test Script Standard Format
+Each module should include a test.sh script to verify the installation. The test script should:
+
+1. Verify all stow symlinks are correctly created
+2. Test any specific functionality of the module
+3. Provide clear feedback about what needs manual verification
+
+Standard format for test.sh:
+
+```bash
+#!/bin/bash
+
+# Exit on error
+set -e
+
+# Script directory and module info
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MODULE_NAME="module_name"
+
+# Catppuccin Mocha color scheme
+# Base colors
+BASE="\033[0m"
+TEXT="\033[38;2;205;214;244m"      # Text
+SUBTEXT="\033[38;2;166;173;200m"   # Subtext
+OVERLAY="\033[38;2;108;112;134m"   # Overlay
+SURFACE="\033[38;2;49;50;68m"      # Surface
+BASE_COLOR="\033[38;2;30;30;46m"   # Base
+MANTLE="\033[38;2;24;24;37m"       # Mantle
+CRUST="\033[38;2;17;17;27m"        # Crust
+
+# Accent colors
+RED="\033[38;2;243;139;168m"       # Red
+GREEN="\033[38;2;166;227;161m"     # Green
+YELLOW="\033[38;2;249;226;175m"    # Yellow
+BLUE="\033[38;2;137;180;250m"      # Blue
+PINK="\033[38;2;245;194;231m"      # Pink
+MAUVE="\033[38;2;203;166;247m"     # Mauve
+TEAL="\033[38;2;148;226;213m"      # Teal
+
+# Print functions
+print_status() {
+    echo -e "${BLUE}[i]${BASE} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[✓]${BASE} $1"
+}
+
+print_error() {
+    echo -e "${RED}[✗]${BASE} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[!]${BASE} $1"
+}
+
+print_header() {
+    echo -e "\n${MAUVE}=== $1 ===${BASE}\n"
+}
+
+# Function to test if a file is properly linked by stow
+test_stow_link() {
+    local target="$1"
+    local source="$2"
+    
+    # Check if the target is a symbolic link
+    if [ ! -L "$target" ]; then
+        print_error "$target is not a symbolic link"
+        return 1
+    fi
+    
+    # Get the absolute path of the source
+    local abs_source="$(cd "$(dirname "$source")" && pwd)/$(basename "$source")"
+    
+    # Get the absolute path of the target's link
+    local abs_target="$(readlink -f "$target")"
+    
+    # Compare the paths
+    if [ "$abs_target" = "$abs_source" ]; then
+        print_success "$target is properly linked by stow"
+        return 0
+    else
+        print_error "$target is not properly linked by stow"
+        print_error "Expected: $abs_source"
+        print_error "Got: $abs_target"
+        return 1
+    fi
+}
+
+print_header "Testing $MODULE_NAME configuration"
+
+# Test stow links
+# test_stow_link "$HOME/.config/path" "$SCRIPT_DIR/config/path"
+
+# Module-specific tests here
+# ...
+
+print_success "Testing completed!"
+print_warning "Please verify the following manually:"
+print_warning "1. List of manual verification steps"
+
+# Docker
+
+## Overview
+The Docker setup provides a clean, isolated environment for testing the dotfiles configuration. It uses Ubuntu 24.04 LTS as the base image to match the target environment.
+
+## Directory Structure
+```
+.
+├── Dockerfile           # Container definition
+├── docker-compose.yml  # Container orchestration
+└── entrypoint.sh       # Container initialization
+```
+
+## Dockerfile Requirements
+```dockerfile
+# Use Ubuntu 24.04 LTS as base
+FROM ubuntu:24.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV HOME=/root
+
+# Install essential packages
+RUN apt-get update && apt-get install -y \
+    git \
+    stow \
+    zsh \
+    curl \
+    wget \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up working directory
+WORKDIR /root/dotfiles
+
+# Copy dotfiles
+COPY . .
+
+# Make scripts executable
+RUN chmod +x install.sh test-all.sh entrypoint.sh
+
+# Set entrypoint
+ENTRYPOINT ["/root/dotfiles/entrypoint.sh"]
+```
+
+## docker-compose.yml Requirements
+```yaml
+version: '3.8'
+
+services:
+  dotfiles:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/root/dotfiles
+    environment:
+      - TERM=xterm-256color
+    tty: true
+    stdin_open: true
+```
+
+## entrypoint.sh Requirements
+```bash
+#!/bin/bash
+
+# Exit on error
+set -e
+
+# Print functions (using Catppuccin Mocha colors)
+print_header() {
+    echo -e "\n\033[38;2;203;166;247m=== $1 ===\033[0m\n"
+}
+
+print_success() {
+    echo -e "\033[38;2;166;227;161m[✓] $1\033[0m"
+}
+
+print_error() {
+    echo -e "\033[38;2;243;139;168m[✗] $1\033[0m"
+}
+
+# Main execution
+print_header "Starting dotfiles installation in Docker"
+
+# Run installation
+if [ -f "/root/dotfiles/install.sh" ]; then
+    print_success "Running installation script"
+    /root/dotfiles/install.sh --all
+else
+    print_error "Installation script not found"
+    exit 1
+fi
+
+# Run tests
+if [ -f "/root/dotfiles/test-all.sh" ]; then
+    print_success "Running test suite"
+    /root/dotfiles/test-all.sh
+else
+    print_error "Test script not found"
+    exit 1
+fi
+
+# Keep container running for inspection
+print_success "Installation and tests completed"
+print_success "Container will remain running for inspection"
+print_success "Use 'docker exec -it <container_id> zsh' to access the container"
+
+# Keep container running
+tail -f /dev/null
+```
+
+## Docker Usage Guidelines
+
+### Building the Container
+```bash
+docker-compose build
+```
+
+### Running Tests
+```bash
+docker-compose up
+```
+
+### Accessing the Container
+```bash
+docker exec -it <container_id> zsh
+```
+
+### Testing Specific Modules
+```bash
+docker-compose run --rm dotfiles /root/dotfiles/install.sh --module module_name
+```
+
+## Docker Testing Workflow
+
+1. **Initial Setup**
+   - Build the container
+   - Verify base system requirements
+   - Check network connectivity
+
+2. **Installation Testing**
+   - Run full installation
+   - Verify all modules install correctly
+   - Check for any installation errors
+
+3. **Configuration Testing**
+   - Verify all configurations are applied
+   - Check file permissions
+   - Validate symlinks
+
+4. **Integration Testing**
+   - Test module interactions
+   - Verify dependencies
+   - Check for conflicts
+
+5. **Cleanup Testing**
+   - Test uninstallation
+   - Verify backup system
+   - Check restoration process
+
+## Docker Best Practices
+
+1. **Container Management**
+   - Use specific version tags
+   - Clean up unused containers
+   - Monitor container resources
+
+2. **Testing Strategy**
+   - Test in clean environment
+   - Verify all modules
+   - Check error handling
+
+3. **Security Considerations**
+   - Run as non-root when possible
+   - Limit container capabilities
+   - Use read-only volumes when appropriate
+
+4. **Performance Optimization**
+   - Use multi-stage builds
+   - Minimize layer count
+   - Clean up temporary files
+
+# Stow and .config Directory Rules
+
+1. Module Structure:
+   - Each module should have its configuration in a `.config` subdirectory
+   - Example: `kitty/.config/kitty/` for kitty configuration
+   - This matches the target structure in the user's home directory
+
+2. Stow Command:
+   - Always use `stow -t "$HOME/.config" .config` for modules with .config files
+   - This ensures proper symlink creation in the user's .config directory
+   - Example: `stow -t "$HOME/.config" .config` will create `$HOME/.config/kitty` -> `module/.config/kitty`
+
+3. Backup Handling:
+   - Before stowing, check for existing configuration in `$HOME/.config/module_name`
+   - Create timestamped backups in the project's backup directory
+   - Remove or backup existing configuration before stowing
+
+4. Directory Creation:
+   - The main install.sh script ensures `$HOME/.config` exists
+   - Module install scripts should not need to create `.config` directory
+   - Focus on module-specific directory structure
+
+5. Error Handling:
+   - Check for stow conflicts before attempting to stow
+   - Provide clear error messages if stow fails
+   - Ensure proper cleanup if stow fails
+
+6. Testing:
+   - Test scripts should verify symlinks are created correctly
+   - Check both the existence and correctness of symlinks
+   - Verify the target paths match the expected structure
+
+# Module Structure and Configuration
+
+## Directory Organization
+Each module must follow this structure:
+```
+module_name/
+├── .config/                    # Configuration directory
+│   └── module_name/           # Module-specific config files
+│       ├── config_file1.conf
+│       └── config_file2.conf
+├── install.sh                 # Installation script
+└── test.sh                   # Test script
+```
+
+## Stow Configuration
+- All module configurations must be placed in the `.config` subdirectory
+- The stow command must be used with the following format:
+  ```bash
+  stow -t "$HOME/.config" .config
+  ```
+- This ensures proper symlink creation:
+  - Source: `module_name/.config/module_name/` → Target: `$HOME/.config/module_name/`
+  - Example: `kitty/.config/kitty/` → `$HOME/.config/kitty/`
+
+## Configuration Guidelines
+1. Never copy files directly - always use stow for symlinks
+2. Keep all configuration files within the `.config/module_name/` directory
+3. Use relative paths in configuration files when possible
+4. Follow the module's official configuration structure
+5. Document any special configuration requirements in the module's README
+
+## Common Configuration Locations
+- `$HOME/.config/` - Main configuration directory
+- `$HOME/.local/share/` - Data files (if required)
+- `$HOME/.cache/` - Cache files (if required)
+
+## Module Dependencies
+- List all dependencies in the module's install.sh
+- Check for both apt and snap package requirements
+- Verify plugin/theme/addon dependencies
+- Document version requirements if specific versions are needed
+
+# Test Scripts
+
+## Test Script Structure
+Each module must include a `test.sh` script that verifies:
+1. Configuration file presence and permissions
+2. Stow symlink integrity
+3. Module-specific functionality
+4. Dependencies and requirements
+
+## Standard Test Script Template
+```bash
+#!/bin/bash
+
+# Exit on error
+set -e
+
+# Script directory and module info
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MODULE_NAME="module_name"
+CONFIG_DIR="$HOME/.config/$MODULE_NAME"
+
+# Catppuccin Mocha color scheme
+# Base colors
+BASE="\033[0m"
+TEXT="\033[38;2;205;214;244m"      # Text
+SUBTEXT="\033[38;2;166;173;200m"   # Subtext
+OVERLAY="\033[38;2;108;112;134m"   # Overlay
+SURFACE="\033[38;2;49;50;68m"      # Surface
+BASE_COLOR="\033[38;2;30;30;46m"   # Base
+MANTLE="\033[38;2;24;24;37m"       # Mantle
+CRUST="\033[38;2;17;17;27m"        # Crust
+
+# Accent colors
+RED="\033[38;2;243;139;168m"       # Red
+GREEN="\033[38;2;166;227;161m"     # Green
+YELLOW="\033[38;2;249;226;175m"    # Yellow
+BLUE="\033[38;2;137;180;250m"      # Blue
+PINK="\033[38;2;245;194;231m"      # Pink
+MAUVE="\033[38;2;203;166;247m"     # Mauve
+TEAL="\033[38;2;148;226;213m"      # Teal
+
+# Print functions
+print_status() {
+    echo -e "${BLUE}[i]${BASE} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[✓]${BASE} $1"
+}
+
+print_error() {
+    echo -e "${RED}[✗]${BASE} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[!]${BASE} $1"
+}
+
+print_header() {
+    echo -e "\n${MAUVE}=== $1 ===${BASE}\n"
+}
+
+# Test functions
+test_stow_link() {
+    local target="$1"
+    local source="$2"
+    
+    print_status "Testing stow link: $target"
+    
+    # Check if the target is a symbolic link
+    if [ ! -L "$target" ]; then
+        print_error "$target is not a symbolic link"
+        return 1
+    fi
+    
+    # Get the absolute path of the source
+    local abs_source="$(cd "$(dirname "$source")" && pwd)/$(basename "$source")"
+    
+    # Get the absolute path of the target's link
+    local abs_target="$(readlink -f "$target")"
+    
+    # Compare the paths
+    if [ "$abs_target" = "$abs_source" ]; then
+        print_success "$target is properly linked by stow"
+        return 0
+    else
+        print_error "$target is not properly linked by stow"
+        print_error "Expected: $abs_source"
+        print_error "Got: $abs_target"
+        return 1
+    fi
+}
+
+test_file_exists() {
+    local file="$1"
+    print_status "Testing file existence: $file"
+    
+    if [ -f "$file" ]; then
+        print_success "File exists: $file"
+        return 0
+    else
+        print_error "File does not exist: $file"
+        return 1
+    fi
+}
+
+test_file_permissions() {
+    local file="$1"
+    local expected_perms="$2"
+    print_status "Testing file permissions: $file"
+    
+    local actual_perms=$(stat -c "%a" "$file")
+    if [ "$actual_perms" = "$expected_perms" ]; then
+        print_success "File permissions correct: $file ($expected_perms)"
+        return 0
+    else
+        print_error "File permissions incorrect: $file"
+        print_error "Expected: $expected_perms"
+        print_error "Got: $actual_perms"
+        return 1
+    fi
+}
+
+test_dependency() {
+    local dep="$1"
+    print_status "Testing dependency: $dep"
+    
+    if command -v "$dep" >/dev/null 2>&1; then
+        print_success "Dependency found: $dep"
+        return 0
+    else
+        print_error "Dependency not found: $dep"
+        return 1
+    fi
+}
+
+# Main test execution
+print_header "Testing $MODULE_NAME configuration"
+
+# Test stow links
+test_stow_link "$CONFIG_DIR" "$SCRIPT_DIR/.config/$MODULE_NAME"
+
+# Test configuration files
+test_file_exists "$CONFIG_DIR/config.conf"
+test_file_permissions "$CONFIG_DIR/config.conf" "644"
+
+# Test dependencies
+test_dependency "required_command"
+
+# Module-specific tests
+# Add your module-specific test functions here
+
+print_success "Testing completed!"
+print_warning "Please verify the following manually:"
+print_warning "1. Module-specific functionality"
+print_warning "2. Integration with other modules"
+print_warning "3. User-specific settings"
+
+## Test Categories
+
+### 1. Configuration Tests
+- Verify all configuration files exist
+- Check file permissions
+- Validate configuration syntax
+- Test configuration loading
+
+### 2. Symlink Tests
+- Verify stow symlinks are correct
+- Check symlink targets
+- Validate symlink permissions
+- Test symlink integrity
+
+### 3. Dependency Tests
+- Check required commands
+- Verify package installations
+- Test plugin availability
+- Validate version requirements
+
+### 4. Functionality Tests
+- Test basic module features
+- Verify integration points
+- Check error handling
+- Validate user interactions
+
+## Test Execution
+- Run tests before installation
+- Run tests after installation
+- Run tests after updates
+- Include in CI/CD pipeline
+
+## Test Results
+- Clear success/failure indicators
+- Detailed error messages
+- Actionable feedback
+- Manual verification checklist
+
+# Error Handling Guidelines
+
+## Error Categories
+
+### 1. Installation Errors
+- Missing dependencies
+- Permission issues
+- Network failures
+- Package conflicts
+
+### 2. Configuration Errors
+- Invalid configuration syntax
+- Missing configuration files
+- Permission issues
+- Path resolution errors
+
+### 3. Stow Errors
+- Symlink conflicts
+- Target directory issues
+- Source file problems
+- Permission problems
+
+### 4. Module Errors
+- Module-specific failures
+- Dependency issues
+- Integration problems
+- Version conflicts
+
+## Error Codes
+
+### Standard Exit Codes
+```bash
+# Success codes
+EXIT_SUCCESS=0          # Operation completed successfully
+EXIT_WARNING=1         # Operation completed with warnings
+
+# Error codes
+EXIT_ERROR=2           # General error
+EXIT_DEPENDENCY=3      # Missing dependency
+EXIT_PERMISSION=4      # Permission error
+EXIT_CONFIG=5          # Configuration error
+EXIT_STOW=6           # Stow operation error
+EXIT_MODULE=7         # Module-specific error
+EXIT_NETWORK=8        # Network-related error
+EXIT_VALIDATION=9     # Validation error
+```
+
+## Error Handling Functions
+
+### 1. Basic Error Handling
+```bash
+# Error handling function
+handle_error() {
+    local exit_code=$1
+    local error_message=$2
+    local error_details=$3
+
+    case $exit_code in
+        $EXIT_SUCCESS)
+            print_success "$error_message"
+            ;;
+        $EXIT_WARNING)
+            print_warning "$error_message"
+            print_status "$error_details"
+            ;;
+        $EXIT_DEPENDENCY)
+            print_error "Dependency Error: $error_message"
+            print_status "Details: $error_details"
+            ;;
+        $EXIT_PERMISSION)
+            print_error "Permission Error: $error_message"
+            print_status "Details: $error_details"
+            ;;
+        $EXIT_CONFIG)
+            print_error "Configuration Error: $error_message"
+            print_status "Details: $error_details"
+            ;;
+        $EXIT_STOW)
+            print_error "Stow Error: $error_message"
+            print_status "Details: $error_details"
+            ;;
+        $EXIT_MODULE)
+            print_error "Module Error: $error_message"
+            print_status "Details: $error_details"
+            ;;
+        $EXIT_NETWORK)
+            print_error "Network Error: $error_message"
+            print_status "Details: $error_details"
+            ;;
+        $EXIT_VALIDATION)
+            print_error "Validation Error: $error_message"
+            print_status "Details: $error_details"
+            ;;
+        *)
+            print_error "Unknown Error: $error_message"
+            print_status "Details: $error_details"
+            ;;
+    esac
+
+    return $exit_code
+}
+```
+
+### 2. Dependency Checking
+```bash
+check_dependency() {
+    local dep=$1
+    local version=$2
+
+    if ! command -v "$dep" >/dev/null 2>&1; then
+        handle_error $EXIT_DEPENDENCY \
+            "Required dependency '$dep' not found" \
+            "Please install $dep version $version or higher"
+        return $EXIT_DEPENDENCY
+    fi
+
+    if [ -n "$version" ]; then
+        local installed_version
+        installed_version=$("$dep" --version 2>&1)
+        if ! version_compare "$installed_version" "$version"; then
+            handle_error $EXIT_DEPENDENCY \
+                "Dependency '$dep' version mismatch" \
+                "Required: $version, Installed: $installed_version"
+            return $EXIT_DEPENDENCY
+        fi
+    fi
+
+    return $EXIT_SUCCESS
+}
+```
+
+### 3. Permission Checking
+```bash
+check_permissions() {
+    local path=$1
+    local required_perms=$2
+
+    if [ ! -w "$path" ]; then
+        handle_error $EXIT_PERMISSION \
+            "Insufficient permissions for '$path'" \
+            "Required permissions: $required_perms"
+        return $EXIT_PERMISSION
+    fi
+
+    return $EXIT_SUCCESS
+}
+```
+
+### 4. Configuration Validation
+```bash
+validate_config() {
+    local config_file=$1
+    local schema=$2
+
+    if [ ! -f "$config_file" ]; then
+        handle_error $EXIT_CONFIG \
+            "Configuration file not found: $config_file" \
+            "Please ensure the file exists and is readable"
+        return $EXIT_CONFIG
+    fi
+
+    if ! validate_against_schema "$config_file" "$schema"; then
+        handle_error $EXIT_CONFIG \
+            "Invalid configuration in $config_file" \
+            "Please check the configuration format"
+        return $EXIT_CONFIG
+    fi
+
+    return $EXIT_SUCCESS
+}
+```
+
+## Error Recovery
+
+### 1. Backup and Restore
+```bash
+handle_stow_error() {
+    local module=$1
+    local error=$2
+
+    # Create backup
+    if ! backup_config "$module"; then
+        handle_error $EXIT_STOW \
+            "Failed to create backup for $module" \
+            "Error: $error"
+        return $EXIT_STOW
+    fi
+
+    # Attempt to fix the issue
+    if ! fix_stow_issue "$module" "$error"; then
+        # Restore from backup
+        if ! restore_config "$module"; then
+            handle_error $EXIT_STOW \
+                "Failed to restore $module from backup" \
+                "Error: $error"
+            return $EXIT_STOW
+        fi
+    fi
+
+    return $EXIT_SUCCESS
+}
+```
+
+### 2. Cleanup on Error
+```bash
+cleanup_on_error() {
+    local exit_code=$1
+    local temp_dir=$2
+
+    # Remove temporary files
+    if [ -d "$temp_dir" ]; then
+        rm -rf "$temp_dir"
+    fi
+
+    # Reset any changed environment variables
+    reset_environment
+
+    # Exit with the original error code
+    exit $exit_code
+}
+```
+
+## Best Practices
+
+### 1. Error Prevention
+- Validate inputs before processing
+- Check prerequisites before operations
+- Use defensive programming techniques
+- Implement proper logging
+
+### 2. Error Handling
+- Always use proper error codes
+- Provide clear error messages
+- Include recovery procedures
+- Log all errors for debugging
+
+### 3. User Communication
+- Use appropriate message colors
+- Provide actionable feedback
+- Include recovery instructions
+- Maintain consistent formatting
+
+### 4. Debugging Support
+- Enable verbose logging when needed
+- Include stack traces for errors
+- Provide debugging information
+- Support error reproduction
+
+## Example Usage
+
+### Basic Error Handling
+```bash
+# Check dependency
+if ! check_dependency "stow" "2.3.0"; then
+    cleanup_on_error $EXIT_DEPENDENCY "$TEMP_DIR"
+fi
+
+# Validate configuration
+if ! validate_config "$CONFIG_FILE" "$SCHEMA"; then
+    cleanup_on_error $EXIT_CONFIG "$TEMP_DIR"
+fi
+
+# Handle stow operation
+if ! stow -t "$HOME/.config" .config; then
+    handle_stow_error "$MODULE_NAME" "$STOW_ERROR"
+    cleanup_on_error $EXIT_STOW "$TEMP_DIR"
+fi
+```
+
+### Advanced Error Handling
+```bash
+# Try-catch style error handling
+{
+    # Attempt installation
+    install_module "$MODULE_NAME" || {
+        local exit_code=$?
+        handle_error $exit_code \
+            "Failed to install $MODULE_NAME" \
+            "Error occurred during installation"
+        cleanup_on_error $exit_code "$TEMP_DIR"
+    }
+} || {
+    # Handle any uncaught errors
+    handle_error $EXIT_ERROR \
+        "Unexpected error in $MODULE_NAME installation" \
+        "Please check the logs for details"
+    cleanup_on_error $EXIT_ERROR "$TEMP_DIR"
+}
+```
+
+# Module Management Guidelines
+
+## Module Structure
+```
+module_name/
+├── .config/                    # Configuration directory
+│   └── module_name/           # Module-specific config files
+├── install.sh                 # Installation script
+├── test.sh                   # Test script
+└── README.md                 # Module documentation
+```
+
+## Module Discovery
+
+### 1. Module Detection
+```bash
+discover_modules() {
+    local modules_dir="$1"
+    local -a modules=()
+
+    # Find all directories containing install.sh
+    while IFS= read -r -d '' module; do
+        local module_name
+        module_name=$(basename "$(dirname "$module")")
+        modules+=("$module_name")
+    done < <(find "$modules_dir" -maxdepth 2 -name "install.sh" -print0)
+
+    echo "${modules[@]}"
+}
+```
+
+### 2. Module Validation
+```bash
+validate_module() {
+    local module_dir="$1"
+    local module_name="$2"
+
+    # Check required files
+    local required_files=("install.sh" "test.sh" "README.md")
+    for file in "${required_files[@]}"; do
+        if [ ! -f "$module_dir/$file" ]; then
+            handle_error $EXIT_MODULE \
+                "Missing required file: $file" \
+                "Module: $module_name"
+            return $EXIT_MODULE
+        fi
+    done
+
+    # Check configuration directory
+    if [ ! -d "$module_dir/.config/$module_name" ]; then
+        handle_error $EXIT_MODULE \
+            "Missing configuration directory" \
+            "Module: $module_name"
+        return $EXIT_MODULE
+    fi
+
+    return $EXIT_SUCCESS
+}
+```
+
+## Module Dependencies
+
+### 1. Dependency Declaration
+```bash
+# In module's install.sh
+declare -a MODULE_DEPENDENCIES=(
+    "apt:package1"
+    "apt:package2"
+    "snap:package3"
+    "module:other_module"
+)
+```
+
+### 2. Dependency Resolution
+```bash
+resolve_dependencies() {
+    local module_name="$1"
+    local module_dir="$2"
+    local -a resolved_deps=()
+    local -a unresolved_deps=()
+
+    # Load module dependencies
+    source "$module_dir/install.sh"
+
+    # Process each dependency
+    for dep in "${MODULE_DEPENDENCIES[@]}"; do
+        local type="${dep%%:*}"
+        local name="${dep#*:}"
+
+        case "$type" in
+            "apt")
+                if ! check_apt_package "$name"; then
+                    unresolved_deps+=("$dep")
+                else
+                    resolved_deps+=("$dep")
+                fi
+                ;;
+            "snap")
+                if ! check_snap_package "$name"; then
+                    unresolved_deps+=("$dep")
+                else
+                    resolved_deps+=("$dep")
+                fi
+                ;;
+            "module")
+                if ! check_module_installed "$name"; then
+                    unresolved_deps+=("$dep")
+                else
+                    resolved_deps+=("$dep")
+                fi
+                ;;
+        esac
+    done
+
+    echo "${unresolved_deps[@]}"
+}
+```
+
+## Module Installation
+
+### 1. Installation Process
+```bash
+install_module() {
+    local module_name="$1"
+    local module_dir="$2"
+
+    print_header "Installing $module_name"
+
+    # Validate module
+    if ! validate_module "$module_dir" "$module_name"; then
+        return $EXIT_MODULE
+    fi
+
+    # Check dependencies
+    local -a unresolved_deps
+    mapfile -t unresolved_deps < <(resolve_dependencies "$module_name" "$module_dir")
+    if [ ${#unresolved_deps[@]} -gt 0 ]; then
+        handle_error $EXIT_DEPENDENCY \
+            "Unresolved dependencies for $module_name" \
+            "Dependencies: ${unresolved_deps[*]}"
+        return $EXIT_DEPENDENCY
+    fi
+
+    # Run module installation
+    if ! "$module_dir/install.sh"; then
+        handle_error $EXIT_MODULE \
+            "Failed to install $module_name" \
+            "Check the installation logs for details"
+        return $EXIT_MODULE
+    fi
+
+    # Run module tests
+    if ! "$module_dir/test.sh"; then
+        handle_error $EXIT_MODULE \
+            "Tests failed for $module_name" \
+            "Check the test logs for details"
+        return $EXIT_MODULE
+    fi
+
+    print_success "Successfully installed $module_name"
+    return $EXIT_SUCCESS
+}
+```
+
+### 2. Module Removal
+```bash
+remove_module() {
+    local module_name="$1"
+    local module_dir="$2"
+
+    print_header "Removing $module_name"
+
+    # Create backup
+    if ! backup_config "$module_name"; then
+        handle_error $EXIT_MODULE \
+            "Failed to backup $module_name" \
+            "Aborting removal"
+        return $EXIT_MODULE
+    fi
+
+    # Remove stow links
+    if ! stow -D -t "$HOME/.config" .config; then
+        handle_error $EXIT_STOW \
+            "Failed to remove stow links for $module_name" \
+            "Check the stow logs for details"
+        return $EXIT_STOW
+    fi
+
+    print_success "Successfully removed $module_name"
+    return $EXIT_SUCCESS
+}
+```
+
+## Module Interaction
+
+### 1. Module Communication
+```bash
+# In module's install.sh
+declare -A MODULE_EXPORTS=(
+    ["config_dir"]="$HOME/.config/$MODULE_NAME"
+    ["data_dir"]="$HOME/.local/share/$MODULE_NAME"
+    ["cache_dir"]="$HOME/.cache/$MODULE_NAME"
+)
+
+# In other module's install.sh
+source "$MODULES_DIR/other_module/install.sh"
+OTHER_MODULE_CONFIG="${MODULE_EXPORTS[config_dir]}"
+```
+
+### 2. Module Integration
+```bash
+check_module_integration() {
+    local module_name="$1"
+    local other_module="$2"
+
+    # Check if other module is installed
+    if ! check_module_installed "$other_module"; then
+        handle_error $EXIT_MODULE \
+            "Required module not installed: $other_module" \
+            "Module: $module_name"
+        return $EXIT_MODULE
+    fi
+
+    # Check integration points
+    if ! validate_integration_points "$module_name" "$other_module"; then
+        handle_error $EXIT_MODULE \
+            "Integration validation failed" \
+            "Modules: $module_name -> $other_module"
+        return $EXIT_MODULE
+    fi
+
+    return $EXIT_SUCCESS
+}
+```
+
+## Module Documentation
+
+### 1. README.md Template
+```markdown
+# Module Name
+
+## Description
+Brief description of the module and its purpose.
+
+## Dependencies
+- List of required packages
+- List of required modules
+- Version requirements
+
+## Configuration
+- Configuration file locations
+- Available options
+- Default settings
+
+## Integration
+- Integration points with other modules
+- Required module interactions
+- Optional integrations
+
+## Usage
+- Basic usage instructions
+- Common configurations
+- Troubleshooting tips
+```
+
+### 2. Module Metadata
+```bash
+# In module's install.sh
+declare -A MODULE_METADATA=(
+    ["name"]="$MODULE_NAME"
+    ["version"]="1.0.0"
+    ["description"]="Module description"
+    ["author"]="Author name"
+    ["dependencies"]="${MODULE_DEPENDENCIES[*]}"
+)
+```
+
+## Best Practices
+
+### 1. Module Development
+- Follow the standard directory structure
+- Include all required files
+- Document all dependencies
+- Provide clear error messages
+
+### 2. Module Testing
+- Test all installation paths
+- Verify dependency resolution
+- Check integration points
+- Validate configuration
+
+### 3. Module Maintenance
+- Keep dependencies updated
+- Maintain documentation
+- Handle version changes
+- Support upgrades
+
+### 4. Module Security
+- Validate all inputs
+- Check file permissions
+- Secure sensitive data
+- Follow security best practices
+
+## Example Usage
+
+### Basic Module Installation
+```bash
+# Install a single module
+install_module "kitty" "$MODULES_DIR/kitty"
+
+# Install multiple modules
+for module in "${MODULES[@]}"; do
+    install_module "$module" "$MODULES_DIR/$module"
+done
+```
+
+### Module Integration
+```bash
+# Check module integration
+if ! check_module_integration "kitty" "zsh"; then
+    handle_error $EXIT_MODULE \
+        "Failed to integrate kitty with zsh" \
+        "Please check the integration requirements"
+    return $EXIT_MODULE
+fi
+```

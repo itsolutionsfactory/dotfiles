@@ -1,0 +1,53 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- Initial project setup
+- Basic directory structure
+- README.md with project documentation
+- CHANGELOG.md for tracking changes
+- install.sh script for automated setup
+- Docker testing environment:
+  - Dockerfile for building test container
+  - docker-compose.yml for container orchestration
+  - test-docker.sh for running tests in Docker
+  - entrypoint.sh for container initialization
+
+### Theme Configuration
+- Created separate theme module for better organization
+- Added Catppuccin theme for Oh My Posh
+- Implemented theme installation script with stow support
+- Added theme testing script
+- Improved theme management and version control
+
+### ZSH Configuration
+- Added comprehensive ZSH setup with Oh My Posh
+- Installed and configured Hack Nerd Font
+- Added essential ZSH plugins:
+  - zsh-autosuggestions for command suggestions
+  - zsh-syntax-highlighting for command validation
+  - zsh-autocomplete for enhanced tab completion
+  - zsh-z for smart directory jumping
+  - zsh-history-substring-search for better history navigation
+  - zsh-dirhistory for directory history
+  - fzf for fuzzy finding
+- Added useful aliases for common commands
+- Configured advanced tab completion
+- Added directory navigation features
+- Added fuzzy finding capabilities
+- Updated documentation with ZSH features and usage
+
+### Script Improvements
+- Added checks to avoid redownloading and reinstalling existing components
+- Added font installation verification
+- Added stow link verification for configuration files
+- Improved error handling and status messages
+- Added Docker testing environment with interactive ZSH shell
+- Separated theme management into its own module
+- Enhanced installation process with better error handling 

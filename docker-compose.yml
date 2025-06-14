@@ -1,0 +1,9 @@
+services:
+  dotfiles-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/home/testuser/dotfiles
+    tty: true
+    stdin_open: true 
