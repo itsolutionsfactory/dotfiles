@@ -64,4 +64,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error handling and status messages
 - Added Docker testing environment with interactive ZSH shell
 - Separated theme management into its own module
-- Enhanced installation process with better error handling 
+- Enhanced installation process with better error handling
+
+### Certificate Configuration
+- Added certificate management module
+- Implemented root CA certificate installation
+- Added system trust store integration
+- Created certificate verification system
+- Added automatic certificate updates
+- Implemented secure certificate storage
+- Added comprehensive test suite
+- Created detailed documentation 

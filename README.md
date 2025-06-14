@@ -265,6 +265,50 @@ After installation:
 2. Configure your system to use Hack Nerd Font
 3. Restart Kitty to apply all changes
 
+### Certificate Configuration
+
+The certificate configuration provides secure management of system and user certificates with the following features:
+
+#### Core Features
+- Root CA certificate installation
+- Certificate directory setup
+- Automatic certificate updates
+- Certificate verification
+- System trust store integration
+
+#### Components
+- **Certificate Management**:
+  - Root CA certificate installation
+  - Certificate directory structure
+  - Certificate verification setup
+  - Trust store configuration
+
+#### Key Features
+- **Certificate Installation**:
+  - Automatic installation in system trust store
+  - Proper permission management
+  - Secure certificate storage
+  - Backup of existing certificates
+
+- **System Integration**:
+  - Integration with system trust store
+  - Automatic certificate updates
+  - Proper file permissions
+  - Secure storage location
+
+#### Installation
+To install the certificate configuration:
+
+```bash
+cd certs
+./install.sh
+```
+
+After installation:
+1. Verify the installation with `./test.sh`
+2. Check that the certificate is properly installed in the system trust store
+3. Verify that the certificate is valid and trusted
+
 ## Contributing
 
 Feel free to submit issues and enhancement requests.

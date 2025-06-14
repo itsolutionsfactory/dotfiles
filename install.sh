@@ -14,6 +14,8 @@ declare -a REQUIRED_APT_PACKAGES=(
     "wget"
     "unzip"
     "fontconfig"
+    "curl"
+    "vim"
 )
 
 declare -a REQUIRED_SNAP_PACKAGES=(
