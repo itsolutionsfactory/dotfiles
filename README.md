@@ -86,6 +86,55 @@ This will:
 
 ## Available Configurations
 
+### Kubectl Configuration
+
+The kubectl configuration provides a powerful and user-friendly Kubernetes command-line experience with the following features:
+
+#### Core Features
+- kubectl installation and configuration
+- kubelogin for OIDC authentication
+- Automatic backup of existing configurations
+- Support for multiple clusters and contexts
+
+#### Components
+- **kubectl**: Kubernetes command-line tool
+- **kubelogin**: OIDC authentication plugin
+- **Configuration Management**:
+  - Multiple cluster support
+  - Context switching
+  - Namespace management
+  - OIDC authentication setup
+
+#### Key Features
+- **Cluster Management**:
+  - Easy context switching
+  - Namespace management
+  - Cluster information access
+  - Resource management
+
+- **Authentication**:
+  - OIDC integration
+  - Automatic token refresh
+  - Secure credential management
+
+- **Useful Aliases**:
+  - Short commands for common operations
+  - Context switching shortcuts
+  - Namespace management commands
+
+#### Installation
+To install the kubectl configuration:
+
+```bash
+cd kubectl
+./install.sh
+```
+
+After installation:
+1. Verify the installation with `./test.sh`
+2. Configure your OIDC credentials if needed
+3. Test cluster access with `kubectl cluster-info`
+
 ### ZSH Configuration
 
 The ZSH configuration provides a powerful and user-friendly shell environment with the following features:

@@ -19,6 +19,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - test-docker.sh for running tests in Docker
   - entrypoint.sh for container initialization
 
+### Kubectl Configuration
+- Added kubectl module with comprehensive setup
+- Implemented automatic kubectl installation
+- Added kubelogin for OIDC authentication
+- Created configuration management system:
+  - Multiple cluster support
+  - Context switching
+  - Namespace management
+  - OIDC authentication setup
+- Added automatic backup of existing configurations
+- Implemented comprehensive test suite
+- Added useful kubectl aliases and shortcuts
+- Created detailed documentation
+
 ### Theme Configuration
 - Created separate theme module for better organization
 - Added Catppuccin theme for Oh My Posh
