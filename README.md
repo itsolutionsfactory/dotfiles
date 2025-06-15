@@ -309,6 +309,59 @@ After installation:
 2. Check that the certificate is properly installed in the system trust store
 3. Verify that the certificate is valid and trusted
 
+### AppImage Configuration
+
+The AppImage configuration provides seamless integration of AppImages into your system with the following features:
+
+#### Core Features
+- appimaged daemon installation and configuration
+- Automatic AppImage detection and integration
+- Desktop file generation
+- Icon integration
+- Update management
+- Applications directory setup
+
+#### Components
+- **appimaged**: AppImage daemon for system integration
+- **Configuration Management**:
+  - Applications directory setup
+  - Desktop integration
+  - Icon integration
+  - Update checks
+
+#### Key Features
+- **AppImage Management**:
+  - Automatic detection of AppImages
+  - Desktop file generation
+  - Icon integration
+  - Update notifications
+
+- **System Integration**:
+  - Desktop environment integration
+  - Icon theme integration
+  - Update management
+  - Systemd service setup
+
+- **Directory Structure**:
+  - Dedicated Applications directory
+  - Proper file permissions
+  - Automatic cleanup
+
+#### Installation
+To install the AppImage configuration:
+
+```bash
+cd appimaged
+./install.sh
+```
+
+After installation:
+1. Verify the installation with `./test.sh`
+2. Place AppImages in your Applications directory
+3. Restart your session for all changes to take effect
+
+Note: This module is not supported in Docker environments and will be skipped during container testing.
+
 ## Contributing
 
 Feel free to submit issues and enhancement requests.
