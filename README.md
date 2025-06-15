@@ -140,7 +140,7 @@ After installation:
 The ZSH configuration provides a powerful and user-friendly shell environment with the following features:
 
 #### Core Features
-- Oh My Posh prompt with Catppuccin theme
+- Oh My Zsh with Catppuccin Mocha theme
 - Hack Nerd Font for better icon support
 - Enhanced history management
 - Smart directory navigation
@@ -149,7 +149,6 @@ The ZSH configuration provides a powerful and user-friendly shell environment wi
 #### Plugins
 - **zsh-autosuggestions**: Suggests commands as you type based on history
 - **zsh-syntax-highlighting**: Highlights commands as you type
-- **zsh-autocomplete**: Enhanced tab completion with menu interface
 - **zsh-z**: Smarter directory jumping (like `cd` but remembers your most used directories)
 - **zsh-history-substring-search**: Better history search with up/down arrows
 - **zsh-dirhistory**: Directory history navigation
@@ -187,36 +186,6 @@ cd zsh
 After installation:
 1. Set your terminal emulator to use "Hack Nerd Font"
 2. Restart your terminal or run `source ~/.zshrc`
-
-### Theme Configuration
-
-The theme configuration provides a consistent and beautiful look across your terminal environment:
-
-#### Features
-- **Catppuccin Theme**:
-  - Beautiful and eye-friendly color scheme
-  - Consistent colors across all components
-  - Support for both light and dark modes
-  - Optimized for readability
-
-#### Components
-- **Oh My Posh Theme**:
-  - Custom Catppuccin-based prompt
-  - Git status integration
-  - Directory information
-  - Custom icons and symbols
-
-#### Installation
-To install the theme configuration:
-
-```bash
-cd theme
-./install.sh
-```
-
-After installation:
-1. Restart your terminal or run `source ~/.zshrc`
-2. Verify that the Catppuccin theme is applied correctly
 
 ### Kitty Terminal Configuration
 

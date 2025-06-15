@@ -77,13 +77,31 @@ test_stow_link() {
     fi
 }
 
-# Function to test Oh My Posh configuration
-test_oh_my_posh_config() {
-    if grep -q "eval \"\$(oh-my-posh init zsh --config \$HOME/.poshthemes/catppuccin.omp.json)\"" "$HOME/.zshrc"; then
-        print_success "Oh My Posh is properly configured in .zshrc"
+# Function to test Oh My Zsh configuration
+test_oh_my_zsh_config() {
+    if [ ! -d "$HOME/.oh-my-zsh" ]; then
+        print_error "Oh My Zsh is not installed"
+        return 1
+    fi
+
+    if [ ! -f "$HOME/.oh-my-zsh/custom/themes/catppuccin.zsh-theme" ]; then
+        print_error "Catppuccin theme is not installed"
+        return 1
+    fi
+
+    if [ ! -f "$HOME/.oh-my-zsh/custom/themes/catppuccin-flavors/catppuccin-mocha.zsh" ]; then
+        print_error "Catppuccin Mocha flavor file is not installed"
+        return 1
+    fi
+
+    if grep -q 'ZSH_THEME="catppuccin"' "$HOME/.zshrc" && \
+       grep -q 'CATPPUCCIN_FLAVOR="mocha"' "$HOME/.zshrc" && \
+       grep -q 'CATPPUCCIN_SHOW_TIME=true' "$HOME/.zshrc"; then
+        print_success "Catppuccin theme is properly configured in .zshrc"
         return 0
     else
-        print_error "Oh My Posh is not properly configured in .zshrc"
+        print_error "Catppuccin theme is not properly configured in .zshrc"
+        print_error "Please check ZSH_THEME, CATPPUCCIN_FLAVOR, and CATPPUCCIN_SHOW_TIME settings"
         return 1
     fi
 }
@@ -97,11 +115,8 @@ else
     print_error "ZSH is not installed"
 fi
 
-if command -v oh-my-posh &> /dev/null; then
-    print_success "Oh My Posh is installed"
-else
-    print_error "Oh My Posh is not installed"
-fi
+# Test Oh My Zsh installation and configuration
+test_oh_my_zsh_config
 
 # Test font installation
 FONT_DIR="$HOME/.local/share/fonts"
@@ -118,14 +133,15 @@ else
 fi
 
 # Test ZSH plugins
-PLUGINS_DIR="$HOME/.zsh/plugins"
+PLUGINS_DIR="$HOME/.oh-my-zsh/custom/plugins"
 if [ -d "$PLUGINS_DIR" ]; then
-    print_success "Plugins directory exists"
+    print_success "Custom plugins directory exists"
 else
-    print_error "Plugins directory does not exist"
+    print_error "Custom plugins directory does not exist"
 fi
 
-for plugin in zsh-autosuggestions zsh-syntax-highlighting zsh-autocomplete zsh-z zsh-history-substring-search zsh-dirhistory; do
+# Test each plugin
+for plugin in zsh-autosuggestions zsh-syntax-highlighting zsh-z zsh-history-substring-search zsh-dirhistory; do
     if [ -d "$PLUGINS_DIR/$plugin" ]; then
         print_success "$plugin is installed"
     else
@@ -142,9 +158,6 @@ fi
 
 test_stow_link "$HOME/.zshrc" "$SCRIPT_DIR/.zshrc"
 
-# Test Oh My Posh configuration
-test_oh_my_posh_config
-
 # Test if ZSH is the default shell
 if [ "$SHELL" = "$(which zsh)" ]; then
     print_success "ZSH is set as default shell"
@@ -154,7 +167,7 @@ fi
 
 print_success "Testing completed!"
 print_warning "Please verify the following manually:"
-print_warning "1. Open a new terminal and check if Catppuccin theme is displayed correctly"
+print_warning "1. Open a new terminal and check if Catppuccin Mocha theme is displayed correctly"
 print_warning "2. Try the following commands to verify functionality:"
 print_warning "   - Type 'cd' and press TAB to test autocomplete"
 print_warning "   - Type a command and press right arrow to test autosuggestions"

@@ -1,23 +1,27 @@
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+# Set name of the theme to load
+ZSH_THEME="catppuccin"
+CATPPUCCIN_FLAVOR="mocha"
+CATPPUCCIN_SHOW_TIME=true
+
+# Which plugins would you like to load?
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-z zsh-history-substring-search dirhistory fzf)
+
+# Load Oh My Zsh
+source $ZSH/oh-my-zsh.sh
+
 # Path configuration
 export PATH=$PATH:$HOME/.local/bin
 
 # Editor configuration
 export EDITOR="/usr/bin/vim"
 
-# Plugin configuration
-source $HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $HOME/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $HOME/.zsh/plugins/zsh-z/zsh-z.plugin.zsh
-source $HOME/.zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
-source $HOME/.zsh/plugins/zsh-dirhistory/dirhistory.plugin.zsh
-
 # FZF configuration
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
-
-# Oh My Posh initialization with Catppuccin theme
-eval "$(oh-my-posh init zsh --config $HOME/.poshthemes/catppuccin.omp.json)"
 
 # History configuration
 HISTSIZE=10000
@@ -90,6 +94,4 @@ alias fzfp='fzf --preview "bat --color=always --style=numbers --line-range=:500 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-export PATH="$PATH:$HOME/.fzf/bin"
-export PATH="$PATH:$HOME/.fzf/bin"
 export PATH="$PATH:$HOME/.fzf/bin"

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.0] - 2024-03-XX
 
 ### Added
 - Initial project setup
@@ -45,20 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added useful kubectl aliases and shortcuts
 - Created detailed documentation
 
-### Theme Configuration
-- Created separate theme module for better organization
-- Added Catppuccin theme for Oh My Posh
-- Implemented theme installation script with stow support
-- Added theme testing script
-- Improved theme management and version control
-
 ### ZSH Configuration
-- Added comprehensive ZSH setup with Oh My Posh
+- Added comprehensive ZSH setup with Oh My Zsh
 - Installed and configured Hack Nerd Font
+- Added Catppuccin Mocha theme for Oh My Zsh
 - Added essential ZSH plugins:
   - zsh-autosuggestions for command suggestions
   - zsh-syntax-highlighting for command validation
-  - zsh-autocomplete for enhanced tab completion
   - zsh-z for smart directory jumping
   - zsh-history-substring-search for better history navigation
   - zsh-dirhistory for directory history
@@ -75,7 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added stow link verification for configuration files
 - Improved error handling and status messages
 - Added Docker testing environment with interactive ZSH shell
-- Separated theme management into its own module
 - Enhanced installation process with better error handling
 
 ### Certificate Configuration

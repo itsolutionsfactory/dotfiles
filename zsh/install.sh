@@ -78,12 +78,29 @@ if ! command -v zsh &> /dev/null; then
     sudo apt-get install -y zsh
 fi
 
-# Install Oh My Posh if not already installed
-if ! command -v oh-my-posh &> /dev/null; then
-    print_status "Installing Oh My Posh..."
-    sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh
-    sudo chmod +x /usr/local/bin/oh-my-posh
+# Remove Oh My Posh if installed
+if command -v oh-my-posh &> /dev/null; then
+    print_status "Removing Oh My Posh..."
+    sudo rm -f /usr/local/bin/oh-my-posh
+    rm -rf "$HOME/.poshthemes"
+    print_success "Oh My Posh removed successfully"
 fi
+
+# Install Oh My Zsh if not already installed
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    print_status "Installing Oh My Zsh..."
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+# Install Catppuccin theme for Oh My Zsh
+print_status "Installing Catppuccin theme..."
+THEMES_DIR="$HOME/.oh-my-zsh/custom/themes"
+mkdir -p "$THEMES_DIR"
+git clone https://github.com/zyoNoob/catppuccin-ohmyzsh.git /tmp/catppuccin-ohmyzsh
+cp /tmp/catppuccin-ohmyzsh/catppuccin.zsh-theme "$THEMES_DIR/"
+mkdir -p "$THEMES_DIR/catppuccin-flavors"
+cp /tmp/catppuccin-ohmyzsh/catppuccin-flavors/* "$THEMES_DIR/catppuccin-flavors/"
+rm -rf /tmp/catppuccin-ohmyzsh
 
 # Install Hack Nerd Font if not already installed
 if check_font_installed "Hack Nerd Font"; then
@@ -101,7 +118,7 @@ fi
 
 # Install ZSH plugins
 print_status "Installing ZSH plugins..."
-PLUGINS_DIR="$HOME/.zsh/plugins"
+PLUGINS_DIR="$HOME/.oh-my-zsh/custom/plugins"
 mkdir -p "$PLUGINS_DIR"
 
 # Install zsh-autosuggestions
@@ -116,7 +133,7 @@ if [ ! -d "$PLUGINS_DIR/zsh-syntax-highlighting" ]; then
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$PLUGINS_DIR/zsh-syntax-highlighting"
 fi
 
-# Install zsh-z (smarter cd command)
+# Install zsh-z
 if [ ! -d "$PLUGINS_DIR/zsh-z" ]; then
     print_status "Installing zsh-z..."
     git clone https://github.com/agkozak/zsh-z.git "$PLUGINS_DIR/zsh-z"

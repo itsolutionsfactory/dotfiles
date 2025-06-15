@@ -15,7 +15,13 @@ declare -a REQUIRED_APT_PACKAGES=(
     "unzip"
     "fontconfig"
     "curl"
-    "vim"
+    "fuse"
+    "dbus"
+    "dbus-x11"
+    "libfuse2"
+    "libnotify-bin"
+    "notification-daemon"
+    "desktop-file-utils"
 )
 
 declare -a REQUIRED_SNAP_PACKAGES=(
