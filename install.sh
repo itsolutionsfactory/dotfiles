@@ -16,12 +16,6 @@ declare -a REQUIRED_APT_PACKAGES=(
     "fontconfig"
     "curl"
     "fuse"
-    "dbus"
-    "dbus-x11"
-    "libfuse2"
-    "libnotify-bin"
-    "notification-daemon"
-    "desktop-file-utils"
 )
 
 declare -a REQUIRED_SNAP_PACKAGES=(

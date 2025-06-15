@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2024-03-XX
+## [NOT RELEASED]
 
 ### Added
 - Initial project setup
@@ -18,6 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - docker-compose.yml for container orchestration
   - test-docker.sh for running tests in Docker
   - entrypoint.sh for container initialization
+
+### Neofetch Configuration
+- Added neofetch module for system information display
+- Implemented Acenoster theme integration
+- Added Hack Nerd Font support for icons
+- Created custom system information script
+- Added comprehensive test suite
+- Implemented proper stow integration
+- Created detailed documentation
 
 ### AppImage Configuration
 - Added appimaged module for AppImage integration

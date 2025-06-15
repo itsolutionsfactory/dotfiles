@@ -278,6 +278,51 @@ After installation:
 2. Check that the certificate is properly installed in the system trust store
 3. Verify that the certificate is valid and trusted
 
+### Neofetch Configuration
+
+The Neofetch configuration provides a beautiful system information display with the following features:
+
+#### Core Features
+- Neofetch installation and configuration
+- Acenoster theme integration
+- Hack Nerd Font support for icons
+- System information display with ASCII art logo
+- Custom system specs display
+
+#### Components
+- **Neofetch**: System information display tool
+- **Acenoster Theme**: Beautiful and informative display theme
+- **Hack Nerd Font**: Icon support for better visualization
+- **System Info Script**: Custom system information display
+
+#### Key Features
+- **System Information Display**:
+  - ASCII art logo of your distribution
+  - Detailed system specifications
+  - Uptime information
+  - Battery status (for laptops)
+  - Memory and disk usage
+  - CPU and GPU information
+
+- **Theme Integration**:
+  - Beautiful Acenoster theme
+  - Proper icon support with Nerd Fonts
+  - Clean and organized layout
+  - Consistent color scheme
+
+#### Installation
+To install the Neofetch configuration:
+
+```bash
+cd neofetch
+./install.sh
+```
+
+After installation:
+1. Verify the installation with `./test.sh`
+2. Open a new terminal to see the system information display
+3. Make sure your terminal is using Hack Nerd Font for proper icon display
+
 ### AppImage Configuration
 
 The AppImage configuration provides seamless integration of AppImages into your system with the following features:

@@ -115,6 +115,30 @@ else
     print_error "ZSH is not installed"
 fi
 
+# Test neofetch installation
+if command -v neofetch &> /dev/null; then
+    print_success "neofetch is installed"
+    if [ -f "$HOME/.config/neofetch/config.conf" ]; then
+        print_success "neofetch configuration is installed"
+    else
+        print_error "neofetch configuration is not installed"
+    fi
+else
+    print_error "neofetch is not installed"
+fi
+
+# Test system-info.sh
+if [ -f "$SCRIPT_DIR/system-info.sh" ]; then
+    print_success "system-info.sh exists"
+    if [ -x "$SCRIPT_DIR/system-info.sh" ]; then
+        print_success "system-info.sh is executable"
+    else
+        print_error "system-info.sh is not executable"
+    fi
+else
+    print_error "system-info.sh does not exist"
+fi
+
 # Test Oh My Zsh installation and configuration
 test_oh_my_zsh_config
 
@@ -168,7 +192,8 @@ fi
 print_success "Testing completed!"
 print_warning "Please verify the following manually:"
 print_warning "1. Open a new terminal and check if Catppuccin Mocha theme is displayed correctly"
-print_warning "2. Try the following commands to verify functionality:"
+print_warning "2. Verify that the system information display shows correctly with neofetch logo and system specs"
+print_warning "3. Try the following commands to verify functionality:"
 print_warning "   - Type 'cd' and press TAB to test autocomplete"
 print_warning "   - Type a command and press right arrow to test autosuggestions"
 print_warning "   - Press Ctrl+T to test fuzzy finder"
