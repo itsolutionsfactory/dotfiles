@@ -523,6 +523,76 @@ After installation:
 
 Note: This module requires root privileges to run and is not supported in Docker environments.
 
+### Vim/Neovim Configuration
+
+The Vim/Neovim configuration provides a modern and feature-rich editing experience with the following features:
+
+#### Core Features
+- Modern Neovim configuration using Lua
+- Plugin management with lazy.nvim
+- Beautiful Catppuccin theme integration
+- Smart code completion
+- Snippet support
+- File navigation and fuzzy finding
+- Git integration
+- Status line and tab visualization
+
+#### Components
+- **Plugin Management**:
+  - lazy.nvim for efficient plugin loading
+  - Automatic plugin installation
+  - Dependency management
+  - Version control
+
+- **Completion System**:
+  - Smart code completion
+  - Snippet support with luasnip
+  - Buffer and path completion
+  - Beautiful completion menu with icons
+
+- **File Management**:
+  - nvim-tree for file browsing
+  - Telescope for fuzzy finding
+  - Buffer management with bufferline
+  - Tab visualization
+
+#### Key Features
+- **Editor Experience**:
+  - Modern Lua configuration
+  - Beautiful Catppuccin theme
+  - Smart indentation
+  - Line numbers and relative numbers
+  - Mouse support
+  - Clipboard integration
+
+- **Navigation**:
+  - File explorer with nvim-tree
+  - Fuzzy finding with Telescope
+  - Buffer navigation
+  - Tab management
+  - Smart completion
+
+- **Visual Enhancements**:
+  - Status line with lualine
+  - Tab visualization with bufferline
+  - Syntax highlighting with treesitter
+  - Git integration with gitsigns
+
+#### Installation
+To install the Vim/Neovim configuration:
+
+```bash
+cd vim
+./install.sh
+```
+
+After installation:
+1. Open Neovim with `nvim`
+2. Wait for plugins to install
+3. Restart Neovim to apply all changes
+
+Note: This configuration requires Neovim 0.9.5 or higher.
+
 ## Contributing
 
 Feel free to submit issues and enhancement requests.
