@@ -145,6 +145,7 @@ The ZSH configuration provides a powerful and user-friendly shell environment wi
 - Enhanced history management
 - Smart directory navigation
 - Advanced tab completion
+- FZF integration with preview support
 
 #### Plugins
 - **zsh-autosuggestions**: Suggests commands as you type based on history
@@ -152,28 +153,46 @@ The ZSH configuration provides a powerful and user-friendly shell environment wi
 - **zsh-z**: Smarter directory jumping (like `cd` but remembers your most used directories)
 - **zsh-history-substring-search**: Better history search with up/down arrows
 - **zsh-dirhistory**: Directory history navigation
-- **fzf**: Fuzzy finder for files, history, and more
+- **fzf**: Fuzzy finder for files, history, and more with preview support
 
 #### Key Features
 - **Directory Navigation**:
   - Use `z` instead of `cd` for smarter directory jumping
   - Use `d` and `f` to navigate directory history
   - Use Ctrl+Left/Right to move word by word
+  - Enhanced directory history management
 
 - **Fuzzy Finding**:
-  - `Ctrl+T`: Fuzzy find files
+  - `Ctrl+T`: Fuzzy find files with preview
   - `Ctrl+R`: Fuzzy find in history
   - `Alt+C`: Fuzzy find directories
+  - Preview support for files and directories
 
 - **History Search**:
   - Use up/down arrows to search through history
   - Matches are highlighted as you type
+  - Enhanced history management with deduplication
+  - Extended history with timestamps
 
 - **Useful Aliases**:
   - Common system commands (`ll`, `la`, `l`, etc.)
   - Git shortcuts (`gs`, `ga`, `gc`, etc.)
   - Directory navigation (`..`, `...`)
   - FZF aliases with preview support
+  - System information commands
+
+- **Completion System**:
+  - Enhanced tab completion
+  - Menu selection for completions
+  - Case-insensitive matching
+  - Colored output for better visibility
+  - Grouped completions
+
+- **Development Tools**:
+  - SDKMAN integration for Java development
+  - Git integration with useful aliases
+  - Editor configuration
+  - Path management
 
 #### Installation
 To install the ZSH configuration:
@@ -284,31 +303,34 @@ The Neofetch configuration provides a beautiful system information display with 
 
 #### Core Features
 - Neofetch installation and configuration
-- Acenoster theme integration
-- Hack Nerd Font support for icons
+- Acenoster theme integration with custom icons
+- Hack Nerd Font support for enhanced visualization
 - System information display with ASCII art logo
-- Custom system specs display
+- Custom system specs display with improved layout
 
 #### Components
 - **Neofetch**: System information display tool
 - **Acenoster Theme**: Beautiful and informative display theme
 - **Hack Nerd Font**: Icon support for better visualization
-- **System Info Script**: Custom system information display
+- **Custom Layout**: Enhanced system information organization
 
 #### Key Features
 - **System Information Display**:
   - ASCII art logo of your distribution
-  - Detailed system specifications
+  - Detailed system specifications with custom icons
   - Uptime information
   - Battery status (for laptops)
   - Memory and disk usage
   - CPU and GPU information
+  - Package management information
+  - Desktop environment details
 
 - **Theme Integration**:
   - Beautiful Acenoster theme
   - Proper icon support with Nerd Fonts
   - Clean and organized layout
   - Consistent color scheme
+  - Custom information grouping
 
 #### Installation
 To install the Neofetch configuration:

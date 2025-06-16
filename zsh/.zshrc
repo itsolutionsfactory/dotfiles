@@ -14,17 +14,10 @@ source $ZSH/oh-my-zsh.sh
 
 # Display system information
 if command -v neofetch >/dev/null 2>&1; then
-    # Create a temporary file for the system info
-    TMPFILE=$(mktemp)
-    # Get system info
-    "$(dirname "$0")/system-info.sh" > "$TMPFILE"
     # Display neofetch with logo and system info side by side
-    neofetch --stdout | sed 's/\x1b\[[0-9;]*m//g' | paste -d' ' - "$TMPFILE"
-    # Clean up
-    rm "$TMPFILE"
+    neofetch 
 else
     echo "Please install neofetch to see the system information display"
-    "$(dirname "$0")/system-info.sh"
 fi
 
 # Path configuration

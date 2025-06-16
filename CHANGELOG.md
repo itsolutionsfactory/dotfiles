@@ -87,4 +87,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added automatic certificate updates
 - Implemented secure certificate storage
 - Added comprehensive test suite
-- Created detailed documentation 
+- Created detailed documentation
+
+### Neofetch and ZSH Configuration Updates
+- Updated neofetch configuration with Acenoster theme integration
+- Enhanced system information display with custom icons and layout
+- Improved ZSH configuration with Catppuccin Mocha theme
+- Added comprehensive FZF configuration with preview support
+- Enhanced directory navigation and history management
+- Added useful aliases for common commands and Git operations
+- Improved completion system with better visual feedback
+- Added SDKMAN integration for Java development tools 
