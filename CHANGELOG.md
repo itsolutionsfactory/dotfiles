@@ -19,6 +19,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - test-docker.sh for running tests in Docker
   - entrypoint.sh for container initialization
 
+### Snap Configuration
+- Added snap package management module
+- Implemented automatic snapd installation
+- Added streamlined package installation:
+  - Communication tools (Slack, Signal, WhatsApp, etc.)
+  - Productivity tools (LibreOffice, ImageMagick)
+  - Entertainment (Spotify, Steam)
+  - System utilities (GParted, htop)
+- Configured automatic snap updates
+- Added daily update schedule
+- Implemented security update management
+- Created comprehensive test suite
+- Added Docker environment detection
+- Implemented graceful skipping in containers
+- Created detailed documentation
+
 ### GNOME Configuration
 - Added GNOME workspace management with keyboard shortcuts
 - Implemented GSNAP window management with custom layouts

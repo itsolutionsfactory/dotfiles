@@ -464,6 +464,65 @@ After installation:
 
 Note: This module is not supported in Docker environments and will be skipped during container testing.
 
+### Snap Configuration
+
+The Snap configuration provides a streamlined package management solution with the following features:
+
+#### Core Features
+- Automatic snapd installation and configuration
+- Installation of essential applications
+- Installation of productivity tools
+- Installation of system utilities
+- Automatic snap updates configuration
+
+#### Components
+- **Communication Tools**:
+  - Slack
+  - Signal
+  - WhatsApp
+  - Zoom
+  - Microsoft Teams
+
+- **Productivity**:
+  - LibreOffice
+  - ImageMagick
+
+- **Entertainment**:
+  - Spotify
+  - Steam
+
+- **System Utilities**:
+  - GParted
+  - htop
+
+#### Key Features
+- **Package Management**:
+  - Automatic installation of snapd
+  - Bulk package installation
+  - Classic confinement support
+  - Update management
+
+- **System Integration**:
+  - Automatic updates
+  - Daily update schedule
+  - Security updates
+  - Update retention policy
+
+#### Installation
+To install the Snap configuration:
+
+```bash
+cd snap-config
+sudo ./install.sh
+```
+
+After installation:
+1. Verify installed packages with `snap list`
+2. Check snap update status with `snap refresh --list`
+3. Configure any additional package settings as needed
+
+Note: This module requires root privileges to run and is not supported in Docker environments.
+
 ## Contributing
 
 Feel free to submit issues and enhancement requests.
