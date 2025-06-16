@@ -19,6 +19,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - test-docker.sh for running tests in Docker
   - entrypoint.sh for container initialization
 
+### GNOME Configuration
+- Added GNOME workspace management with keyboard shortcuts
+- Implemented GSNAP window management with custom layouts
+- Added GNOME extensions:
+  - Workspace Indicator
+  - Horizontal Workspaces
+  - Workspace Matrix
+  - GSNAP
+  - Vitals (system monitoring)
+  - Switcher (application switcher)
+- Configured keyboard shortcuts:
+  - Super + Number: Switch to workspace
+  - Super + Shift + Number: Move window to workspace
+  - Super + T: Open Kitty terminal
+  - Super + A: Application switcher
+- Set up Kitty as default terminal
+- Added automatic extension management
+- Created comprehensive test suite
+- Added Docker environment detection
+- Implemented graceful skipping in containers
+- Created detailed documentation
+
 ### Neofetch Configuration
 - Added neofetch module for system information display
 - Implemented Acenoster theme integration

@@ -1,0 +1,7 @@
+--target=$HOME
+--ignore=^\.git
+--ignore=^\.stowrc
+--ignore=^README\.md$
+--ignore=^install\.sh$
+--ignore=^setup-workspace-shortcuts\.sh$
+--ignore=^install-extensions\.sh$ 
