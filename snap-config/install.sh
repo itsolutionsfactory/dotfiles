@@ -49,8 +49,8 @@ fi
 # Check if snapd is installed
 if ! command_exists snap; then
     print_status "Installing snapd..."
-    apt update
-    apt install -y snapd
+    sudo apt update
+    sudo apt install -y snapd
 fi
 
 # Ensure snapd is running
@@ -67,11 +67,9 @@ SNAP_PACKAGES=(
     "spotify"                  # Spotify
     "slack --classic"          # Slack
     "signal-desktop"           # Signal
-    "whatsapp-for-linux"       # WhatsApp
     "zoom-client"              # Zoom
     "teams-for-linux"          # Microsoft Teams
     "imagemagick"              # ImageMagick
-    "gparted"                  # GParted
     "htop"                     # htop
     "steam"                    # Steam
     "libreoffice"              # LibreOffice
@@ -86,23 +84,6 @@ install_snap_packages() {
     done
 }
 
-# Function to configure snap settings
-configure_snap() {
-    print_status "Configuring snap settings..."
-    
-    # Enable automatic updates
-    snap set system refresh.timer=00:00~24:00
-    
-    # Set update frequency to daily
-    snap set system refresh.schedule=daily
-    
-    # Enable automatic snap updates
-    snap set system refresh.retain=2
-    
-    # Enable automatic security updates
-    snap set system refresh.hold=0
-}
-
 # Function to list installed snaps
 list_installed_snaps() {
     print_status "Listing installed snaps..."
@@ -114,9 +95,6 @@ print_status "Starting snap configuration..."
 
 # Install snap packages
 install_snap_packages
-
-# Configure snap settings
-configure_snap
 
 # List installed snaps
 list_installed_snaps

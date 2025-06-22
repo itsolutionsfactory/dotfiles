@@ -15,7 +15,7 @@ declare -a REQUIRED_APT_PACKAGES=(
     "unzip"
     "fontconfig"
     "curl"
-    "fuse"
+    "libfuse2"
 )
 
 declare -a REQUIRED_SNAP_PACKAGES=(

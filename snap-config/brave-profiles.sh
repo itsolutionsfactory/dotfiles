@@ -26,7 +26,7 @@ print_warning() {
 
 # Function to check if Brave is installed
 check_brave() {
-    if ! command -v brave-browser >/dev/null 2>&1; then
+    if ! command -v brave >/dev/null 2>&1; then
         print_error "Brave browser is not installed. Please install it first."
         exit 1
     fi
@@ -76,7 +76,7 @@ create_profile() {
     print_status "Creating profile: $profile_name"
     
     # Create profile and set Qwant as default search engine
-    brave-browser \
+    brave \
         --profile-directory="$profile_name" \
         --no-first-run \
         --no-default-browser-check \
@@ -89,7 +89,7 @@ create_profile() {
     sleep 5
     
     # Close the browser
-    pkill -f "brave-browser.*$profile_name" || true
+    pkill -f "brave.*$profile_name" || true
 }
 
 # Function to set Qwant as default search engine for existing profile
@@ -98,7 +98,7 @@ set_qwant_default() {
     print_status "Setting Qwant as default search engine for profile '$profile_name'"
     
     # Launch Brave with the profile and set Qwant as default
-    brave-browser \
+    brave \
         --profile-directory="$profile_name" \
         --default-search-provider-name="Qwant" \
         --default-search-provider-keyword="qwant.com" \
@@ -109,7 +109,7 @@ set_qwant_default() {
     sleep 5
     
     # Close the browser
-    pkill -f "brave-browser.*$profile_name" || true
+    pkill -f "brave.*$profile_name" || true
 }
 
 # Function to install root CA certificate in a profile

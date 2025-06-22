@@ -144,14 +144,14 @@ unbind_shortcut "show-applications" "Show Applications (Super+A)"
 set_extension_setting "switcher@landau.fi" "shortcut" "<Super>a"
 
 # Set Kitty as default terminal
-echo -e "\nSetting up default terminal..."
-echo "--------------------------------"
-if command_exists kitty; then
-    set_default_terminal "kitty"
-    echo "✓ Kitty set as default terminal"
-else
-    echo "❌ Kitty not found - skipping default terminal setup"
-fi
+# echo -e "\nSetting up default terminal..."
+# echo "--------------------------------"
+# if command_exists kitty; then
+#     set_default_terminal "kitty"
+#     echo "✓ Kitty set as default terminal"
+# else
+#     echo "❌ Kitty not found - skipping default terminal setup"
+# fi
 
 # Install GSNAP configuration using stow
 echo -e "\nSetting up GSNAP configuration..."
