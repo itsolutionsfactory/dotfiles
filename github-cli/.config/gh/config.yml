@@ -1,0 +1,165 @@
+# Default browser for opening URLs
+browser:
+# Default Git protocol for cloning repositories
+git_protocol: https
+# Default editor for editing files
+editor:
+# Default pager for viewing output
+pager:
+# HTTP timeout in seconds
+http_timeout: 30
+# Default host for GitHub operations
+host: github.com
+# Default output format (json, yaml, text)
+output: text
+# Default number of items to fetch
+limit: 30
+# Whether to show HTTP requests in verbose mode
+verbose: false
+# Whether to use color in output
+color: auto
+# Whether to use hyperlinks in output
+hyperlink: auto
+# Default repository for operations
+repo:
+# Default organization for operations
+org:
+# Default user for operations
+user:
+# Aliases for common commands
+aliases:
+    # Repository aliases
+    repo: repository
+    repos: repository list
+    clone: repo clone
+    fork: repo fork
+    create: repo create
+    delete: repo delete
+    rename: repo rename
+    view: repo view
+    browse: repo view --web
+    # Issue aliases
+    issue: issue
+    issues: issue list
+    create-issue: issue create
+    close-issue: issue close
+    reopen-issue: issue reopen
+    comment: issue comment
+    # Pull request aliases
+    pr: pr
+    prs: pr list
+    create-pr: pr create
+    close-pr: pr close
+    reopen-pr: pr reopen
+    merge-pr: pr merge
+    checkout-pr: pr checkout
+    review-pr: pr review
+    # Workflow aliases
+    workflow: workflow
+    workflows: workflow list
+    run: run
+    runs: run list
+    rerun: run rerun
+    # Release aliases
+    release: release
+    releases: release list
+    create-release: release create
+    delete-release: release delete
+    # Gist aliases
+    gist: gist
+    gists: gist list
+    create-gist: gist create
+    delete-gist: gist delete
+    # User aliases
+    user: user
+    users: user list
+    follow: user follow
+    unfollow: user unfollow
+    # Organization aliases
+    org: org
+    orgs: org list
+    create-org: org create
+    delete-org: org delete
+    # Team aliases
+    team: team
+    teams: team list
+    create-team: team create
+    delete-team: team delete
+    # Secret aliases
+    secret: secret
+    secrets: secret list
+    set-secret: secret set
+    delete-secret: secret delete
+    # Variable aliases
+    variable: variable
+    variables: variable list
+    set-variable: variable set
+    delete-variable: variable delete
+    # Environment aliases
+    env: environment
+    envs: environment list
+    create-env: environment create
+    delete-env: environment delete
+    # Deployment aliases
+    deployment: deployment
+    deployments: deployment list
+    create-deployment: deployment create
+    delete-deployment: deployment delete
+    # Package aliases
+    package: package
+    packages: package list
+    create-package: package create
+    delete-package: package delete
+    # Project aliases
+    project: project
+    projects: project list
+    create-project: project create
+    delete-project: project delete
+    # Discussion aliases
+    discussion: discussion
+    discussions: discussion list
+    create-discussion: discussion create
+    delete-discussion: discussion delete
+    # Sponsorship aliases
+    sponsorship: sponsorship
+    sponsorships: sponsorship list
+    create-sponsorship: sponsorship create
+    delete-sponsorship: sponsorship delete
+    # Codespace aliases
+    codespace: codespace
+    codespaces: codespace list
+    create-codespace: codespace create
+    delete-codespace: codespace delete
+    # Extension aliases
+    extension: extension
+    extensions: extension list
+    install-extension: extension install
+    remove-extension: extension remove
+    # Completion aliases
+    completion: completion
+    completions: completion list
+    # Config aliases
+    config: config
+    configs: config list
+    set-config: config set
+    get-config: config get
+    delete-config: config delete
+    # Auth aliases
+    auth: auth
+    login: auth login
+    logout: auth logout
+    status: auth status
+    refresh: auth refresh
+    # API aliases
+    api: api
+    api-call: api
+    # Version aliases
+    version: version
+    ver: version
+    # Help aliases
+    help: help
+    h: help
+    # Status aliases
+    status: status
+    st: status
+version: "1"
