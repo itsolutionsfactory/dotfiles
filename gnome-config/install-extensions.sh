@@ -28,6 +28,7 @@ install_dependencies() {
     sudo apt-get install -y \
         gnome-shell-extensions \
         gnome-shell-extension-prefs \
+        gnome-shell-extension-manager \
         chrome-gnome-shell
 }
 
@@ -37,12 +38,35 @@ install_extension() {
     local extension_name=$2
     
     echo "Installing $extension_name..."
-    if command_exists gnome-extensions; then
-        gnome-extensions install "$extension_id" --force
-    else
-        echo "❌ gnome-extensions command not found"
-        return 1
+    
+    # Try using gnome-shell-extension-manager if available
+    if command_exists gnome-shell-extension-manager; then
+        echo "Installing $extension_name via gnome-shell-extension-manager..."
+        if gnome-shell-extension-manager install "$extension_id"; then
+            echo "✓ $extension_name installed successfully"
+            return 0
+        else
+            echo "❌ Failed to install $extension_name via gnome-shell-extension-manager"
+        fi
     fi
+    
+    # Fallback to gnome-extensions command if available
+    if command_exists gnome-extensions; then
+        echo "Attempting to install via gnome-extensions command..."
+        if gnome-extensions install "$extension_id" --force; then
+            echo "✓ $extension_name installed via gnome-extensions"
+            return 0
+        else
+            echo "❌ Failed to install via gnome-extensions command"
+        fi
+    fi
+    
+    # Manual installation instructions as last resort
+    echo "⚠️  Manual installation required for $extension_name"
+    echo "   Please visit: https://extensions.gnome.org/extension/$extension_id/"
+    echo "   Click 'Install' and follow the browser prompts"
+    
+    return 1
 }
 
 # Function to enable an extension
@@ -118,7 +142,6 @@ install_dependencies
 # List of extensions to install
 # Format: "extension_id" "extension_name"
 extensions=(
-    "workspace-indicator@gnome-shell-extensions.gcampax.github.com" "Workspace Indicator"
     "horizontal-workspaces@gnome-shell-extensions.gcampax.github.com" "Horizontal Workspaces"
     "workspace-matrix@martin.zurowietz.de" "Workspace Matrix"
     "gsnap@micahosborne" "GSNAP"
@@ -157,8 +180,8 @@ set_extension_setting "switcher@landau.fi" "shortcut" "<Super>a"
 echo -e "\nSetting up GSNAP configuration..."
 echo "--------------------------------"
 if command_exists stow; then
-    cd "$(dirname "$0")"
-    stow -t "$HOME" gSnap
+    cd "$(dirname "$0")/gSnap"
+    stow -t "$HOME/.config" .config
     echo "✓ GSNAP configuration installed"
 else
     echo "❌ stow not found - skipping GSNAP configuration"
@@ -166,5 +189,12 @@ else
 fi
 
 echo -e "\nExtension installation complete!"
+echo "=================================="
+echo "For extensions that couldn't be installed automatically:"
+echo "1. Visit https://extensions.gnome.org"
+echo "2. Search for each extension by name"
+echo "3. Click 'Install' and follow browser prompts"
+echo "4. Or use: gnome-extensions install <extension-id>"
+echo ""
 echo "You may need to log out and log back in for all extensions to take effect."
 echo "You can manage extensions using: gnome-extensions-app" 

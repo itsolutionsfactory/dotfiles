@@ -1,26 +1,52 @@
 #!/bin/bash
 
+# Exit on any error
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# Script directory and module info
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BACKUP_DIR="$SCRIPT_DIR/../backup"
+MODULE_NAME="kubectl"
 
-# Function to print status messages
+# Catppuccin Mocha color scheme
+# Base colors
+BASE="\033[0m"
+TEXT="\033[38;2;205;214;244m"      # Text
+SUBTEXT="\033[38;2;166;173;200m"   # Subtext
+OVERLAY="\033[38;2;108;112;134m"   # Overlay
+SURFACE="\033[38;2;49;50;68m"      # Surface
+BASE_COLOR="\033[38;2;30;30;46m"   # Base
+MANTLE="\033[38;2;24;24;37m"       # Mantle
+CRUST="\033[38;2;17;17;27m"        # Crust
+
+# Accent colors
+RED="\033[38;2;243;139;168m"       # Red
+GREEN="\033[38;2;166;227;161m"     # Green
+YELLOW="\033[38;2;249;226;175m"    # Yellow
+BLUE="\033[38;2;137;180;250m"      # Blue
+PINK="\033[38;2;245;194;231m"      # Pink
+MAUVE="\033[38;2;203;166;247m"     # Mauve
+TEAL="\033[38;2;148;226;213m"      # Teal
+
+# Print functions
 print_status() {
-    echo -e "${GREEN}==>${NC} $1"
+    echo -e "${BLUE}[i]${BASE} $1"
 }
 
-# Function to print error messages
+print_success() {
+    echo -e "${GREEN}[✓]${BASE} $1"
+}
+
 print_error() {
-    echo -e "${RED}Error:${NC} $1"
+    echo -e "${RED}[✗]${BASE} $1"
 }
 
-# Function to print warning messages
 print_warning() {
-    echo -e "${YELLOW}Warning:${NC} $1"
+    echo -e "${YELLOW}[!]${BASE} $1"
+}
+
+print_header() {
+    echo -e "\n${MAUVE}=== $1 ===${BASE}\n"
 }
 
 # Function to detect OS
@@ -81,7 +107,7 @@ install_kubectl() {
     
     # Verify installation
     if command -v kubectl &> /dev/null; then
-        print_status "kubectl installed successfully!"
+        print_success "kubectl installed successfully!"
         kubectl version --client
     else
         print_error "Failed to install kubectl"
@@ -118,7 +144,7 @@ install_kubelogin() {
     
     # Verify installation
     if command -v kubelogin &> /dev/null; then
-        print_status "kubelogin installed successfully!"
+        print_success "kubelogin installed successfully!"
         kubelogin version
     else
         print_error "Failed to install kubelogin"
@@ -129,15 +155,19 @@ install_kubelogin() {
 # Function to backup existing config
 backup_config() {
     if [ -f ~/.kube/config ]; then
-        local BACKUP_DIR=~/dotfiles/backup
-        local BACKUP_FILE="$BACKUP_DIR/kube_config_$(date +%Y%m%d_%H%M%S)"
+        local BACKUP_DIR="$SCRIPT_DIR/../backup/modules/$MODULE_NAME"
+        local TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+        local BACKUP_FILE="$BACKUP_DIR/$TIMESTAMP"
         
         print_status "Backing up existing kubectl config..."
         mkdir -p "$BACKUP_DIR"
         cp ~/.kube/config "$BACKUP_FILE"
-        print_status "Backup created at $BACKUP_FILE"
+        print_success "Backup created at $BACKUP_FILE"
     fi
 }
+
+# Print module header
+print_header "Installing $MODULE_NAME configuration"
 
 # Check if kubectl is installed
 if ! command -v kubectl &> /dev/null; then
@@ -164,9 +194,18 @@ print_status "Installing kubectl completion for ZSH..."
 mkdir -p ~/.config/kubectl
 kubectl completion zsh > ~/.config/kubectl/completion.zsh
 
-# Create symlinks using stow
-print_status "Creating symlinks..."
-stow -t ~ .
+# Use stow to create symlinks
+print_status "Installing $MODULE_NAME configuration..."
+if ! stow -t "$HOME/.config" .config; then
+    print_error "Failed to install $MODULE_NAME configuration"
+    exit 1
+fi
 
-print_status "Kubectl configuration installed successfully!"
-print_status "Please restart your shell or run 'source ~/.zshrc' to apply changes." 
+# Also stow the .kube directory
+if ! stow -t "$HOME" .; then
+    print_error "Failed to install $MODULE_NAME .kube configuration"
+    exit 1
+fi
+
+print_success "$MODULE_NAME configuration installed successfully!"
+print_warning "Please restart your shell or run 'source ~/.zshrc' to apply changes." 

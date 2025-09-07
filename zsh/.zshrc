@@ -31,6 +31,9 @@ export EDITOR="/usr/bin/vim"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 
+# Source kubectl configuration if it exists
+[ -f ~/.config/kubectl/config.zsh ] && source ~/.config/kubectl/config.zsh
+
 # History configuration
 HISTSIZE=10000
 SAVEHIST=10000
@@ -103,3 +106,20 @@ alias fzfp='fzf --preview "bat --color=always --style=numbers --line-range=:500 
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 export PATH="$PATH:$HOME/.fzf/bin"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Scaleway CLI autocomplete initialization.
+eval "$(scw autocomplete script shell=zsh)"
+
+# Kitty and SSH
+# https://wiki.archlinux.org/title/Kitty#Terminal_issues_with_SSH
+[ "$TERM" = "xterm-kitty" ] && alias ssh="kitty +kitten ssh"
+
+# go
+export PATH=$PATH:/usr/local/go/bin
+
+# go bin
+export PATH=$PATH:~/go/bin
