@@ -6,11 +6,80 @@ This repository contains configuration files and setup scripts for Ubuntu 24 LTS
 
 This project aims to provide a consistent and reproducible setup for Ubuntu 24 LTS systems, focusing on development tools and system configurations. The setup is managed through GNU Stow, which creates symbolic links to the appropriate locations in the home directory.
 
+## Manual Setup Steps
+
+Before running the dotfiles installation, you need to complete these manual steps:
+
+### User Creation and Administration
+
+1. **Create a new user:**
+   ```bash
+   sudo adduser [username]
+   ```
+
+2. **Give the user admin rights:**
+   ```bash
+   sudo usermod -aG sudo [username]
+   ```
+
+3. **Switch to the new user:**
+   ```bash
+   su - [username]
+   ```
+
+### Framework Laptop Firmware Update
+
+For Framework Laptop 13 (AMD Ryzen™ AI 300 Series), update the firmware using Linux/LVFS:
+
+1. **Ensure charger is attached:**
+   - Connect your Framework Laptop to the charger before starting the update process
+   - Do not disconnect the charger during the update
+
+2. **Update firmware using fwupdmgr:**
+   ```bash
+   # Refresh the firmware database
+   fwupdmgr refresh --force
+   
+   # Check for available updates
+   fwupdmgr get-updates
+   
+   # Install all available firmware updates
+   fwupdmgr update
+   ```
+
+3. **Important Notes:**
+   - Ensure your laptop is connected to power during firmware updates
+   - Do not interrupt the update process
+   - The system may restart multiple times during the update
+   - Keep the laptop plugged in throughout the entire process
+   - Do not close the lid during the update process
+
+### System Preparation
+
+After completing the manual steps above:
+
+1. **Update the system:**
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   ```
+
+2. **Install essential tools:**
+   ```bash
+   sudo apt install -y git stow curl wget
+   ```
+
+3. **Clone this repository:**
+   ```bash
+   git clone <repository-url>
+   cd dotfiles
+   ```
+
 ## Prerequisites
 
 - Ubuntu 24 LTS
 - GNU Stow
 - Basic development tools
+- Framework Laptop firmware updated (if applicable)
 
 ## Project Structure
 
@@ -472,41 +541,50 @@ The Snap configuration provides a streamlined package management solution with t
 - Automatic snapd installation and configuration
 - Installation of essential applications
 - Installation of productivity tools
+- Installation of development tools
 - Installation of system utilities
-- Automatic snap updates configuration
+- GLPI agent configuration
+- Brave browser profile setup
 
 #### Components
 - **Communication Tools**:
-  - Slack
   - Signal
-  - WhatsApp
   - Zoom
   - Microsoft Teams
 
 - **Productivity**:
-  - LibreOffice
+  - OnlyOffice Desktop Editors
   - ImageMagick
+  - XMind (Mind Mapping Tool)
+
+- **Development Tools**:
+  - Freelens (Kubernetes IDE)
+  - IntelliJ IDEA Ultimate
+  - DataGrip
+  - Bruno (API Testing Tool)
+  - Postman (API Development Platform)
 
 - **Entertainment**:
   - Spotify
-  - Steam
 
 - **System Utilities**:
-  - GParted
   - htop
+
+- **IT Management**:
+  - GLPI
 
 #### Key Features
 - **Package Management**:
   - Automatic installation of snapd
   - Bulk package installation
-  - Classic confinement support
+  - Classic confinement support for development tools
   - Update management
 
 - **System Integration**:
+  - GLPI agent configuration with server URL
+  - Brave browser profile management
   - Automatic updates
-  - Daily update schedule
   - Security updates
-  - Update retention policy
 
 #### Installation
 To install the Snap configuration:
@@ -518,10 +596,191 @@ sudo ./install.sh
 
 After installation:
 1. Verify installed packages with `snap list`
-2. Check snap update status with `snap refresh --list`
-3. Configure any additional package settings as needed
+2. Check GLPI agent configuration
+3. Configure Brave profiles as needed
+4. Set up development tools
 
 Note: This module requires root privileges to run and is not supported in Docker environments.
+
+### APT Packages Configuration
+
+The APT packages configuration provides essential system packages and network tools with the following features:
+
+#### Core Features
+- WireGuard VPN installation and configuration
+- Network utilities (net-tools) installation
+- ITSF-specific WireGuard server configuration
+- Interactive IP address assignment
+- NetworkManager integration
+
+#### Components
+- **WireGuard VPN**:
+  - Modern VPN protocol for secure connections
+  - ITSF server configuration (vpn-user.itsf.io:5544)
+  - Interactive IP address assignment (192.168.66.X/32)
+  - NetworkManager integration for easy management
+
+- **Network Tools**:
+  - netstat for network connections
+  - ifconfig for interface configuration
+  - route for routing table management
+  - arp for ARP table management
+
+#### Key Features
+- **VPN Configuration**:
+  - Automatic key generation and storage
+  - ITSF server pre-configuration
+  - Interactive IP assignment
+  - NetworkManager integration
+
+- **Network Management**:
+  - Essential network utilities
+  - System administration tools
+  - Network troubleshooting capabilities
+
+#### Installation
+To install the APT packages configuration:
+
+```bash
+cd apt-packages
+sudo ./install.sh
+```
+
+After installation:
+1. Configure your WireGuard IP address when prompted
+2. Connect to VPN using NetworkManager or `nmcli connection up itsf`
+3. Test network tools with `netstat -tuln`, `ifconfig`, etc.
+
+Note: This module requires root privileges to run.
+
+### Slack Configuration
+
+The Slack configuration provides direct installation of the Slack desktop application with the following features:
+
+#### Core Features
+- Direct .deb package download and installation
+- Automatic dependency resolution
+- Desktop integration
+- Version verification and testing
+
+#### Components
+- **Slack Desktop Application**:
+  - Latest version (4.36.130) installation
+  - Desktop file creation for application menu
+  - System integration
+  - Automatic updates support
+
+#### Key Features
+- **Installation Process**:
+  - Direct .deb package download
+  - Automatic dependency resolution
+  - Desktop integration
+  - Version verification
+
+- **System Integration**:
+  - Application menu integration
+  - Desktop file creation
+  - Proper permissions setup
+  - Update management
+
+#### Installation
+To install the Slack configuration:
+
+```bash
+cd slack
+sudo ./install.sh
+```
+
+After installation:
+1. Launch Slack with `slack` command
+2. Sign in to your workspace
+3. Configure notifications and preferences
+
+Note: This module requires root privileges to run.
+
+### GitLab CLI Configuration
+
+The GitLab CLI configuration provides command-line access to GitLab with the following features:
+
+#### Core Features
+- GitLab CLI (glab) installation
+- SteelHome GitLab instance pre-configuration
+- Authentication setup guidance
+- Command-line GitLab integration
+
+#### Components
+- **GitLab CLI (glab)**:
+  - Command-line GitLab access
+  - Issue and merge request management
+  - CI/CD pipeline management
+  - Repository operations
+
+#### Key Features
+- **Pre-configured Instance**:
+  - SteelHome GitLab instance (https://gitlab.steelhome.internal/)
+  - Ready-to-use configuration
+  - Authentication guidance
+
+- **GitLab Operations**:
+  - Issue management
+  - Merge request operations
+  - Pipeline monitoring
+  - Repository management
+
+#### Installation
+To install the GitLab CLI configuration:
+
+```bash
+cd gitlab-cli
+./install.sh
+```
+
+After installation:
+1. Run `glab auth login` to authenticate
+2. Test with `glab issue list` or `glab mr list`
+3. Configure additional settings as needed
+
+### GitHub CLI Configuration
+
+The GitHub CLI configuration provides command-line access to GitHub with the following features:
+
+#### Core Features
+- GitHub CLI (gh) installation and configuration
+- General configuration setup
+- Authentication guidance
+- Command-line GitHub integration
+
+#### Components
+- **GitHub CLI (gh)**:
+  - Command-line GitHub access
+  - Repository management
+  - Issue and pull request operations
+  - GitHub Actions integration
+
+#### Key Features
+- **Configuration Management**:
+  - General GitHub CLI settings
+  - User-specific configuration
+  - Authentication setup
+
+- **GitHub Operations**:
+  - Repository cloning and management
+  - Issue and PR operations
+  - GitHub Actions workflow management
+  - Code review tools
+
+#### Installation
+To install the GitHub CLI configuration:
+
+```bash
+cd github-cli
+./install.sh
+```
+
+After installation:
+1. Run `gh auth login` to authenticate
+2. Create your own `hosts.yml` file for personal settings
+3. Test with `gh repo list` or `gh issue list`
 
 ### Vim/Neovim Configuration
 
