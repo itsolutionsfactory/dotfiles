@@ -1,0 +1,44 @@
+# GitLab CLI Configuration
+# This file contains the default configuration for glab
+
+# Editor settings
+editor: vim
+
+# Browser settings
+browser: xdg-open
+
+# Git settings
+git_protocol: https
+
+# Pager settings
+pager: less -R
+
+# Output settings
+output: table
+
+# Authentication settings
+# Note: Token will be set during authentication
+host: https://gitlab.steelhome.internal/
+# token: 
+
+# Default settings
+defaults:
+  # Default merge request settings
+  mr:
+    create:
+      remove_source_branch: true
+      squash: false
+      delete_source_branch: true
+  
+  # Default issue settings
+  issue:
+    create:
+      confidential: false
+      assignees: []
+      labels: []
+
+# Aliases (optional)
+# aliases:
+#   co: checkout
+#   ci: commit
+#   st: status
