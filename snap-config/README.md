@@ -14,23 +14,22 @@ This module manages the installation and configuration of Snap packages on Ubunt
 ## Categories of Installed Packages
 
 ### Communication Tools
-- Slack
 - Signal
-- WhatsApp
 - Zoom
 - Microsoft Teams
 
 ### Productivity
-- LibreOffice
+- OnlyOffice Desktop Editors
 - ImageMagick
 
 ### Entertainment
 - Spotify
-- Steam
 
 ### System Utilities
-- GParted
 - htop
+
+### IT Management
+- GLPI
 
 ## Installation
 

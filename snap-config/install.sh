@@ -65,14 +65,13 @@ sleep 5
 # List of snap packages to install
 SNAP_PACKAGES=(
     "spotify"                  # Spotify
-    "slack --classic"          # Slack
     "signal-desktop"           # Signal
     "zoom-client"              # Zoom
     "teams-for-linux"          # Microsoft Teams
     "imagemagick"              # ImageMagick
     "htop"                     # htop
-    "steam"                    # Steam
-    "libreoffice"              # LibreOffice
+    "onlyoffice-desktopeditors" # OnlyOffice
+    "glpi"                     # GLPI
 )
 
 # Function to install snap packages
@@ -98,6 +97,15 @@ install_snap_packages
 
 # List installed snaps
 list_installed_snaps
+
+# Configure GLPI agent
+print_status "Configuring GLPI agent..."
+if command_exists glpi-agent; then
+    snap set glpi-agent server=@https://glpi.itsf.io/front/inventory.php
+    print_status "GLPI agent configured successfully"
+else
+    print_warning "GLPI agent not found, skipping configuration"
+fi
 
 print_status "Snap configuration completed successfully!"
 
