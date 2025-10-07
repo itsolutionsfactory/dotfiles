@@ -57,7 +57,7 @@ handle_error() {
 print_header "Starting Docker Environment Setup"
 
 # Change to the dotfiles directory
-cd /home/testuser/dotfiles
+cd "$HOME/dotfiles"
 
 # Run installation script with --all flag for automated installation
 print_status "Running installation script..."

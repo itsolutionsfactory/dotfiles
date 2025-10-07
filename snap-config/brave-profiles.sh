@@ -40,8 +40,8 @@ check_brave() {
 # Function to find Brave's profile directory
 find_brave_profile_dir() {
     # Get the latest snap revision
-    local latest_rev=$(ls -v /home/$USER/snap/brave/ | tail -n 1)
-    local profile_dir="/home/$USER/snap/brave/$latest_rev/.config/BraveSoftware/Brave-Browser"
+    local latest_rev=$(ls -v "$HOME/snap/brave/" | tail -n 1)
+    local profile_dir="$HOME/snap/brave/$latest_rev/.config/BraveSoftware/Brave-Browser"
     
     if [ -d "$profile_dir" ]; then
         print_status "Found Brave profile directory at: $profile_dir"
