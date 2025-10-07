@@ -72,6 +72,7 @@ SNAP_PACKAGES=(
     "htop"                     # htop
     "onlyoffice-desktopeditors" # OnlyOffice
     "glpi"                     # GLPI
+    "freelens --classic"        # Freelens - Kubernetes IDE
 )
 
 # Function to install snap packages

@@ -28,6 +28,9 @@ This module manages the installation and configuration of Snap packages on Ubunt
 ### System Utilities
 - htop
 
+### Development Tools
+- Freelens (Kubernetes IDE)
+
 ### IT Management
 - GLPI
 
