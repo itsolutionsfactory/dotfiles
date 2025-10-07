@@ -21,6 +21,7 @@ This module manages the installation and configuration of Snap packages on Ubunt
 ### Productivity
 - OnlyOffice Desktop Editors
 - ImageMagick
+- XMind (Mind Mapping Tool)
 
 ### Entertainment
 - Spotify
@@ -30,6 +31,10 @@ This module manages the installation and configuration of Snap packages on Ubunt
 
 ### Development Tools
 - Freelens (Kubernetes IDE)
+- IntelliJ IDEA Ultimate
+- DataGrip
+- Bruno (API Testing Tool)
+- Postman (API Development Platform)
 
 ### IT Management
 - GLPI

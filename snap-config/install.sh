@@ -73,6 +73,11 @@ SNAP_PACKAGES=(
     "onlyoffice-desktopeditors" # OnlyOffice
     "glpi"                     # GLPI
     "freelens --classic"        # Freelens - Kubernetes IDE
+    "intellij-idea-ultimate --classic" # IntelliJ IDEA Ultimate
+    "datagrip --classic"       # DataGrip
+    "bruno"                    # Bruno - API Testing Tool
+    "postman"                  # Postman - API Development Platform
+    "xmind"                    # XMind - Mind Mapping Tool
 )
 
 # Function to install snap packages
