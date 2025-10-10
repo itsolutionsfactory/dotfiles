@@ -50,24 +50,34 @@ print_header() {
 # Print module header
 print_header "WireGuard Setup and Configuration"
 
+# Ask user if they want to set up WireGuard
+print_status "This script will set up WireGuard VPN configuration for ITSF."
+print_warning "You will need to provide the last digit of your IP address (e.g., 101 for 192.168.66.101)."
+echo
+read -p "$(echo -e "${YELLOW}Do you want to set up WireGuard VPN? (y/N): ${BASE}")" -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    print_status "WireGuard setup skipped by user."
+    exit 0
+fi
+
 # Check if WireGuard is installed
 if ! command -v wg >/dev/null 2>&1; then
     print_error "WireGuard is not installed. Please install it first."
     exit 1
 fi
 
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then
-    print_error "Please run as root or with sudo"
-    exit 1
+# Check if we have sudo privileges
+if ! sudo -n true 2>/dev/null; then
+    print_warning "This script requires sudo privileges. You may be prompted for your password."
 fi
 
 # Create WireGuard directory if it doesn't exist
 WIREGUARD_DIR="/etc/wireguard"
 if [ ! -d "$WIREGUARD_DIR" ]; then
     print_status "Creating WireGuard directory..."
-    mkdir -p "$WIREGUARD_DIR"
-    chmod 700 "$WIREGUARD_DIR"
+    sudo mkdir -p "$WIREGUARD_DIR"
+    sudo chmod 700 "$WIREGUARD_DIR"
     print_success "WireGuard directory created"
 fi
 
@@ -94,18 +104,18 @@ generate_keys() {
     print_status "Generating keys for ITSF WireGuard"
     
     # Create keys directory
-    mkdir -p "$key_dir"
-    chmod 700 "$key_dir"
+    sudo mkdir -p "$key_dir"
+    sudo chmod 700 "$key_dir"
     
     # Generate private key
-    touch "$key_dir/private.key"
-    chmod 600 "$key_dir/private.key"
-    wg genkey > "$key_dir/private.key"
-    wg pubkey < "$key_dir/private.key" > "$key_dir/pub.key"
+    sudo touch "$key_dir/private.key"
+    sudo chmod 600 "$key_dir/private.key"
+    wg genkey | sudo tee "$key_dir/private.key" > /dev/null
+    sudo wg pubkey < "$key_dir/private.key" > "$key_dir/pub.key"
     
     print_success "Keys generated for ITSF WireGuard"
-    print_status "Private key: $(cat "$key_dir/private.key")"
-    print_status "Public key: $(cat "$key_dir/pub.key")"
+    print_status "Private key: $(sudo cat "$key_dir/private.key")"
+    print_status "Public key: $(sudo cat "$key_dir/pub.key")"
 }
 
 # Function to create ITSF WireGuard configuration
@@ -116,14 +126,14 @@ create_itsf_config() {
     
     # Get the private key
     local private_key
-    private_key=$(cat "$WIREGUARD_DIR/keys/private.key")
+    private_key=$(sudo cat "$WIREGUARD_DIR/keys/private.key")
     
     # Get IP address from user
     local ip_address
     ip_address=$(get_ip_address)
     
     # Create ITSF configuration
-    cat > "$config_file" << EOF
+    sudo tee "$config_file" > /dev/null << EOF
 [Interface]
 PrivateKey = $private_key
 Address = $ip_address
@@ -135,7 +145,7 @@ AllowedIPs = 10.195.0.0/16, 172.16.0.0/12, 192.168.66.0/24, 195.78.27.214/32, 19
 Endpoint = vpn-user.itsf.io:5544
 EOF
     
-    chmod 600 "$config_file"
+    sudo chmod 600 "$config_file"
     print_success "ITSF configuration file created: $config_file"
 }
 
@@ -144,7 +154,7 @@ import_networkmanager_connection() {
     print_status "Importing WireGuard connection to NetworkManager"
     
     # Import the configuration to NetworkManager
-    nmcli connection import type wireguard file /etc/wireguard/itsf.conf
+    sudo nmcli connection import type wireguard file /etc/wireguard/itsf.conf
     
     print_success "WireGuard connection imported to NetworkManager"
     print_warning "You can now manage the connection through NetworkManager"
@@ -188,4 +198,4 @@ print_warning "   sudo wg show"
 print_warning "3. Disconnect when needed:"
 print_warning "   nmcli connection down itsf"
 print_warning "4. Your public key for server configuration:"
-print_success "$(cat $WIREGUARD_DIR/keys/pub.key)"
+print_success "$(sudo cat $WIREGUARD_DIR/keys/pub.key)"

@@ -128,8 +128,8 @@ show_package_info
 
 print_success "$MODULE_NAME installation completed successfully!"
 
-# Configure WireGuard
-print_status "Configuring WireGuard..."
+# Configure WireGuard (optional)
+print_status "WireGuard configuration is available (optional)..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/wireguard-setup.sh" ]; then
     bash "$SCRIPT_DIR/wireguard-setup.sh"
@@ -144,4 +144,6 @@ print_warning "1. Test network tools:"
 print_warning "   - netstat -tuln (list listening ports)"
 print_warning "   - ifconfig (network interface information)"
 print_warning "   - route (routing table)"
-print_warning "2. WireGuard configuration is ready - check the setup output above"
+print_warning "2. WireGuard VPN setup (optional):"
+print_warning "   - Run wireguard-setup.sh manually if you need VPN configuration"
+print_warning "   - Or skip if you don't need VPN access"
