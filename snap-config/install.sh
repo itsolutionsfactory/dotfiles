@@ -29,6 +29,11 @@ print_warning() {
     echo -e "${YELLOW}Warning:${NC} $1"
 }
 
+# Function to print success messages
+print_success() {
+    echo -e "${GREEN}Success:${NC} $1"
+}
+
 # Function to check if running in Docker
 is_docker() {
     [ -f /.dockerenv ] || grep -q docker /proc/1/cgroup
