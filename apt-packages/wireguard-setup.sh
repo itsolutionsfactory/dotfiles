@@ -108,10 +108,24 @@ generate_keys() {
     sudo chmod 700 "$key_dir"
     
     # Generate private key
+    print_status "Creating private key file..."
     sudo touch "$key_dir/private.key"
     sudo chmod 600 "$key_dir/private.key"
-    wg genkey | sudo tee "$key_dir/private.key" > /dev/null
-    sudo wg pubkey < "$key_dir/private.key" > "$key_dir/pub.key"
+    
+    print_status "Generating private key..."
+    if ! wg genkey | sudo tee "$key_dir/private.key" > /dev/null; then
+        print_error "Failed to generate private key"
+        exit 1
+    fi
+    
+    print_status "Generating public key..."
+    if ! sudo wg pubkey < "$key_dir/private.key" | sudo tee "$key_dir/pub.key" > /dev/null; then
+        print_error "Failed to generate public key"
+        exit 1
+    fi
+    
+    # Set proper permissions on public key
+    sudo chmod 644 "$key_dir/pub.key"
     
     print_success "Keys generated for ITSF WireGuard"
     print_status "Private key: $(sudo cat "$key_dir/private.key")"
@@ -126,7 +140,10 @@ create_itsf_config() {
     
     # Get the private key
     local private_key
-    private_key=$(sudo cat "$WIREGUARD_DIR/keys/private.key")
+    if ! private_key=$(sudo cat "$WIREGUARD_DIR/keys/private.key"); then
+        print_error "Failed to read private key"
+        exit 1
+    fi
     
     # Get IP address from user
     local ip_address
