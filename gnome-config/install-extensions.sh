@@ -29,7 +29,9 @@ install_dependencies() {
         gnome-shell-extensions \
         gnome-shell-extension-prefs \
         gnome-shell-extension-manager \
-        chrome-gnome-shell
+        chrome-gnome-shell \
+        curl \
+        unzip
 }
 
 # Function to install an extension
@@ -39,34 +41,47 @@ install_extension() {
     
     echo "Installing $extension_name..."
     
-    # Try using gnome-shell-extension-manager if available
-    if command_exists gnome-shell-extension-manager; then
-        echo "Installing $extension_name via gnome-shell-extension-manager..."
-        if gnome-shell-extension-manager install "$extension_id"; then
-            echo "✓ $extension_name installed successfully"
-            return 0
-        else
-            echo "❌ Failed to install $extension_name via gnome-shell-extension-manager"
-        fi
+    # Create temporary directory for download
+    local temp_dir=$(mktemp -d)
+    cd "$temp_dir"
+    
+    # Download extension from GNOME Extensions website
+    echo "Downloading $extension_name from GNOME Extensions..."
+    local download_url="https://extensions.gnome.org/extension-data/${extension_id}.shell-extension.zip"
+    
+    if ! curl -L -o "${extension_id}.zip" "$download_url"; then
+        echo "❌ Failed to download $extension_name"
+        cd - > /dev/null
+        rm -rf "$temp_dir"
+        return 1
     fi
     
-    # Fallback to gnome-extensions command if available
-    if command_exists gnome-extensions; then
-        echo "Attempting to install via gnome-extensions command..."
-        if gnome-extensions install "$extension_id" --force; then
-            echo "✓ $extension_name installed via gnome-extensions"
-            return 0
-        else
-            echo "❌ Failed to install via gnome-extensions command"
-        fi
+    # Extract the extension
+    if ! unzip -q "${extension_id}.zip"; then
+        echo "❌ Failed to extract $extension_name"
+        cd - > /dev/null
+        rm -rf "$temp_dir"
+        return 1
     fi
     
-    # Manual installation instructions as last resort
-    echo "⚠️  Manual installation required for $extension_name"
-    echo "   Please visit: https://extensions.gnome.org/extension/$extension_id/"
-    echo "   Click 'Install' and follow the browser prompts"
+    # Create extension directory
+    local extension_dir="$HOME/.local/share/gnome-shell/extensions/$extension_id"
+    mkdir -p "$extension_dir"
     
-    return 1
+    # Copy extension files
+    if ! cp -r ./* "$extension_dir/"; then
+        echo "❌ Failed to copy $extension_name files"
+        cd - > /dev/null
+        rm -rf "$temp_dir"
+        return 1
+    fi
+    
+    # Clean up
+    cd - > /dev/null
+    rm -rf "$temp_dir"
+    
+    echo "✓ $extension_name downloaded and installed successfully"
+    return 0
 }
 
 # Function to enable an extension
@@ -118,6 +133,19 @@ set_default_terminal() {
     # Set default terminal for GNOME
     gsettings set org.gnome.desktop.default-applications.terminal exec "$terminal"
     gsettings set org.gnome.desktop.default-applications.terminal exec-arg ""
+}
+
+# Function to restart GNOME Shell
+restart_gnome_shell() {
+    echo "Restarting GNOME Shell to load extensions..."
+    if command_exists gnome-shell; then
+        # Try to restart GNOME Shell
+        if command_exists busctl; then
+            busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting…")'
+        else
+            echo "⚠️  Please log out and log back in to load the extensions"
+        fi
+    fi
 }
 
 # Main script
@@ -188,13 +216,14 @@ else
     echo "Please install stow: sudo apt-get install stow"
 fi
 
+# Restart GNOME Shell to load extensions
+restart_gnome_shell
+
 echo -e "\nExtension installation complete!"
 echo "=================================="
-echo "For extensions that couldn't be installed automatically:"
-echo "1. Visit https://extensions.gnome.org"
-echo "2. Search for each extension by name"
-echo "3. Click 'Install' and follow browser prompts"
-echo "4. Or use: gnome-extensions install <extension-id>"
+echo "Extensions have been installed and enabled."
+echo "You can manage extensions using: gnome-extensions-app"
 echo ""
-echo "You may need to log out and log back in for all extensions to take effect."
-echo "You can manage extensions using: gnome-extensions-app" 
+echo "If extensions don't appear immediately, try:"
+echo "1. Alt+F2, type 'r', press Enter (restart GNOME Shell)"
+echo "2. Or log out and log back in" 
