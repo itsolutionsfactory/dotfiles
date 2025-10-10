@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+- **GNOME Configuration Module**: Removed entire gnome-config module due to installation issues
+  - GNOME extensions installation was not working properly
+  - Module was not mandatory for the dotfiles setup
+  - Simplified installation process by removing problematic module
+  - Removed 9 files including install scripts, configurations, and documentation
+
 ## [1.0.0] - 2024-03-19
 
 ### Added

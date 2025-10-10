@@ -155,71 +155,20 @@ This will:
 
 ## Available Configurations
 
-### GNOME Configuration
+This project includes the following configuration modules:
 
-The GNOME configuration provides enhanced desktop experience with the following features:
-
-#### Core Features
-- Workspace management with keyboard shortcuts
-- GSNAP window management
-- Custom GNOME extensions
-- Kitty terminal integration
-
-#### Components
-- **Workspace Management**:
-  - Super + Number: Switch to workspace
-  - Super + Shift + Number: Move window to workspace
-  - Super + T: Open Kitty terminal
-  - Super + A: Application switcher
-
-- **GSNAP Window Management**:
-  - Custom grid layouts
-  - Window snapping
-  - Keyboard shortcuts for window management
-  - Layout presets
-
-- **GNOME Extensions**:
-  - Workspace Indicator
-  - Horizontal Workspaces
-  - Workspace Matrix
-  - GSNAP
-  - Vitals (system monitoring)
-  - Switcher (application switcher)
-
-#### Key Features
-- **Workspace Navigation**:
-  - Quick workspace switching
-  - Window movement between workspaces
-  - Custom workspace layouts
-  - Workspace indicators
-
-- **Window Management**:
-  - Grid-based window snapping
-  - Custom layout presets
-  - Keyboard shortcuts
-  - Window resizing and moving
-
-- **System Integration**:
-  - Kitty as default terminal
-  - System monitoring with Vitals
-  - Application switching with Switcher
-  - Automatic extension management
-
-#### Installation
-To install the GNOME configuration:
-
-```bash
-cd gnome-config
-./install.sh
-```
-
-After installation:
-1. Log out and log back in for all extensions to take effect
-2. Verify workspace shortcuts (Super + Number)
-3. Test window management with GSNAP
-4. Check that Kitty is set as default terminal
-
-Note: This module is not supported in Docker environments and will be skipped during container testing.
+- **Kubectl** - Kubernetes command-line tool configuration
+- **ZSH** - Enhanced shell with plugins and themes
+- **Kitty** - Modern terminal emulator configuration
+- **Certificates** - SSL/TLS certificate management
+- **Neofetch** - System information display
+- **AppImage** - AppImage application management
+- **Snap** - Snap package configuration and management
+- **APT Packages** - System package management with WireGuard VPN
+- **Slack** - Slack desktop application
+- **GitLab CLI** - GitLab command-line interface
+- **GitHub CLI** - GitHub command-line interface
+- **Vim/Neovim** - Text editor configuration
 
 ### Kubectl Configuration
 
