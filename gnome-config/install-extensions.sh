@@ -41,47 +41,62 @@ install_extension() {
     
     echo "Installing $extension_name..."
     
+    # Try using gnome-extensions command first (recommended method)
+    if command_exists gnome-extensions; then
+        echo "Installing $extension_name via gnome-extensions command..."
+        if gnome-extensions install "$extension_id" --force; then
+            echo "✓ $extension_name installed successfully via gnome-extensions"
+            return 0
+        else
+            echo "❌ Failed to install $extension_name via gnome-extensions"
+        fi
+    fi
+    
+    # Fallback: Manual download and installation
+    echo "Attempting manual download and installation..."
+    
     # Create temporary directory for download
     local temp_dir=$(mktemp -d)
     cd "$temp_dir"
     
-    # Download extension from GNOME Extensions website
-    echo "Downloading $extension_name from GNOME Extensions..."
-    local download_url="https://extensions.gnome.org/extension-data/${extension_id}.shell-extension.zip"
+    # Try to get extension info first to find the correct download URL
+    echo "Getting extension information..."
+    local extension_info_url="https://extensions.gnome.org/extension-info/?uuid=${extension_id}&shell_version=$(gnome-shell --version | grep -oP '\d+\.\d+' | head -1)"
     
-    if ! curl -L -o "${extension_id}.zip" "$download_url"; then
-        echo "❌ Failed to download $extension_name"
-        cd - > /dev/null
-        rm -rf "$temp_dir"
-        return 1
+    # Get the download URL from the extension info
+    local download_url
+    if download_url=$(curl -s "$extension_info_url" | grep -oP '"download_url":"[^"]*"' | cut -d'"' -f4); then
+        echo "Found download URL: $download_url"
+        
+        # Download the extension
+        if curl -L -o "${extension_id}.zip" "$download_url"; then
+            # Extract the extension
+            if unzip -q "${extension_id}.zip"; then
+                # Create extension directory
+                local extension_dir="$HOME/.local/share/gnome-shell/extensions/$extension_id"
+                mkdir -p "$extension_dir"
+                
+                # Copy extension files
+                if cp -r ./* "$extension_dir/"; then
+                    echo "✓ $extension_name downloaded and installed successfully"
+                    cd - > /dev/null
+                    rm -rf "$temp_dir"
+                    return 0
+                fi
+            fi
+        fi
     fi
     
-    # Extract the extension
-    if ! unzip -q "${extension_id}.zip"; then
-        echo "❌ Failed to extract $extension_name"
-        cd - > /dev/null
-        rm -rf "$temp_dir"
-        return 1
-    fi
-    
-    # Create extension directory
-    local extension_dir="$HOME/.local/share/gnome-shell/extensions/$extension_id"
-    mkdir -p "$extension_dir"
-    
-    # Copy extension files
-    if ! cp -r ./* "$extension_dir/"; then
-        echo "❌ Failed to copy $extension_name files"
-        cd - > /dev/null
-        rm -rf "$temp_dir"
-        return 1
-    fi
-    
-    # Clean up
+    # Clean up on failure
     cd - > /dev/null
     rm -rf "$temp_dir"
     
-    echo "✓ $extension_name downloaded and installed successfully"
-    return 0
+    # Manual installation instructions as last resort
+    echo "⚠️  Manual installation required for $extension_name"
+    echo "   Please visit: https://extensions.gnome.org/extension/$extension_id/"
+    echo "   Click 'Install' and follow the browser prompts"
+    
+    return 1
 }
 
 # Function to enable an extension
