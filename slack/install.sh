@@ -52,10 +52,9 @@ print_header() {
 # Print module header
 print_header "Installing $MODULE_NAME configuration"
 
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then
-    print_error "Please run as root or with sudo"
-    exit 1
+# Check if we have sudo privileges
+if ! sudo -n true 2>/dev/null; then
+    print_warning "This script requires sudo privileges. You may be prompted for your password."
 fi
 
 # Check if Slack is already installed
@@ -120,13 +119,13 @@ install_slack() {
     print_status "Installing Slack..."
     
     # Install the .deb file
-    if dpkg -i "$SLACK_DEB_FILE"; then
+    if sudo dpkg -i "$SLACK_DEB_FILE"; then
         print_success "Slack installed successfully"
     else
         print_warning "Installation had issues, trying to fix dependencies..."
-        apt-get update
-        apt-get install -f -y
-        if dpkg -i "$SLACK_DEB_FILE"; then
+        sudo apt-get update
+        sudo apt-get install -f -y
+        if sudo dpkg -i "$SLACK_DEB_FILE"; then
             print_success "Slack installed successfully after fixing dependencies"
         else
             print_error "Failed to install Slack"

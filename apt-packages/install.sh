@@ -52,15 +52,14 @@ print_header() {
 # Print module header
 print_header "Installing $MODULE_NAME configuration"
 
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then
-    print_error "Please run as root or with sudo"
-    exit 1
+# Check if we have sudo privileges
+if ! sudo -n true 2>/dev/null; then
+    print_warning "This script requires sudo privileges. You may be prompted for your password."
 fi
 
 # Update package list
 print_status "Updating package list..."
-apt update
+sudo apt update
 
 # List of apt packages to install
 APT_PACKAGES=(
@@ -81,7 +80,7 @@ install_apt_packages() {
             print_success "$package is already installed"
         else
             print_status "Installing $package..."
-            if apt install -y "$package"; then
+            if sudo apt install -y "$package"; then
                 print_success "$package installed successfully"
             else
                 print_error "Failed to install $package"

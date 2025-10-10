@@ -40,10 +40,9 @@ if is_docker; then
     exit 0
 fi
 
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then
-    print_error "Please run as root"
-    exit 1
+# Check if we have sudo privileges
+if ! sudo -n true 2>/dev/null; then
+    print_warning "This script requires sudo privileges. You may be prompted for your password."
 fi
 
 # Check if snapd is installed
@@ -55,8 +54,8 @@ fi
 
 # Ensure snapd is running
 print_status "Ensuring snapd is running..."
-systemctl enable --now snapd.socket
-systemctl enable --now snapd.service
+sudo systemctl enable --now snapd.socket
+sudo systemctl enable --now snapd.service
 
 # Wait for snapd to be ready
 print_status "Waiting for snapd to be ready..."
@@ -85,7 +84,7 @@ install_snap_packages() {
     print_status "Installing snap packages..."
     for package in "${SNAP_PACKAGES[@]}"; do
         print_status "Installing $package..."
-        snap install $package || print_warning "Failed to install $package"
+        sudo snap install $package || print_warning "Failed to install $package"
     done
 }
 
@@ -107,7 +106,7 @@ list_installed_snaps
 # Configure GLPI agent
 print_status "Configuring GLPI agent..."
 if command_exists glpi-agent; then
-    snap set glpi-agent server=@https://glpi.itsf.io/front/inventory.php
+    sudo snap set glpi-agent server=@https://glpi.itsf.io/front/inventory.php
     print_status "GLPI agent configured successfully"
 else
     print_warning "GLPI agent not found, skipping configuration"
