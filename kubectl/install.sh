@@ -139,19 +139,19 @@ install_kubelogin() {
     
     # Create krew bin directory for int128
     print_status "Creating krew bin directory for int128..."
-    mkdir -p "$HOME/.krew/bin/int128"
+    mkdir -p "$HOME/.kube/bin/"
     
     # Move kubelogin to krew bin directory
-    mv kubelogin "$HOME/.krew/bin/int128/"
+    mv kubelogin "$HOME/.kube/bin/"
     
     # Cleanup
     cd - > /dev/null
     rm -rf "$TEMP_DIR"
     
     # Verify installation
-    if [ -f "$HOME/.krew/bin/int128/kubelogin" ]; then
+    if [ -f "$HOME/.kube/bin/kubelogin" ]; then
         print_success "kubelogin installed successfully!"
-        "$HOME/.krew/bin/int128/kubelogin" version
+        "$HOME/.kube/bin/kubelogin" version
     else
         print_error "Failed to install kubelogin"
         exit 1
