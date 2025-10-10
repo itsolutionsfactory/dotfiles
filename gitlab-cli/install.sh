@@ -52,6 +52,11 @@ print_header() {
 # Print module header
 print_header "Installing $MODULE_NAME configuration"
 
+# Check if we have sudo privileges
+if ! sudo -n true 2>/dev/null; then
+    print_warning "This script requires sudo privileges. You may be prompted for your password."
+fi
+
 # Check if glab is already installed
 if command -v glab >/dev/null 2>&1; then
     print_success "GitLab CLI (glab) is already installed"
@@ -59,9 +64,39 @@ if command -v glab >/dev/null 2>&1; then
 else
     print_status "Installing GitLab CLI (glab)..."
     
-    # Install glab using the official installation script
-    curl -s https://gitlab.com/gitlab-org/cli/-/releases/permalink/latest/downloads/glab_linux_amd64.tar.gz | tar -xz
+    # Create temporary directory for download
+    TEMP_DIR=$(mktemp -d)
+    cd "$TEMP_DIR"
+    
+    # Download the latest release
+    print_status "Downloading GitLab CLI..."
+    if ! curl -sL https://gitlab.com/gitlab-org/cli/-/releases/permalink/latest/downloads/glab_linux_amd64.tar.gz -o glab.tar.gz; then
+        print_error "Failed to download GitLab CLI"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+    
+    # Extract the archive
+    print_status "Extracting GitLab CLI..."
+    if ! tar -xzf glab.tar.gz; then
+        print_error "Failed to extract GitLab CLI archive"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+    
+    # Check if glab binary was extracted
+    if [ ! -f "glab" ]; then
+        print_error "GitLab CLI binary not found after extraction"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+    
+    # Move to system location
     sudo mv glab /usr/local/bin/
+    
+    # Clean up
+    cd /
+    rm -rf "$TEMP_DIR"
     
     # Verify installation
     if command -v glab >/dev/null 2>&1; then
