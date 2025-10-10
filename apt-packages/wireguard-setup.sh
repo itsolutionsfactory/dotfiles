@@ -119,7 +119,14 @@ generate_keys() {
     fi
     
     print_status "Generating public key..."
-    if ! sudo wg pubkey < "$key_dir/private.key" | sudo tee "$key_dir/pub.key" > /dev/null; then
+    # Read the private key and generate public key
+    local private_key_content
+    if ! private_key_content=$(sudo cat "$key_dir/private.key"); then
+        print_error "Failed to read private key"
+        exit 1
+    fi
+    
+    if ! echo "$private_key_content" | wg pubkey | sudo tee "$key_dir/pub.key" > /dev/null; then
         print_error "Failed to generate public key"
         exit 1
     fi
