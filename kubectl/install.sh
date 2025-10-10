@@ -136,16 +136,22 @@ install_kubelogin() {
     print_status "Installing kubelogin..."
     unzip "kubelogin_linux_${ARCH}.zip"
     chmod +x kubelogin
-    sudo mv kubelogin /usr/local/bin/
+    
+    # Create krew bin directory for int128
+    print_status "Creating krew bin directory for int128..."
+    mkdir -p "$HOME/.krew/bin/int128"
+    
+    # Move kubelogin to krew bin directory
+    mv kubelogin "$HOME/.krew/bin/int128/"
     
     # Cleanup
     cd - > /dev/null
     rm -rf "$TEMP_DIR"
     
     # Verify installation
-    if command -v kubelogin &> /dev/null; then
+    if [ -f "$HOME/.krew/bin/int128/kubelogin" ]; then
         print_success "kubelogin installed successfully!"
-        kubelogin version
+        "$HOME/.krew/bin/int128/kubelogin" version
     else
         print_error "Failed to install kubelogin"
         exit 1
@@ -176,7 +182,7 @@ if ! command -v kubectl &> /dev/null; then
 fi
 
 # Check if kubelogin is installed
-if ! command -v kubelogin &> /dev/null; then
+if [ ! -f "$HOME/.krew/bin/int128/kubelogin" ]; then
     print_warning "kubelogin is not installed."
     install_kubelogin
 fi
@@ -208,4 +214,11 @@ if ! stow -t "$HOME" .; then
 fi
 
 print_success "$MODULE_NAME configuration installed successfully!"
-print_warning "Please restart your shell or run 'source ~/.zshrc' to apply changes." 
+
+# Display next steps
+print_header "Next Steps"
+print_warning "Please complete the following manually:"
+print_warning "1. Add krew bin to your PATH if not already done:"
+print_warning "   echo 'export PATH=\"\$PATH:\$HOME/.krew/bin\"' >> ~/.zshrc"
+print_warning "2. Restart your shell or run 'source ~/.zshrc' to apply changes"
+print_warning "3. Test kubelogin: $HOME/.krew/bin/int128/kubelogin version" 
