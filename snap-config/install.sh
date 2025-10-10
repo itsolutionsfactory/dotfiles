@@ -63,14 +63,13 @@ sleep 5
 
 # List of snap packages to install
 SNAP_PACKAGES=(
+    "brave"                    # Brave Browser
     "spotify"                  # Spotify
     "signal-desktop"           # Signal
     "zoom-client"              # Zoom
     "teams-for-linux"          # Microsoft Teams
-    "imagemagick"              # ImageMagick
     "htop"                     # htop
     "onlyoffice-desktopeditors" # OnlyOffice
-    "glpi"                     # GLPI
     "freelens --classic"        # Freelens - Kubernetes IDE
     "intellij-idea-ultimate --classic" # IntelliJ IDEA Ultimate
     "datagrip --classic"       # DataGrip
@@ -94,11 +93,47 @@ list_installed_snaps() {
     snap list
 }
 
+# Function to install GLPI agent
+install_glpi_agent() {
+    print_status "Installing GLPI agent..."
+    
+    # GLPI agent download URL (latest stable version)
+    GLPI_URL="https://github.com/glpi-project/glpi-agent/releases/download/1.15/glpi-agent_1.15_amd64.snap"
+    GLPI_SNAP_FILE="/tmp/glpi-agent_1.15_amd64.snap"
+    
+    # Download GLPI agent snap
+    print_status "Downloading GLPI agent snap..."
+    if command_exists wget; then
+        wget -O "$GLPI_SNAP_FILE" "$GLPI_URL"
+    elif command_exists curl; then
+        curl -L -o "$GLPI_SNAP_FILE" "$GLPI_URL"
+    else
+        print_error "Neither wget nor curl is available. Cannot download GLPI agent."
+        return 1
+    fi
+    
+    # Install GLPI agent as classic snap
+    print_status "Installing GLPI agent as classic snap..."
+    if sudo snap install --classic --dangerous "$GLPI_SNAP_FILE"; then
+        print_success "GLPI agent installed successfully"
+    else
+        print_error "Failed to install GLPI agent"
+        return 1
+    fi
+    
+    # Clean up downloaded file
+    rm -f "$GLPI_SNAP_FILE"
+    print_status "Cleaned up temporary files"
+}
+
 # Main installation process
 print_status "Starting snap configuration..."
 
 # Install snap packages
 install_snap_packages
+
+# Install GLPI agent
+install_glpi_agent
 
 # List installed snaps
 list_installed_snaps
@@ -112,13 +147,4 @@ else
     print_warning "GLPI agent not found, skipping configuration"
 fi
 
-print_status "Snap configuration completed successfully!"
-
-# Configure Brave profiles
-print_status "Configuring Brave profiles..."
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -f "$SCRIPT_DIR/brave-profiles.sh" ]; then
-    bash "$SCRIPT_DIR/brave-profiles.sh"
-else
-    print_error "brave-profiles.sh not found in $SCRIPT_DIR"
-fi 
+print_status "Snap configuration completed successfully!" 
