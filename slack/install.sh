@@ -93,8 +93,8 @@ fi
 print_success "dpkg is available"
 
 # Slack download URL and file info
-SLACK_URL="https://downloads.slack-edge.com/releases/linux/4.36.130/prod/x64/slack-desktop-4.36.130-amd64.deb"
-SLACK_DEB_FILE="/tmp/slack-desktop-4.36.130-amd64.deb"
+SLACK_URL="https://downloads.slack-edge.com/desktop-releases/linux/x64/4.46.101/slack-desktop-4.46.101-amd64.deb"
+SLACK_DEB_FILE="/tmp/slack-desktop-4.46.101-amd64.deb"
 
 # Function to download Slack
 download_slack() {
