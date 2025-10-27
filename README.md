@@ -103,7 +103,9 @@ Each directory in this repository represents a specific tool or configuration se
 
 ## Installation
 
-To install all configurations:
+### Interactive Installation
+
+To install configurations interactively:
 
 ```bash
 ./install.sh
@@ -118,6 +120,31 @@ The installation process includes:
      - Exit installation
    - If `.config` doesn't exist, it will be created
 3. Installing selected configurations with proper backups
+
+### Automatic Installation
+
+To install all configurations automatically in a specific order:
+
+```bash
+./install.sh --all
+```
+
+This will install all modules in the following predefined order:
+1. **apt-packages** - System packages and WireGuard VPN
+2. **certs** - SSL/TLS certificates
+3. **zsh** - Enhanced shell configuration
+4. **neofetch** - System information display
+5. **snap-config** - Snap package management
+6. **vim** - Neovim text editor
+7. **kitty** - Terminal emulator
+8. **kubectl** - Kubernetes CLI tools
+9. **github-cli** - GitHub command-line interface
+10. **slack** - Slack desktop application
+11. **appimaged** - AppImage management daemon
+
+**Note**: The `gitlab-cli` module is excluded from automatic installation as it requires manual configuration.
+
+### Individual Module Installation
 
 To install specific tool configurations:
 

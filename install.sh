@@ -100,14 +100,29 @@ show_help() {
     echo -e "  ${BLUE}./install.sh${BASE} [options]"
     echo
     echo -e "${TEXT}Options:${BASE}"
-    echo -e "  ${GREEN}--all${BASE}          Install all modules without prompts"
+    echo -e "  ${GREEN}--all${BASE}          Install all modules in predefined order without prompts"
     echo -e "  ${GREEN}--backup${BASE}       Only handle backup of existing .config"
     echo -e "  ${GREEN}--help${BASE}         Show this help message"
     echo
+    echo -e "${TEXT}Installation Order (--all):${BASE}"
+    echo -e "  ${BLUE}1.${BASE}  apt-packages    # System packages and WireGuard VPN"
+    echo -e "  ${BLUE}2.${BASE}  certs          # SSL/TLS certificates"
+    echo -e "  ${BLUE}3.${BASE}  zsh            # Enhanced shell configuration"
+    echo -e "  ${BLUE}4.${BASE}  neofetch       # System information display"
+    echo -e "  ${BLUE}5.${BASE}  snap-config    # Snap package management"
+    echo -e "  ${BLUE}6.${BASE}  vim            # Neovim text editor"
+    echo -e "  ${BLUE}7.${BASE}  kitty          # Terminal emulator"
+    echo -e "  ${BLUE}8.${BASE}  kubectl        # Kubernetes CLI tools"
+    echo -e "  ${BLUE}9.${BASE}  github-cli     # GitHub command-line interface"
+    echo -e "  ${BLUE}10.${BASE} slack          # Slack desktop application"
+    echo -e "  ${BLUE}11.${BASE} appimaged      # AppImage management daemon"
+    echo
     echo -e "${TEXT}Examples:${BASE}"
     echo -e "  ${BLUE}./install.sh${BASE}           # Interactive installation"
-    echo -e "  ${BLUE}./install.sh --all${BASE}     # Install everything"
+    echo -e "  ${BLUE}./install.sh --all${BASE}     # Install everything in order"
     echo -e "  ${BLUE}./install.sh --backup${BASE}  # Only handle backup"
+    echo
+    echo -e "${TEXT}Note:${BASE} gitlab-cli is excluded from --all installation"
     exit 0
 }
 
@@ -159,12 +174,31 @@ show_menu() {
     esac
 }
 
-# Function to install all modules
+# Function to install all modules in specific order
 install_all_modules() {
     print_header "Installing All Modules"
-    for dir in */; do
-        if [ "$dir" != ".cursor/" ] && [ "$dir" != "backup/" ] && [ -d "$dir" ]; then
-            install_module "$dir"
+    
+    # Define installation order (excluding gitlab-cli as it's not working properly)
+    declare -a MODULE_ORDER=(
+        "apt-packages"
+        "certs"
+        "zsh"
+        "neofetch"
+        "snap-config"
+        "vim"
+        "kitty"
+        "kubectl"
+        "github-cli"
+        "slack"
+        "appimaged"
+    )
+    
+    # Install modules in the specified order
+    for module in "${MODULE_ORDER[@]}"; do
+        if [ -d "$module" ]; then
+            install_module "$module/"
+        else
+            print_warning "Module $module not found, skipping..."
         fi
     done
 }
