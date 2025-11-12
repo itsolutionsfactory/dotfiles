@@ -121,6 +121,21 @@ The installation process includes:
    - If `.config` doesn't exist, it will be created
 3. Installing selected configurations with proper backups
 
+### Update System Packages
+
+To update all apt and snap packages:
+
+```bash
+./install.sh --update
+```
+
+This will:
+- Update all APT package lists
+- Upgrade all installed APT packages
+- Perform a full system upgrade
+- Clean up unused packages
+- Refresh all snap packages
+
 ### Automatic Installation
 
 To install all configurations automatically in a specific order:
@@ -140,9 +155,9 @@ This will install all modules in the following predefined order:
 8. **kubectl** - Kubernetes CLI tools
 9. **github-cli** - GitHub command-line interface
 10. **slack** - Slack desktop application
-11. **appimaged** - AppImage management daemon
-
-**Note**: The `gitlab-cli` module is excluded from automatic installation as it requires manual configuration.
+11. **docker** - Docker configuration
+12. **nvm** - Node Version Manager
+13. **gitlab-cli** - GitLab command-line interface
 
 ### Individual Module Installation
 
@@ -189,10 +204,11 @@ This project includes the following configuration modules:
 - **Kitty** - Modern terminal emulator configuration
 - **Certificates** - SSL/TLS certificate management
 - **Neofetch** - System information display
-- **AppImage** - AppImage application management
 - **Snap** - Snap package configuration and management
 - **APT Packages** - System package management with WireGuard VPN
 - **Slack** - Slack desktop application
+- **Docker** - Docker Engine and Docker Compose installation
+- **NVM** - Node Version Manager for Node.js
 - **GitLab CLI** - GitLab command-line interface
 - **GitHub CLI** - GitHub command-line interface
 - **Vim/Neovim** - Text editor configuration
@@ -456,59 +472,6 @@ After installation:
 2. Open a new terminal to see the system information display
 3. Make sure your terminal is using Hack Nerd Font for proper icon display
 
-### AppImage Configuration
-
-The AppImage configuration provides seamless integration of AppImages into your system with the following features:
-
-#### Core Features
-- appimaged daemon installation and configuration
-- Automatic AppImage detection and integration
-- Desktop file generation
-- Icon integration
-- Update management
-- Applications directory setup
-
-#### Components
-- **appimaged**: AppImage daemon for system integration
-- **Configuration Management**:
-  - Applications directory setup
-  - Desktop integration
-  - Icon integration
-  - Update checks
-
-#### Key Features
-- **AppImage Management**:
-  - Automatic detection of AppImages
-  - Desktop file generation
-  - Icon integration
-  - Update notifications
-
-- **System Integration**:
-  - Desktop environment integration
-  - Icon theme integration
-  - Update management
-  - Systemd service setup
-
-- **Directory Structure**:
-  - Dedicated Applications directory
-  - Proper file permissions
-  - Automatic cleanup
-
-#### Installation
-To install the AppImage configuration:
-
-```bash
-cd appimaged
-./install.sh
-```
-
-After installation:
-1. Verify the installation with `./test.sh`
-2. Place AppImages in your Applications directory
-3. Restart your session for all changes to take effect
-
-Note: This module is not supported in Docker environments and will be skipped during container testing.
-
 ### Snap Configuration
 
 The Snap configuration provides a streamlined package management solution with the following features:
@@ -628,6 +591,95 @@ After installation:
 3. Test network tools with `netstat -tuln`, `ifconfig`, etc.
 
 Note: This module requires root privileges to run.
+
+### Docker Configuration
+
+The Docker configuration provides complete Docker Engine installation and setup with the following features:
+
+#### Core Features
+- Docker Engine installation from official Docker repository
+- Docker CLI, containerd, and Docker Compose installation
+- Automatic repository setup with GPG key verification
+- Docker daemon management and auto-start configuration
+- Comprehensive installation verification
+
+#### Components
+- **Docker Engine**: Container runtime and management
+- **Docker CLI**: Command-line interface
+- **containerd**: Container runtime
+- **Docker Compose**: Multi-container application management
+- **Docker Buildx**: Extended build capabilities
+
+#### Key Features
+- **Installation Process**:
+  - Official Docker repository setup
+  - GPG key verification
+  - Automatic dependency resolution
+  - Service configuration
+
+- **System Integration**:
+  - Docker daemon auto-start
+  - User group configuration
+  - Service management
+  - Network configuration
+
+#### Installation
+To install Docker:
+
+```bash
+cd docker
+sudo ./install.sh
+```
+
+After installation:
+1. Add your user to the docker group: `sudo usermod -aG docker $USER`
+2. Log out and log back in
+3. Verify with `docker run hello-world`
+
+Note: This module requires root privileges to run.
+
+### NVM Configuration
+
+The NVM configuration provides Node Version Manager installation and Node.js setup with the following features:
+
+#### Core Features
+- NVM installation from official repository
+- Automatic shell configuration (zsh/bash)
+- Node.js LTS version installation
+- Automatic default version setup
+- JFrog Artifactory npm registry configuration
+
+#### Components
+- **NVM**: Node Version Manager (v0.40.3)
+- **Node.js**: Latest LTS version
+- **npm**: Node Package Manager
+- **.npmrc**: npm configuration for JFrog Artifactory
+
+#### Key Features
+- **Version Management**:
+  - Multiple Node.js version support
+  - Easy version switching
+  - Default version configuration
+  - LTS version installation
+
+- **Configuration**:
+  - Automatic shell integration
+  - JFrog Artifactory registry setup
+  - XDG_CONFIG_HOME support
+  - Environment variable management
+
+#### Installation
+To install NVM and Node.js:
+
+```bash
+cd nvm
+./install.sh
+```
+
+After installation:
+1. Reload your shell: `source ~/.zshrc` or `source ~/.bashrc`
+2. Verify with `nvm --version` and `node --version`
+3. Check npm registry with `npm config get registry`
 
 ### Slack Configuration
 
