@@ -1,0 +1,6 @@
+# Ignore all files except .npmrc
+install.sh
+test.sh
+README.md
+.stowignore
+
