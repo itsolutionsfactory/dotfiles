@@ -57,53 +57,29 @@ if ! sudo -n true 2>/dev/null; then
     print_warning "This script requires sudo privileges. You may be prompted for your password."
 fi
 
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 # Check if glab is already installed
-if command -v glab >/dev/null 2>&1; then
+if command_exists glab; then
     print_success "GitLab CLI (glab) is already installed"
     glab version
 else
-    print_status "Installing GitLab CLI (glab)..."
+    print_status "Installing GitLab CLI (glab) via snap..."
     
-    # Create temporary directory for download
-    TEMP_DIR=$(mktemp -d)
-    cd "$TEMP_DIR"
-    
-    # Download the latest release
-    print_status "Downloading GitLab CLI..."
-    if ! curl -sL https://gitlab.com/gitlab-org/cli/-/releases/permalink/latest/downloads/glab_linux_amd64.tar.gz -o glab.tar.gz; then
-        print_error "Failed to download GitLab CLI"
-        rm -rf "$TEMP_DIR"
+    if ! sudo snap install glab; then
+        print_error "Failed to install GitLab CLI via snap"
         exit 1
     fi
-    
-    # Extract the archive
-    print_status "Extracting GitLab CLI..."
-    if ! tar -xzf glab.tar.gz; then
-        print_error "Failed to extract GitLab CLI archive"
-        rm -rf "$TEMP_DIR"
-        exit 1
-    fi
-    
-    # Check if glab binary was extracted
-    if [ ! -f "glab" ]; then
-        print_error "GitLab CLI binary not found after extraction"
-        rm -rf "$TEMP_DIR"
-        exit 1
-    fi
-    
-    # Move to system location
-    sudo mv glab /usr/local/bin/
-    
-    # Clean up
-    cd /
-    rm -rf "$TEMP_DIR"
     
     # Verify installation
-    if command -v glab >/dev/null 2>&1; then
+    if command_exists glab; then
         print_success "GitLab CLI installed successfully"
         glab version
     else
-        print_error "Failed to install GitLab CLI"
+        print_error "Failed to verify GitLab CLI installation"
         exit 1
     fi
 fi

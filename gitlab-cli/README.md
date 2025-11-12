@@ -4,7 +4,7 @@ This module manages the installation and configuration of the GitLab CLI tool (`
 
 ## Features
 
-- Automatic installation of GitLab CLI (glab)
+- Automatic installation of GitLab CLI (glab) via snap
 - Configuration management for GitLab CLI
 - Authentication setup guidance
 - Integration with GitLab.com and self-hosted GitLab instances
@@ -18,7 +18,7 @@ sudo ./install.sh
 ```
 
 The installation process includes:
-1. Installing GitLab CLI (glab) if not present
+1. Installing GitLab CLI (glab) via snap if not present
 2. Creating backup of existing configuration
 3. Installing configuration files
 4. Setting up proper directory structure
