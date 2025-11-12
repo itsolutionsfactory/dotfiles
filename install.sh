@@ -93,6 +93,43 @@ install_snap() {
     print_success "$package installed successfully"
 }
 
+# Function to update all apt packages
+update_apt_packages() {
+    print_header "Updating APT Packages"
+    print_info "Updating package lists..."
+    sudo apt-get update
+    print_success "Package lists updated"
+    
+    print_info "Upgrading all installed packages..."
+    sudo apt-get upgrade -y
+    print_success "All packages upgraded"
+    
+    print_info "Performing full system upgrade (if available)..."
+    sudo apt-get full-upgrade -y
+    print_success "Full system upgrade completed"
+    
+    print_info "Cleaning up unused packages..."
+    sudo apt-get autoremove -y
+    sudo apt-get autoclean
+    print_success "Cleanup completed"
+}
+
+# Function to update all snap packages
+update_snap_packages() {
+    print_header "Updating Snap Packages"
+    print_info "Refreshing all snap packages..."
+    sudo snap refresh
+    print_success "All snap packages refreshed"
+}
+
+# Function to update all packages (apt and snap)
+update_all_packages() {
+    print_header "Updating All System Packages"
+    update_apt_packages
+    update_snap_packages
+    print_success "All packages updated successfully!"
+}
+
 # Function to show help
 show_help() {
     print_header "Dotfiles Installation Help"
@@ -102,6 +139,7 @@ show_help() {
     echo -e "${TEXT}Options:${BASE}"
     echo -e "  ${GREEN}--all${BASE}          Install all modules in predefined order without prompts"
     echo -e "  ${GREEN}--backup${BASE}       Only handle backup of existing .config"
+    echo -e "  ${GREEN}--update${BASE}       Update all apt and snap packages"
     echo -e "  ${GREEN}--help${BASE}         Show this help message"
     echo
     echo -e "${TEXT}Installation Order (--all):${BASE}"
@@ -115,14 +153,15 @@ show_help() {
     echo -e "  ${BLUE}8.${BASE}  kubectl        # Kubernetes CLI tools"
     echo -e "  ${BLUE}9.${BASE}  github-cli     # GitHub command-line interface"
     echo -e "  ${BLUE}10.${BASE} slack          # Slack desktop application"
-    echo -e "  ${BLUE}11.${BASE} appimaged      # AppImage management daemon"
+    echo -e "  ${BLUE}11.${BASE} docker         # Docker configuration"
+    echo -e "  ${BLUE}12.${BASE} nvm            # Node Version Manager"
+    echo -e "  ${BLUE}13.${BASE} gitlab-cli     # GitLab command-line interface"
     echo
     echo -e "${TEXT}Examples:${BASE}"
     echo -e "  ${BLUE}./install.sh${BASE}           # Interactive installation"
     echo -e "  ${BLUE}./install.sh --all${BASE}     # Install everything in order"
     echo -e "  ${BLUE}./install.sh --backup${BASE}  # Only handle backup"
-    echo
-    echo -e "${TEXT}Note:${BASE} gitlab-cli is excluded from --all installation"
+    echo -e "  ${BLUE}./install.sh --update${BASE}  # Update all apt and snap packages"
     exit 0
 }
 
@@ -178,7 +217,7 @@ show_menu() {
 install_all_modules() {
     print_header "Installing All Modules"
     
-    # Define installation order (excluding gitlab-cli as it's not working properly)
+    # Define installation order
     declare -a MODULE_ORDER=(
         "apt-packages"
         "certs"
@@ -190,7 +229,9 @@ install_all_modules() {
         "kubectl"
         "github-cli"
         "slack"
-        "appimaged"
+        "docker"
+        "nvm"
+        "gitlab-cli"
     )
     
     # Install modules in the specified order
@@ -303,6 +344,12 @@ main() {
     # Check for --backup parameter
     if [ "$1" = "--backup" ]; then
         handle_config_directory
+        exit 0
+    fi
+    
+    # Check for --update parameter
+    if [ "$1" = "--update" ]; then
+        update_all_packages
         exit 0
     fi
     
