@@ -16,6 +16,9 @@ This module manages the installation of essential system packages via APT on Ubu
 - **WireGuard** - Modern VPN protocol for secure connections
 - **net-tools** - Essential network utilities (netstat, ifconfig, route)
 
+### Development Tools
+- **git-flow** - Git workflow extension for implementing the Git Flow branching model
+
 ## Installation
 
 To install all packages:
@@ -28,8 +31,9 @@ The installation process includes:
 1. Updating package list
 2. Installing WireGuard VPN package
 3. Installing net-tools package
-4. Verifying installations
-5. Displaying package information
+4. Installing git-flow package
+5. Verifying installations
+6. Displaying package information
 
 ## WireGuard Usage
 
@@ -72,6 +76,60 @@ PublicKey = <peer-public-key>
 Endpoint = <server-ip>:51820
 AllowedIPs = 0.0.0.0/0
 ```
+
+## Git-Flow Usage
+
+### Basic Workflow
+
+Git-flow provides a high-level command set for Git branching model operations:
+
+```bash
+# Initialize git-flow in a repository
+git flow init
+
+# Start a new feature
+git flow feature start feature-name
+
+# Finish a feature (merges to develop)
+git flow feature finish feature-name
+
+# Start a release
+git flow release start 1.0.0
+
+# Finish a release (merges to main and develop)
+git flow release finish 1.0.0
+
+# Start a hotfix
+git flow hotfix start hotfix-name
+
+# Finish a hotfix (merges to main and develop)
+git flow hotfix finish hotfix-name
+```
+
+### Common Commands
+
+```bash
+# List all feature branches
+git flow feature list
+
+# Publish a feature to remote
+git flow feature publish feature-name
+
+# Pull a feature from remote
+git flow feature pull feature-name
+
+# Start a feature from remote
+git flow feature track feature-name
+```
+
+### Workflow Branches
+
+Git-flow uses the following branch structure:
+- **main** - Production-ready code
+- **develop** - Integration branch for features
+- **feature/** - Feature development branches
+- **release/** - Release preparation branches
+- **hotfix/** - Critical production fixes
 
 ## Net-Tools Usage
 

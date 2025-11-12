@@ -129,6 +129,7 @@ print_header "Testing $MODULE_NAME configuration"
 # Test package installations
 test_package_installed "wireguard"
 test_package_installed "net-tools"
+test_package_installed "git-flow"
 
 # Test command availability
 test_command_available "wg"
@@ -136,6 +137,7 @@ test_command_available "wg-quick"
 test_command_available "netstat"
 test_command_available "ifconfig"
 test_command_available "route"
+test_command_available "git-flow"
 
 # Test functionality
 test_wireguard_functionality
@@ -147,3 +149,4 @@ print_warning "1. Test WireGuard key generation: wg genkey"
 print_warning "2. Test network tools: netstat -tuln"
 print_warning "3. Test network interface info: ifconfig"
 print_warning "4. Test routing table: route -n"
+print_warning "5. Test git-flow: git flow version"

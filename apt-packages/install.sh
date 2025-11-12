@@ -65,6 +65,7 @@ sudo apt update
 APT_PACKAGES=(
     "wireguard"              # WireGuard VPN
     "net-tools"              # Network utilities (netstat, ifconfig, etc.)
+    "git-flow"               # Git workflow extension for branching model
 )
 
 # Function to check if a package is installed
@@ -144,6 +145,9 @@ print_warning "1. Test network tools:"
 print_warning "   - netstat -tuln (list listening ports)"
 print_warning "   - ifconfig (network interface information)"
 print_warning "   - route (routing table)"
-print_warning "2. WireGuard VPN setup (optional):"
+print_warning "2. Git-flow setup (optional):"
+print_warning "   - Initialize git-flow in your repositories: git flow init"
+print_warning "   - See README.md for usage examples"
+print_warning "3. WireGuard VPN setup (optional):"
 print_warning "   - Run wireguard-setup.sh manually if you need VPN configuration"
 print_warning "   - Or skip if you don't need VPN access"
