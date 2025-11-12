@@ -1,0 +1,23 @@
+# Stow ignore file for .docker directory
+# This file tells stow which files/directories to ignore when stowing .docker
+
+# Ignore backup files
+*.bak
+*.backup
+*~
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Ignore editor files
+.DS_Store
+Thumbs.db
+
+# Ignore any test or temporary config files
+*test*
+*temp*
+*.orig
+
