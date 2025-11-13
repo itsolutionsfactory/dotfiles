@@ -1,0 +1,6 @@
+# Ignore installation and documentation files
+install.sh
+test.sh
+README.md
+.stow-local-ignore
+

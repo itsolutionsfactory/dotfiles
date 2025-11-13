@@ -2,5 +2,5 @@
 install.sh
 test.sh
 README.md
-.stowignore
+.stow-local-ignore
 
