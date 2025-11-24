@@ -41,6 +41,7 @@ sudo apt-get install -y snapd
 ### Core Components
 - **powershell** - PowerShell Core (pwsh) installed via snap
 - **ExchangeOnlineManagement** - Exchange Online PowerShell module (optional, installed during setup if selected)
+- **MicrosoftTeams** - Microsoft Teams PowerShell module (optional, installed during setup if selected)
 
 ## Post-Installation Steps
 
@@ -81,6 +82,21 @@ Or from bash:
 
 ```bash
 pwsh -Command "Install-Module ExchangeOnlineManagement; Import-Module ExchangeOnlineManagement"
+```
+
+### 5. Install Microsoft Teams PowerShell Module (Optional)
+
+During installation, you'll be prompted to install the Microsoft Teams PowerShell module. If you choose to install it, or if you want to install it later:
+
+```powershell
+Install-Module -Name MicrosoftTeams -Force -AllowClobber
+Import-Module MicrosoftTeams
+```
+
+Or from bash:
+
+```bash
+pwsh -Command "Install-Module -Name MicrosoftTeams -Force -AllowClobber; Import-Module MicrosoftTeams"
 ```
 
 For more information, see the [Microsoft documentation](https://learn.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps#install-and-maintain-the-exchange-online-powershell-module).
@@ -133,6 +149,23 @@ Disconnect-ExchangeOnline
 
 For more information about using Exchange Online PowerShell, see the [Microsoft documentation](https://learn.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps).
 
+### Microsoft Teams PowerShell
+
+If you've installed the Microsoft Teams PowerShell module, you can connect to Microsoft Teams:
+
+```powershell
+# Connect to Microsoft Teams
+Connect-MicrosoftTeams
+
+# List teams
+Get-Team
+
+# Disconnect when done
+Disconnect-MicrosoftTeams
+```
+
+For more information about using Microsoft Teams PowerShell, see the [Microsoft documentation](https://learn.microsoft.com/en-us/microsoftteams/teams-powershell-install).
+
 ## Testing
 
 To test the PowerShell installation:
@@ -148,6 +181,7 @@ The test script verifies:
 - PowerShell execution
 - Snap installation verification
 - Exchange Online PowerShell module (if installed)
+- Microsoft Teams PowerShell module (if installed)
 
 ## Requirements
 

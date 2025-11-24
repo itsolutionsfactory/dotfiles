@@ -125,7 +125,28 @@ test_exchange_online_module() {
             return 0
         else
             print_warning "Exchange Online PowerShell module is not installed"
-            print_status "You can install it by running: pwsh -Command 'Install-Module -Name ExchangeOnlineManagement -Force -Scope CurrentUser'"
+            print_status "You can install it by running: pwsh -Command 'Install-Module ExchangeOnlineManagement'"
+            return 0
+        fi
+    else
+        print_error "PowerShell is not installed"
+        return 1
+    fi
+}
+
+test_teams_module() {
+    print_status "Testing Microsoft Teams PowerShell module..."
+    
+    if command -v pwsh >/dev/null 2>&1; then
+        if pwsh -Command "Get-Module -ListAvailable -Name MicrosoftTeams" >/dev/null 2>&1; then
+            local module_version
+            module_version=$(pwsh -Command "(Get-Module -ListAvailable -Name MicrosoftTeams | Select-Object -First 1).Version" 2>/dev/null || echo "unknown")
+            print_success "Microsoft Teams PowerShell module is installed"
+            print_status "Module version: $module_version"
+            return 0
+        else
+            print_warning "Microsoft Teams PowerShell module is not installed"
+            print_status "You can install it by running: pwsh -Command 'Install-Module -Name MicrosoftTeams -Force -AllowClobber'"
             return 0
         fi
     else
@@ -155,10 +176,14 @@ test_snap_installation
 # Test Exchange Online module (optional)
 test_exchange_online_module
 
+# Test Microsoft Teams module (optional)
+test_teams_module
+
 print_success "Testing completed!"
 print_warning "Please verify the following manually:"
 print_warning "1. Run 'pwsh' to start PowerShell interactively"
 print_warning "2. Test PowerShell commands and scripts"
 print_warning "3. Verify PowerShell modules can be installed"
 print_warning "4. If Exchange Online module is installed, test connection: Connect-ExchangeOnline"
+print_warning "5. If Microsoft Teams module is installed, test connection: Connect-MicrosoftTeams"
 

@@ -93,6 +93,14 @@ check_exchange_online_installed() {
     return 1
 }
 
+# Function to check if Microsoft Teams module is installed
+check_teams_module_installed() {
+    if pwsh -Command "Get-Module -ListAvailable -Name MicrosoftTeams" >/dev/null 2>&1; then
+        return 0
+    fi
+    return 1
+}
+
 # Function to install Exchange Online PowerShell module
 install_exchange_online_module() {
     print_status "Installing Exchange Online PowerShell module..."
@@ -122,6 +130,39 @@ install_exchange_online_module() {
         print_error "Failed to install Exchange Online PowerShell module"
         print_warning "You can try installing it manually:"
         print_warning "  pwsh -Command 'Install-Module ExchangeOnlineManagement'"
+        return 1
+    fi
+}
+
+# Function to install Microsoft Teams PowerShell module
+install_teams_module() {
+    print_status "Installing Microsoft Teams PowerShell module..."
+    print_status "This may take a few minutes..."
+    
+    # Install the module
+    if pwsh -Command "Install-Module -Name MicrosoftTeams -Force -AllowClobber" 2>&1; then
+        print_success "Microsoft Teams PowerShell module installed successfully"
+        
+        # Import the module
+        print_status "Importing Microsoft Teams PowerShell module..."
+        if pwsh -Command "Import-Module MicrosoftTeams" 2>&1; then
+            print_success "Microsoft Teams PowerShell module imported successfully"
+            
+            # Verify installation
+            if check_teams_module_installed; then
+                local module_version
+                module_version=$(pwsh -Command "(Get-Module -ListAvailable -Name MicrosoftTeams | Select-Object -First 1).Version" 2>/dev/null || echo "unknown")
+                print_status "Module version: $module_version"
+            fi
+            return 0
+        else
+            print_warning "Module installed but failed to import (this is usually fine, module will be available in new sessions)"
+            return 0
+        fi
+    else
+        print_error "Failed to install Microsoft Teams PowerShell module"
+        print_warning "You can try installing it manually:"
+        print_warning "  pwsh -Command 'Install-Module -Name MicrosoftTeams -Force -AllowClobber'"
         return 1
     fi
 }
@@ -170,7 +211,28 @@ main() {
                 install_exchange_online_module
             else
                 print_status "Skipping Exchange Online PowerShell module installation"
-                print_status "You can install it later by running: ${GREEN}pwsh -Command 'Install-Module -Name ExchangeOnlineManagement -Force -Scope CurrentUser'${BASE}"
+                print_status "You can install it later by running: ${GREEN}pwsh -Command 'Install-Module ExchangeOnlineManagement'${BASE}"
+            fi
+        fi
+        
+        # Ask if user wants to install Microsoft Teams PowerShell module
+        echo
+        print_header "Microsoft Teams PowerShell Module"
+        if check_teams_module_installed; then
+            print_warning "Microsoft Teams PowerShell module is already installed"
+            read -p "$(echo -e "${SUBTEXT}Do you want to reinstall it? [y/N]: ${BASE}")" -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                install_teams_module
+            fi
+        else
+            read -p "$(echo -e "${SUBTEXT}Do you want to install Microsoft Teams PowerShell module? [Y/n]: ${BASE}")" -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+                install_teams_module
+            else
+                print_status "Skipping Microsoft Teams PowerShell module installation"
+                print_status "You can install it later by running: ${GREEN}pwsh -Command 'Install-Module -Name MicrosoftTeams -Force -AllowClobber'${BASE}"
             fi
         fi
     else
