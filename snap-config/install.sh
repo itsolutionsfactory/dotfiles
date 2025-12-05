@@ -148,6 +148,7 @@ print_status "Configuring GLPI agent..."
 if command_exists glpi-agent; then
     sudo snap set glpi-agent server='https://glpi.itsf.io/front/inventory.php'
     print_status "GLPI agent configured successfully"
+    sudo glpi-agent --force
 else
     print_warning "GLPI agent not found, skipping configuration"
 fi
