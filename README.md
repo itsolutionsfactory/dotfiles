@@ -153,11 +153,12 @@ This will install all modules in the following predefined order:
 6. **vim** - Neovim text editor
 7. **kitty** - Terminal emulator
 8. **kubectl** - Kubernetes CLI tools
-9. **github-cli** - GitHub command-line interface
-10. **slack** - Slack desktop application
-11. **docker** - Docker configuration
-12. **nvm** - Node Version Manager
-13. **gitlab-cli** - GitLab command-line interface
+9. **flux-cli** - GitOps toolkit for Kubernetes
+10. **github-cli** - GitHub command-line interface
+11. **slack** - Slack desktop application
+12. **docker** - Docker configuration
+13. **nvm** - Node Version Manager
+14. **gitlab-cli** - GitLab command-line interface
 
 ### Individual Module Installation
 
@@ -200,6 +201,7 @@ This will:
 This project includes the following configuration modules:
 
 - **Kubectl** - Kubernetes command-line tool configuration
+- **Flux** - GitOps toolkit for Kubernetes
 - **ZSH** - Enhanced shell with plugins and themes
 - **Kitty** - Modern terminal emulator configuration
 - **Certificates** - SSL/TLS certificate management
