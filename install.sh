@@ -156,6 +156,8 @@ show_help() {
     echo -e "  ${BLUE}11.${BASE} docker         # Docker configuration"
     echo -e "  ${BLUE}12.${BASE} nvm            # Node Version Manager"
     echo -e "  ${BLUE}13.${BASE} gitlab-cli     # GitLab command-line interface"
+    echo -e "  ${BLUE}14.${BASE} flux-cli       # GitOps toolkit for Kubernetes"
+
     echo
     echo -e "${TEXT}Examples:${BASE}"
     echo -e "  ${BLUE}./install.sh${BASE}           # Interactive installation"
@@ -232,6 +234,7 @@ install_all_modules() {
         "docker"
         "nvm"
         "gitlab-cli"
+        "flux-cli"
     )
     
     # Install modules in the specified order
