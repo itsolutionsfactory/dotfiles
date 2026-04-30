@@ -13,11 +13,11 @@ plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-z zsh-history-subst
 source $ZSH/oh-my-zsh.sh
 
 # Display system information
-if command -v neofetch >/dev/null 2>&1; then
-    # Display neofetch with logo and system info side by side
-    neofetch 
+if command -v hyfetch >/dev/null 2>&1; then
+    # Display HyFetch with logo and system info side by side
+    hyfetch
 else
-    echo "Please install neofetch to see the system information display"
+    echo "Please install hyfetch to see the system information display"
 fi
 
 # Path configuration

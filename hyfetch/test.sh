@@ -5,7 +5,7 @@ set -e
 
 # Script directory and module info
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-MODULE_NAME="neofetch"
+MODULE_NAME="hyfetch"
 
 # Catppuccin Mocha color scheme
 # Base colors
@@ -78,18 +78,40 @@ test_stow_link() {
 }
 
 print_header "Testing $MODULE_NAME configuration"
+TEST_FAILURES=0
 
-# Test neofetch installation
-if command -v neofetch &> /dev/null; then
-    print_success "neofetch is installed"
-    if [ -f "$HOME/.config/neofetch/config.conf" ]; then
-        print_success "neofetch configuration exists"
-        test_stow_link "$HOME/.config/neofetch/config.conf" "$SCRIPT_DIR/config.conf"
-    else
-        print_error "neofetch configuration does not exist"
-    fi
+# Test HyFetch installation
+if command -v hyfetch &> /dev/null; then
+    print_success "hyfetch is installed"
 else
-    print_error "neofetch is not installed"
+    print_error "hyfetch is not installed"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
+fi
+
+# Test Neowofetch backend installation
+if command -v neowofetch &> /dev/null; then
+    print_success "neowofetch backend is installed"
+else
+    print_error "neowofetch backend is not installed"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
+fi
+
+# Test HyFetch configuration
+if [ -f "$HOME/.config/hyfetch.json" ]; then
+    print_success "hyfetch configuration exists"
+    test_stow_link "$HOME/.config/hyfetch.json" "$SCRIPT_DIR/.config/hyfetch.json" || TEST_FAILURES=$((TEST_FAILURES + 1))
+else
+    print_error "hyfetch configuration does not exist"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
+fi
+
+# Test Neowofetch configuration
+if [ -f "$HOME/.config/neowofetch/config.conf" ]; then
+    print_success "neowofetch configuration exists"
+    test_stow_link "$HOME/.config/neowofetch/config.conf" "$SCRIPT_DIR/.config/neowofetch/config.conf" || TEST_FAILURES=$((TEST_FAILURES + 1))
+else
+    print_error "neowofetch configuration does not exist"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
 fi
 
 # Test Nerd Font installation
@@ -97,10 +119,16 @@ if fc-list | grep -i "Hack Nerd Font" &> /dev/null; then
     print_success "Hack Nerd Font is installed"
 else
     print_error "Hack Nerd Font is not installed"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
+fi
+
+if [ "$TEST_FAILURES" -gt 0 ]; then
+    print_error "$TEST_FAILURES test(s) failed"
+    exit 1
 fi
 
 print_success "Testing completed!"
 print_warning "Please verify the following manually:"
-print_warning "1. Open a new terminal and check if neofetch displays correctly with the acenoster theme"
+print_warning "1. Open a new terminal and check if HyFetch displays correctly with the Acenoster layout"
 print_warning "2. Verify that the ASCII art logo and system information are displayed properly"
 print_warning "3. Make sure your terminal is using Hack Nerd Font for proper icon display" 

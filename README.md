@@ -123,7 +123,7 @@ The installation process includes:
 
 ### Update System Packages
 
-To update all apt and snap packages:
+To update all apt, snap, and flatpak packages:
 
 ```bash
 ./install.sh --update
@@ -135,6 +135,7 @@ This will:
 - Perform a full system upgrade
 - Clean up unused packages
 - Refresh all snap packages
+- Update all system Flatpak packages
 
 ### Automatic Installation
 
@@ -148,16 +149,17 @@ This will install all modules in the following predefined order:
 1. **apt-packages** - System packages and WireGuard VPN
 2. **certs** - SSL/TLS certificates
 3. **zsh** - Enhanced shell configuration
-4. **neofetch** - System information display
+4. **hyfetch** - System information display
 5. **snap-config** - Snap package management
-6. **vim** - Neovim text editor
-7. **kitty** - Terminal emulator
-8. **kubectl** - Kubernetes CLI tools
-9. **github-cli** - GitHub command-line interface
-10. **slack** - Slack desktop application
-11. **docker** - Docker configuration
-12. **nvm** - Node Version Manager
-13. **gitlab-cli** - GitLab command-line interface
+6. **flatpak-config** - Flatpak package management and Teams for Linux
+7. **vim** - Neovim text editor
+8. **kitty** - Terminal emulator
+9. **kubectl** - Kubernetes CLI tools
+10. **github-cli** - GitHub command-line interface
+11. **slack** - Slack desktop application
+12. **docker** - Docker configuration
+13. **nvm** - Node Version Manager
+14. **gitlab-cli** - GitLab command-line interface
 
 ### Individual Module Installation
 
@@ -203,8 +205,9 @@ This project includes the following configuration modules:
 - **ZSH** - Enhanced shell with plugins and themes
 - **Kitty** - Modern terminal emulator configuration
 - **Certificates** - SSL/TLS certificate management
-- **Neofetch** - System information display
+- **HyFetch** - System information display
 - **Snap** - Snap package configuration and management
+- **Flatpak** - Flatpak package management and Teams for Linux
 - **APT Packages** - System package management with WireGuard VPN
 - **Slack** - Slack desktop application
 - **Docker** - Docker Engine and Docker Compose installation
@@ -424,19 +427,21 @@ After installation:
 2. Check that the certificate is properly installed in the system trust store
 3. Verify that the certificate is valid and trusted
 
-### Neofetch Configuration
+### HyFetch Configuration
 
-The Neofetch configuration provides a beautiful system information display with the following features:
+The HyFetch configuration replaces the discontinued Neofetch package with the maintained HyFetch project and provides a beautiful system information display with the following features:
 
 #### Core Features
-- Neofetch installation and configuration
+- HyFetch installation and configuration
+- Neowofetch backend configuration for Neofetch-compatible layouts
 - Acenoster theme integration with custom icons
 - Hack Nerd Font support for enhanced visualization
 - System information display with ASCII art logo
 - Custom system specs display with improved layout
 
 #### Components
-- **Neofetch**: System information display tool
+- **HyFetch**: Maintained system information display tool
+- **Neowofetch**: Maintained Neofetch-compatible backend
 - **Acenoster Theme**: Beautiful and informative display theme
 - **Hack Nerd Font**: Icon support for better visualization
 - **Custom Layout**: Enhanced system information organization
@@ -460,10 +465,10 @@ The Neofetch configuration provides a beautiful system information display with 
   - Custom information grouping
 
 #### Installation
-To install the Neofetch configuration:
+To install the HyFetch configuration:
 
 ```bash
-cd neofetch
+cd hyfetch
 ./install.sh
 ```
 
@@ -489,7 +494,6 @@ The Snap configuration provides a streamlined package management solution with t
 - **Communication Tools**:
   - Signal
   - Zoom
-  - Microsoft Teams
 
 - **Productivity**:
   - OnlyOffice Desktop Editors
@@ -540,6 +544,34 @@ After installation:
 4. Set up development tools
 
 Note: This module requires root privileges to run and is not supported in Docker environments.
+
+### Flatpak Configuration
+
+The Flatpak configuration installs Flatpak, configures Flathub, and installs Teams for Linux.
+
+#### Core Features
+- Automatic Flatpak installation through APT
+- System Flathub remote configuration
+- Teams for Linux system installation from Flathub
+
+#### Components
+- **Communication Tools**:
+  - Teams for Linux (`com.github.IsmaelMartinez.teams_for_linux`)
+
+#### Installation
+To install the Flatpak configuration:
+
+```bash
+cd flatpak-config
+./install.sh
+```
+
+After installation:
+1. Verify Flatpak with `flatpak --version`
+2. Verify Flathub with `flatpak remotes --system`
+3. Launch Teams with `flatpak run com.github.IsmaelMartinez.teams_for_linux`
+
+Note: This module requires sudo privileges and skips installation in Docker environments.
 
 ### APT Packages Configuration
 

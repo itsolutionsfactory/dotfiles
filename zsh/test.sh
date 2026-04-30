@@ -107,40 +107,32 @@ test_oh_my_zsh_config() {
 }
 
 print_header "Testing $MODULE_NAME configuration"
+TEST_FAILURES=0
 
 # Test basic installations
 if command -v zsh &> /dev/null; then
     print_success "ZSH is installed"
 else
     print_error "ZSH is not installed"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
 fi
 
-# Test neofetch installation
-if command -v neofetch &> /dev/null; then
-    print_success "neofetch is installed"
-    if [ -f "$HOME/.config/neofetch/config.conf" ]; then
-        print_success "neofetch configuration is installed"
+# Test HyFetch installation
+if command -v hyfetch &> /dev/null; then
+    print_success "hyfetch is installed"
+    if [ -f "$HOME/.config/hyfetch.json" ]; then
+        print_success "hyfetch configuration is installed"
     else
-        print_error "neofetch configuration is not installed"
+        print_error "hyfetch configuration is not installed"
+        TEST_FAILURES=$((TEST_FAILURES + 1))
     fi
 else
-    print_error "neofetch is not installed"
-fi
-
-# Test system-info.sh
-if [ -f "$SCRIPT_DIR/system-info.sh" ]; then
-    print_success "system-info.sh exists"
-    if [ -x "$SCRIPT_DIR/system-info.sh" ]; then
-        print_success "system-info.sh is executable"
-    else
-        print_error "system-info.sh is not executable"
-    fi
-else
-    print_error "system-info.sh does not exist"
+    print_error "hyfetch is not installed"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
 fi
 
 # Test Oh My Zsh installation and configuration
-test_oh_my_zsh_config
+test_oh_my_zsh_config || TEST_FAILURES=$((TEST_FAILURES + 1))
 
 # Test font installation
 FONT_DIR="$HOME/.local/share/fonts"
@@ -148,12 +140,14 @@ if [ -d "$FONT_DIR" ]; then
     print_success "Font directory exists"
 else
     print_error "Font directory does not exist"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
 fi
 
 if fc-list | grep -i "Hack Nerd Font" &> /dev/null; then
     print_success "Hack Nerd Font is installed"
 else
     print_error "Hack Nerd Font is not installed"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
 fi
 
 # Test ZSH plugins
@@ -162,6 +156,7 @@ if [ -d "$PLUGINS_DIR" ]; then
     print_success "Custom plugins directory exists"
 else
     print_error "Custom plugins directory does not exist"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
 fi
 
 # Test each plugin
@@ -170,6 +165,7 @@ for plugin in zsh-autosuggestions zsh-syntax-highlighting zsh-z zsh-history-subs
         print_success "$plugin is installed"
     else
         print_error "$plugin is not installed"
+        TEST_FAILURES=$((TEST_FAILURES + 1))
     fi
 done
 
@@ -178,9 +174,10 @@ if [ -f "$HOME/.zshrc" ]; then
     print_success ".zshrc exists"
 else
     print_error ".zshrc does not exist"
+    TEST_FAILURES=$((TEST_FAILURES + 1))
 fi
 
-test_stow_link "$HOME/.zshrc" "$SCRIPT_DIR/.zshrc"
+test_stow_link "$HOME/.zshrc" "$SCRIPT_DIR/.zshrc" || TEST_FAILURES=$((TEST_FAILURES + 1))
 
 # Test if ZSH is the default shell
 if [ "$SHELL" = "$(which zsh)" ]; then
@@ -189,10 +186,15 @@ else
     print_warning "ZSH is not set as default shell"
 fi
 
+if [ "$TEST_FAILURES" -gt 0 ]; then
+    print_error "$TEST_FAILURES test(s) failed"
+    exit 1
+fi
+
 print_success "Testing completed!"
 print_warning "Please verify the following manually:"
 print_warning "1. Open a new terminal and check if Catppuccin Mocha theme is displayed correctly"
-print_warning "2. Verify that the system information display shows correctly with neofetch logo and system specs"
+print_warning "2. Verify that the system information display shows correctly with HyFetch logo and system specs"
 print_warning "3. Try the following commands to verify functionality:"
 print_warning "   - Type 'cd' and press TAB to test autocomplete"
 print_warning "   - Type a command and press right arrow to test autosuggestions"

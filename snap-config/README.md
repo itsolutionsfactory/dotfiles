@@ -16,7 +16,6 @@ This module manages the installation and configuration of Snap packages on Ubunt
 ### Communication Tools
 - Signal
 - Zoom
-- Microsoft Teams
 
 ### Productivity
 - OnlyOffice Desktop Editors

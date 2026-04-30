@@ -122,11 +122,26 @@ update_snap_packages() {
     print_success "All snap packages refreshed"
 }
 
-# Function to update all packages (apt and snap)
+# Function to update all flatpak packages
+update_flatpak_packages() {
+    print_header "Updating Flatpak Packages"
+
+    if ! command_exists flatpak; then
+        print_warning "flatpak is not installed, skipping Flatpak updates"
+        return 0
+    fi
+
+    print_info "Updating all system Flatpak packages..."
+    sudo flatpak update --system -y
+    print_success "All system Flatpak packages updated"
+}
+
+# Function to update all packages (apt, snap, and flatpak)
 update_all_packages() {
     print_header "Updating All System Packages"
     update_apt_packages
     update_snap_packages
+    update_flatpak_packages
     print_success "All packages updated successfully!"
 }
 
@@ -139,29 +154,30 @@ show_help() {
     echo -e "${TEXT}Options:${BASE}"
     echo -e "  ${GREEN}--all${BASE}          Install all modules in predefined order without prompts"
     echo -e "  ${GREEN}--backup${BASE}       Only handle backup of existing .config"
-    echo -e "  ${GREEN}--update${BASE}       Update all apt and snap packages"
+    echo -e "  ${GREEN}--update${BASE}       Update all apt, snap, and flatpak packages"
     echo -e "  ${GREEN}--help${BASE}         Show this help message"
     echo
     echo -e "${TEXT}Installation Order (--all):${BASE}"
     echo -e "  ${BLUE}1.${BASE}  apt-packages    # System packages and WireGuard VPN"
     echo -e "  ${BLUE}2.${BASE}  certs          # SSL/TLS certificates"
     echo -e "  ${BLUE}3.${BASE}  zsh            # Enhanced shell configuration"
-    echo -e "  ${BLUE}4.${BASE}  neofetch       # System information display"
+    echo -e "  ${BLUE}4.${BASE}  hyfetch        # System information display"
     echo -e "  ${BLUE}5.${BASE}  snap-config    # Snap package management"
-    echo -e "  ${BLUE}6.${BASE}  vim            # Neovim text editor"
-    echo -e "  ${BLUE}7.${BASE}  kitty          # Terminal emulator"
-    echo -e "  ${BLUE}8.${BASE}  kubectl        # Kubernetes CLI tools"
-    echo -e "  ${BLUE}9.${BASE}  github-cli     # GitHub command-line interface"
-    echo -e "  ${BLUE}10.${BASE} slack          # Slack desktop application"
-    echo -e "  ${BLUE}11.${BASE} docker         # Docker configuration"
-    echo -e "  ${BLUE}12.${BASE} nvm            # Node Version Manager"
-    echo -e "  ${BLUE}13.${BASE} gitlab-cli     # GitLab command-line interface"
+    echo -e "  ${BLUE}6.${BASE}  flatpak-config # Flatpak package management and Teams"
+    echo -e "  ${BLUE}7.${BASE}  vim            # Neovim text editor"
+    echo -e "  ${BLUE}8.${BASE}  kitty          # Terminal emulator"
+    echo -e "  ${BLUE}9.${BASE}  kubectl        # Kubernetes CLI tools"
+    echo -e "  ${BLUE}10.${BASE} github-cli     # GitHub command-line interface"
+    echo -e "  ${BLUE}11.${BASE} slack          # Slack desktop application"
+    echo -e "  ${BLUE}12.${BASE} docker         # Docker configuration"
+    echo -e "  ${BLUE}13.${BASE} nvm            # Node Version Manager"
+    echo -e "  ${BLUE}14.${BASE} gitlab-cli     # GitLab command-line interface"
     echo
     echo -e "${TEXT}Examples:${BASE}"
     echo -e "  ${BLUE}./install.sh${BASE}           # Interactive installation"
     echo -e "  ${BLUE}./install.sh --all${BASE}     # Install everything in order"
     echo -e "  ${BLUE}./install.sh --backup${BASE}  # Only handle backup"
-    echo -e "  ${BLUE}./install.sh --update${BASE}  # Update all apt and snap packages"
+    echo -e "  ${BLUE}./install.sh --update${BASE}  # Update all apt, snap, and flatpak packages"
     exit 0
 }
 
@@ -222,8 +238,9 @@ install_all_modules() {
         "apt-packages"
         "certs"
         "zsh"
-        "neofetch"
+        "hyfetch"
         "snap-config"
+        "flatpak-config"
         "vim"
         "kitty"
         "kubectl"

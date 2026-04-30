@@ -72,7 +72,6 @@ SNAP_PACKAGES=(
     "spotify"                  # Spotify
     "signal-desktop"           # Signal
     "zoom-client"              # Zoom
-    "teams-for-linux"          # Microsoft Teams
     "htop"                     # htop
     "onlyoffice-desktopeditors" # OnlyOffice
     "freelens --classic"        # Freelens - Kubernetes IDE
