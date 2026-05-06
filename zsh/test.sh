@@ -109,6 +109,24 @@ test_oh_my_zsh_config() {
 print_header "Testing $MODULE_NAME configuration"
 TEST_FAILURES=0
 
+if [ "${DOTFILES_TEST_MODE:-0}" = "1" ]; then
+    # shellcheck source=../scripts/test-lib.sh
+    . "$SCRIPT_DIR/../scripts/test-lib.sh"
+    test_stow_link_portable "$HOME/.zshrc" "$SCRIPT_DIR/.zshrc" || TEST_FAILURES=$((TEST_FAILURES + 1))
+    grep -q 'brew --prefix nvm' "$HOME/.zshrc" || {
+        print_error ".zshrc does not include the Homebrew NVM fallback"
+        TEST_FAILURES=$((TEST_FAILURES + 1))
+    }
+
+    if [ "$TEST_FAILURES" -gt 0 ]; then
+        print_error "$TEST_FAILURES test(s) failed"
+        exit 1
+    fi
+
+    print_success "Portable $MODULE_NAME tests completed"
+    exit 0
+fi
+
 # Test basic installations
 if command -v zsh &> /dev/null; then
     print_success "ZSH is installed"

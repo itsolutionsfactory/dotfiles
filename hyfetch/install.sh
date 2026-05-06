@@ -7,6 +7,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BACKUP_DIR="$SCRIPT_DIR/../backup"
 MODULE_NAME="hyfetch"
+OS_TYPE="$(uname -s)"
 HYFETCH_CONFIG="$HOME/.config/hyfetch.json"
 NEOWOFETCH_CONFIG="$HOME/.config/neowofetch/config.conf"
 LEGACY_NEOFETCH_CONFIG="$HOME/.config/neofetch/config.conf"
@@ -67,27 +68,70 @@ mkdir -p "$BACKUP_DIR"
 # Install HyFetch if not already installed
 if ! command -v hyfetch &> /dev/null; then
     print_status "Installing hyfetch..."
-    sudo apt-get update
-    sudo apt-get install -y hyfetch
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        if ! command -v brew >/dev/null 2>&1; then
+            print_error "Homebrew is required to install hyfetch on MacOS"
+            exit 1
+        fi
+        brew install hyfetch
+    else
+        sudo apt-get update
+        sudo apt-get install -y hyfetch
+    fi
     print_success "hyfetch installed successfully"
 else
     print_status "hyfetch is already installed"
 fi
 
 # Install Hack Nerd Font if not already installed
-if ! fc-list | grep -i "Hack Nerd Font" &> /dev/null; then
+if [ "$OS_TYPE" = "Darwin" ]; then
+    font_installed() {
+        system_profiler SPFontsDataType 2>/dev/null | grep -i "Hack Nerd Font" &> /dev/null
+    }
+else
+    font_installed() {
+        fc-list | grep -i "Hack Nerd Font" &> /dev/null
+    }
+fi
+
+if ! font_installed; then
     print_status "Installing Hack Nerd Font..."
-    FONT_DIR="$HOME/.local/share/fonts"
-    mkdir -p "$FONT_DIR"
-    wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/Hack.zip -O /tmp/hack.zip
-    unzip -q /tmp/hack.zip -d /tmp/hack
-    cp /tmp/hack/*.ttf "$FONT_DIR"
-    rm -rf /tmp/hack /tmp/hack.zip
-    fc-cache -f -v
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        if ! command -v brew >/dev/null 2>&1; then
+            print_error "Homebrew is required to install fonts on MacOS"
+            exit 1
+        fi
+        brew install --cask font-hack-nerd-font
+    else
+        FONT_DIR="$HOME/.local/share/fonts"
+        mkdir -p "$FONT_DIR"
+        wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/Hack.zip -O /tmp/hack.zip
+        unzip -q /tmp/hack.zip -d /tmp/hack
+        cp /tmp/hack/*.ttf "$FONT_DIR"
+        rm -rf /tmp/hack /tmp/hack.zip
+        fc-cache -f -v
+    fi
     print_success "Hack Nerd Font installed successfully"
 else
     print_status "Hack Nerd Font is already installed"
 fi
+
+resolve_link_target() {
+    local link_path="$1"
+    local link_target
+    link_target="$(readlink "$link_path" || true)"
+
+    case "$link_target" in
+        /*) printf '%s\n' "$link_target" ;;
+        *)
+            (
+                cd "$(dirname "$link_path")"
+                cd "$(dirname "$link_target")"
+                printf '%s/%s\n' "$(pwd -P)" "$(basename "$link_target")"
+            )
+            ;;
+    esac
+}
 
 backup_existing_config() {
     local config_path="$1"
@@ -96,7 +140,7 @@ backup_existing_config() {
     if [ -e "$config_path" ] || [ -L "$config_path" ]; then
         if [ -L "$config_path" ]; then
             local symlink_target
-            symlink_target="$(readlink -m "$config_path")"
+            symlink_target="$(resolve_link_target "$config_path")"
 
             case "$symlink_target" in
                 "$SCRIPT_DIR"/*)

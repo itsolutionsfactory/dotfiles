@@ -7,6 +7,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BACKUP_DIR="$SCRIPT_DIR/../backup"
 MODULE_NAME="gitlab-cli"
+OS_TYPE="$(uname -s)"
 
 # Catppuccin Mocha color scheme
 # Base colors
@@ -67,13 +68,22 @@ if command_exists glab; then
     print_success "GitLab CLI (glab) is already installed"
     glab version
 else
-    print_status "Installing GitLab CLI (glab) via snap..."
-    
-    if ! sudo snap install glab; then
-        print_error "Failed to install GitLab CLI via snap"
-        exit 1
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        print_status "Installing GitLab CLI (glab) via Homebrew..."
+        if ! command -v brew >/dev/null 2>&1; then
+            print_error "Homebrew is required to install GitLab CLI on MacOS"
+            exit 1
+        fi
+        brew install glab
+    else
+        print_status "Installing GitLab CLI (glab) via snap..."
+
+        if ! sudo snap install glab; then
+            print_error "Failed to install GitLab CLI via snap"
+            exit 1
+        fi
     fi
-    
+
     # Verify installation
     if command_exists glab; then
         print_success "GitLab CLI installed successfully"
@@ -87,16 +97,16 @@ fi
 # Check if configuration directory exists
 if [ -d "$HOME/.config/glab" ]; then
     print_warning "Existing GitLab CLI configuration found"
-    
+
     # Create backup
     TIMESTAMP=$(date +"%Y-%m-%d_%H-%M")
     BACKUP_PATH="$BACKUP_DIR/modules/$MODULE_NAME/$TIMESTAMP"
     mkdir -p "$BACKUP_PATH"
-    
+
     print_status "Creating backup of existing configuration..."
     cp -r "$HOME/.config/glab" "$BACKUP_PATH/"
     print_success "Backup created at: $BACKUP_PATH"
-    
+
     # Remove existing configuration
     rm -rf "$HOME/.config/glab"
     print_status "Removed existing configuration"

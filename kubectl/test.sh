@@ -49,35 +49,15 @@ print_header() {
     echo -e "\n${MAUVE}=== $1 ===${BASE}\n"
 }
 
+# shellcheck source=../scripts/test-lib.sh
+. "$SCRIPT_DIR/../scripts/test-lib.sh"
+
 # Test functions
 test_stow_link() {
     local target="$1"
     local source="$2"
-    
-    print_status "Testing stow link: $target"
-    
-    # Check if the target is a symbolic link
-    if [ ! -L "$target" ]; then
-        print_error "$target is not a symbolic link"
-        return 1
-    fi
-    
-    # Get the absolute path of the source
-    local abs_source="$(cd "$(dirname "$source")" && pwd)/$(basename "$source")"
-    
-    # Get the absolute path of the target's link
-    local abs_target="$(readlink -f "$target")"
-    
-    # Compare the paths
-    if [ "$abs_target" = "$abs_source" ]; then
-        print_success "$target is properly linked by stow"
-        return 0
-    else
-        print_error "$target is not properly linked by stow"
-        print_error "Expected: $abs_source"
-        print_error "Got: $abs_target"
-        return 1
-    fi
+
+    test_stow_link_portable "$target" "$source"
 }
 
 test_file_exists() {
@@ -106,8 +86,35 @@ test_dependency() {
     fi
 }
 
+test_stow_dir_or_nested_file() {
+    local target_dir="$1"
+    local source_dir="$2"
+    local nested_file="$3"
+
+    if [ -L "$target_dir" ]; then
+        test_stow_link "$target_dir" "$source_dir"
+    else
+        test_stow_link "$target_dir/$nested_file" "$source_dir/$nested_file"
+    fi
+}
+
 # Main test execution
 print_header "Testing $MODULE_NAME configuration"
+
+if [ "${DOTFILES_TEST_MODE:-0}" = "1" ]; then
+    test_stow_dir_or_nested_file "$CONFIG_DIR" "$SCRIPT_DIR/.config/$MODULE_NAME" "config.zsh"
+    test_stow_dir_or_nested_file "$HOME/.kube" "$SCRIPT_DIR/.kube" "config"
+
+    if grep -q 'command: kubelogin' "$HOME/.kube/config"; then
+        print_success "kubeconfig uses PATH-based kubelogin"
+    else
+        print_error "kubeconfig does not use PATH-based kubelogin"
+        exit 1
+    fi
+
+    print_success "Portable $MODULE_NAME tests completed"
+    exit 0
+fi
 
 # Test dependencies
 test_dependency "kubectl" || exit 1
@@ -165,8 +172,8 @@ else
 fi
 
 # Test stow links
-test_stow_link "$CONFIG_DIR" "$SCRIPT_DIR/.config/$MODULE_NAME" || exit 1
-test_stow_link "$HOME/.kube" "$SCRIPT_DIR/.kube" || exit 1
+test_stow_dir_or_nested_file "$CONFIG_DIR" "$SCRIPT_DIR/.config/$MODULE_NAME" "config.zsh" || exit 1
+test_stow_dir_or_nested_file "$HOME/.kube" "$SCRIPT_DIR/.kube" "config" || exit 1
 
 # Test OIDC configuration
 print_status "Testing OIDC configuration"

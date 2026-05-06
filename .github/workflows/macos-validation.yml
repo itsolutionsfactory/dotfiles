@@ -1,0 +1,75 @@
+name: MacOS validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - macos-support-validation
+
+jobs:
+  macos:
+    name: Validate MacOS support
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare scripts
+        run: |
+          chmod +x install.sh install_macos.sh install_ubuntu.sh test-macos.sh
+
+      - name: Validate shell syntax
+        run: |
+          bash -n install.sh install_macos.sh install_ubuntu.sh test-macos.sh
+          bash -n zsh/install.sh hyfetch/install.sh vim/install.sh kitty/install.sh
+          bash -n kubectl/install.sh github-cli/install.sh gitlab-cli/install.sh nvm/install.sh
+
+      - name: Validate Brewfile
+        run: |
+          ruby -c Brewfile
+          brew bundle list --file=Brewfile
+
+      - name: Install CI validation dependencies
+        run: brew install stow
+
+      - name: Run MacOS validation script
+        run: ./test-macos.sh
+
+      - name: Run safe stow dry-runs
+        run: |
+          set -euo pipefail
+
+          TEST_HOME="$(mktemp -d)"
+          mkdir -p "$TEST_HOME/.config"
+
+          dry_run_home_module() {
+            local module="$1"
+            echo "Dry-running home stow for ${module}"
+            (
+              cd "$module"
+              stow -n -v -t "$TEST_HOME" .
+            )
+          }
+
+          dry_run_config_module() {
+            local module="$1"
+            echo "Dry-running .config stow for ${module}"
+            (
+              cd "$module"
+              stow -n -v -t "$TEST_HOME/.config" .config
+            )
+          }
+
+          dry_run_home_module zsh
+          dry_run_home_module nvm
+          dry_run_config_module hyfetch
+          dry_run_config_module vim
+          dry_run_config_module kitty
+          dry_run_config_module kubectl
+          dry_run_home_module kubectl
+          dry_run_config_module github-cli
+          dry_run_config_module gitlab-cli
+
+      - name: Verify MacOS installer help
+        run: bash install_macos.sh --help

@@ -354,6 +354,22 @@ test_stow_link() {
 # Main test execution
 print_header "Testing $MODULE_NAME configuration"
 
+if [ "${DOTFILES_TEST_MODE:-0}" = "1" ]; then
+    # shellcheck source=../scripts/test-lib.sh
+    . "$SCRIPT_DIR/../scripts/test-lib.sh"
+    test_stow_link_portable "$HOME/.npmrc" "$SCRIPT_DIR/.npmrc"
+
+    if grep -q "registry=https://jfrog-artifactory.steelhome.internal" "$HOME/.npmrc" 2>/dev/null; then
+        print_success ".npmrc contains JFrog Artifactory registry configuration"
+    else
+        print_error ".npmrc does not contain JFrog Artifactory registry configuration"
+        exit 1
+    fi
+
+    print_success "Portable $MODULE_NAME tests completed"
+    exit 0
+fi
+
 # Test NVM installation
 test_nvm_directory
 test_nvm_script

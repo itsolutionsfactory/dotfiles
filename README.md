@@ -1,10 +1,10 @@
-# Ubuntu 24 LTS Dotfiles
+# Cross-Platform Dotfiles
 
-This repository contains configuration files and setup scripts for Ubuntu 24 LTS. It uses GNU Stow for managing dotfiles and provides a streamlined way to set up a development environment.
+This repository contains configuration files and setup scripts for Ubuntu 24 LTS and MacOS. It uses GNU Stow for managing dotfiles and provides a streamlined way to set up a development environment.
 
 ## Overview
 
-This project aims to provide a consistent and reproducible setup for Ubuntu 24 LTS systems, focusing on development tools and system configurations. The setup is managed through GNU Stow, which creates symbolic links to the appropriate locations in the home directory.
+This project aims to provide a consistent and reproducible setup for Ubuntu 24 LTS and MacOS systems, focusing on development tools and system configurations. The setup is managed through GNU Stow, which creates symbolic links to the appropriate locations in the home directory.
 
 ## Manual Setup Steps
 
@@ -54,9 +54,9 @@ For Framework Laptop 13 (AMD Ryzen™ AI 300 Series), update the firmware using 
    - Keep the laptop plugged in throughout the entire process
    - Do not close the lid during the update process
 
-### System Preparation
+### Ubuntu System Preparation
 
-After completing the manual steps above:
+After completing the manual steps above on Ubuntu:
 
 1. **Update the system:**
    ```bash
@@ -74,11 +74,34 @@ After completing the manual steps above:
    cd dotfiles
    ```
 
+### MacOS System Preparation
+
+On MacOS, the installer uses Homebrew and a `Brewfile` for package management:
+
+1. **Install Xcode command line tools:**
+   ```bash
+   xcode-select --install
+   ```
+
+2. **Clone this repository:**
+   ```bash
+   git clone <repository-url>
+   cd dotfiles
+   ```
+
+3. **Run the installer:**
+   ```bash
+   ./install.sh --all
+   ```
+
+If Homebrew is missing, the MacOS installer will bootstrap it from the official installer before running `brew bundle`.
+
 ## Prerequisites
 
-- Ubuntu 24 LTS
+- Ubuntu 24 LTS or MacOS
 - GNU Stow
 - Basic development tools
+- Homebrew on MacOS
 - Framework Laptop firmware updated (if applicable)
 
 ## Project Structure
@@ -89,8 +112,12 @@ Each directory in this repository represents a specific tool or configuration se
 .
 ├── README.md           # This file
 ├── CHANGELOG.md        # Project evolution and changes
-├── install.sh          # Main installation script
+├── install.sh          # OS dispatcher for Ubuntu and MacOS
+├── install_ubuntu.sh   # Ubuntu installation script
+├── install_macos.sh    # MacOS installation script
+├── Brewfile            # Homebrew bundle for MacOS packages
 ├── test-all.sh         # Test script for all configurations
+├── test-macos.sh       # Lightweight MacOS validation script
 ├── test-docker.sh      # Script to test in Docker environment
 ├── Dockerfile          # Docker configuration for testing
 ├── docker-compose.yml  # Docker Compose configuration
@@ -103,6 +130,10 @@ Each directory in this repository represents a specific tool or configuration se
 
 ## Installation
 
+The root `install.sh` detects the operating system and dispatches to:
+- `install_ubuntu.sh` on Linux/Ubuntu
+- `install_macos.sh` on MacOS
+
 ### Interactive Installation
 
 To install configurations interactively:
@@ -113,13 +144,12 @@ To install configurations interactively:
 
 The installation process includes:
 1. Checking and installing required dependencies
-2. Managing existing `.config` directory:
-   - If `.config` exists, you'll be prompted to:
-     - Create a backup (recommended) - backups are stored in the `backup` directory
-     - Overwrite existing configuration
-     - Exit installation
-   - If `.config` doesn't exist, it will be created
-3. Installing selected configurations with proper backups
+2. Ensuring the repository backup directory and `$HOME/.config` exist
+3. Installing selected configurations with module-level backups where the module supports them
+
+The root installers do not move or overwrite an existing `$HOME/.config` directory. Existing module configuration is handled by each module installer before it calls Stow; modules may back up, remove a repository-managed symlink, or fail with a clear conflict that requires manual review.
+
+On MacOS, package installation is handled by Homebrew through `Brewfile`. Linux-only modules are skipped by the MacOS installer.
 
 ### Update System Packages
 
@@ -145,7 +175,7 @@ To install all configurations automatically in a specific order:
 ./install.sh --all
 ```
 
-This will install all modules in the following predefined order:
+On Ubuntu, this will install all modules in the following predefined order:
 1. **apt-packages** - System packages and WireGuard VPN
 2. **certs** - SSL/TLS certificates
 3. **zsh** - Enhanced shell configuration
@@ -161,6 +191,20 @@ This will install all modules in the following predefined order:
 13. **nvm** - Node Version Manager
 14. **gitlab-cli** - GitLab command-line interface
 
+On MacOS, this will install Homebrew packages from `Brewfile` and then install these shared modules:
+1. **zsh** - Enhanced shell configuration
+2. **hyfetch** - System information display
+3. **vim** - Neovim text editor
+4. **kitty** - Terminal emulator
+5. **kubectl** - Kubernetes CLI tools
+6. **github-cli** - GitHub command-line interface
+7. **gitlab-cli** - GitLab command-line interface
+8. **nvm** - Node Version Manager
+
+The MacOS installer intentionally skips Linux-specific modules: `apt-packages`, `snap-config`, `flatpak-config`, `appimaged`, `certs`, `docker`, `slack`, and `powershell`.
+
+For MacOS, `Brewfile` installs app casks such as Docker Desktop, Slack, Kitty, and PowerShell. Those casks only install the applications; they do not run the Linux module configuration scripts. Add a dedicated MacOS module later if an app needs Mac-specific configuration beyond installation.
+
 ### Individual Module Installation
 
 To install specific tool configurations:
@@ -171,7 +215,7 @@ stow [tool_name]
 
 Note: Each module's installation script will:
 1. Check for existing configuration
-2. Create a backup if needed
+2. Create a backup if implemented by that module
 3. Install any missing dependencies
 4. Apply the configuration using stow
 
@@ -183,6 +227,14 @@ To test all configurations locally:
 ```bash
 ./test-all.sh
 ```
+
+To run the lightweight MacOS validation checks:
+
+```bash
+./test-macos.sh
+```
+
+This validates MacOS installer syntax, the `Brewfile`, and the expected shared module layout. When run on MacOS with Homebrew available, it also asks `brew bundle` to validate the bundle file.
 
 ### Docker Testing
 To test the configuration in a Docker environment:
