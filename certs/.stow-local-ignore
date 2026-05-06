@@ -3,4 +3,5 @@ install.sh
 test.sh
 README.md
 .stow-local-ignore
+root-ca.crt
 

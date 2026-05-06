@@ -112,7 +112,7 @@ test_bash_syntax "$SCRIPT_DIR/install.sh"
 test_bash_syntax "$SCRIPT_DIR/install_macos.sh"
 test_bash_syntax "$SCRIPT_DIR/install_ubuntu.sh"
 
-for module in zsh hyfetch vim kitty kubectl github-cli gitlab-cli nvm; do
+for module in zsh certs hyfetch vim kitty kubectl github-cli gitlab-cli nvm; do
     test_module_layout "$module"
     test_bash_syntax "$SCRIPT_DIR/$module/install.sh"
 done
@@ -151,7 +151,7 @@ stow_for_test "$TEST_HOME" kubectl "$TEST_HOME"
 stow_for_test "$TEST_HOME" github-cli "$TEST_HOME/.config" ".config"
 stow_for_test "$TEST_HOME" gitlab-cli "$TEST_HOME/.config" ".config"
 
-for module in zsh nvm hyfetch vim kitty kubectl github-cli gitlab-cli; do
+for module in zsh nvm certs hyfetch vim kitty kubectl github-cli gitlab-cli; do
     run_portable_module_test "$TEST_HOME" "$module"
 done
 

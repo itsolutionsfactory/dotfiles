@@ -24,6 +24,7 @@ jobs:
           bash -n install.sh install_macos.sh install_ubuntu.sh test-macos.sh
           bash -n zsh/install.sh hyfetch/install.sh vim/install.sh kitty/install.sh
           bash -n kubectl/install.sh github-cli/install.sh gitlab-cli/install.sh nvm/install.sh
+          bash -n certs/install.sh certs/test.sh
 
       - name: Validate Brewfile
         run: |
@@ -62,6 +63,7 @@ jobs:
           }
 
           dry_run_home_module zsh
+          dry_run_home_module certs
           dry_run_home_module nvm
           dry_run_config_module hyfetch
           dry_run_config_module vim

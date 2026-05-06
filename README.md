@@ -193,17 +193,20 @@ On Ubuntu, this will install all modules in the following predefined order:
 
 On MacOS, this will install Homebrew packages from `Brewfile` and then install these shared modules:
 1. **zsh** - Enhanced shell configuration
-2. **hyfetch** - System information display
-3. **vim** - Neovim text editor
-4. **kitty** - Terminal emulator
-5. **kubectl** - Kubernetes CLI tools
-6. **github-cli** - GitHub command-line interface
-7. **gitlab-cli** - GitLab command-line interface
-8. **nvm** - Node Version Manager
+2. **certs** - Root CA certificate installation
+3. **hyfetch** - System information display
+4. **vim** - Neovim text editor
+5. **kitty** - Terminal emulator
+6. **kubectl** - Kubernetes CLI tools
+7. **github-cli** - GitHub command-line interface
+8. **gitlab-cli** - GitLab command-line interface
+9. **nvm** - Node Version Manager
 
-The MacOS installer intentionally skips Linux-specific modules: `apt-packages`, `snap-config`, `flatpak-config`, `appimaged`, `certs`, `docker`, `slack`, and `powershell`.
+The MacOS installer intentionally skips Linux-specific modules: `apt-packages`, `snap-config`, `flatpak-config`, `appimaged`, `docker`, `slack`, and `powershell`.
 
-For MacOS, `Brewfile` installs app casks such as Docker Desktop, Slack, Kitty, and PowerShell. Those casks only install the applications; they do not run the Linux module configuration scripts. Add a dedicated MacOS module later if an app needs Mac-specific configuration beyond installation.
+For MacOS, `Brewfile` installs command-line tools such as WireGuard tools (`wg` and `wg-quick`) and app casks such as Docker Desktop, Slack, Microsoft Teams, Kitty, and PowerShell. Those casks only install the applications; they do not run the Linux module configuration scripts. Add a dedicated MacOS module later if an app needs Mac-specific configuration beyond installation.
+
+On Ubuntu, the `certs` module installs the root CA through `update-ca-certificates`. On MacOS, it imports the same root CA into the System keychain and will prompt for sudo.
 
 ### Individual Module Installation
 

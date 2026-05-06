@@ -18,6 +18,7 @@ MAUVE="\033[38;2;203;166;247m"
 
 declare -a MACOS_MODULE_ORDER=(
     "zsh"
+    "certs"
     "hyfetch"
     "vim"
     "kitty"
@@ -32,7 +33,6 @@ declare -a MACOS_SKIP_MODULES=(
     "snap-config"
     "flatpak-config"
     "appimaged"
-    "certs"
     "docker"
     "slack"
     "powershell"

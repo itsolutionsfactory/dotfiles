@@ -2,6 +2,11 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OS_TYPE="$(uname -s)"
+USER_CERT="$HOME/.certs/root-ca.crt"
+SOURCE_CERT="$SCRIPT_DIR/root-ca.crt"
+
 # Catppuccin Mocha color scheme
 # Base colors
 BASE="\033[0m"
@@ -43,10 +48,45 @@ print_header() {
     echo -e "\n${MAUVE}=== $1 ===${BASE}\n"
 }
 
+file_permissions() {
+    local file="$1"
+
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        stat -f "%Lp" "$file"
+    else
+        stat -c "%a" "$file"
+    fi
+}
+
+test_certificate_format() {
+    local cert="$1"
+
+    if openssl x509 -in "$cert" -text -noout &>/dev/null; then
+        print_success "Certificate format is valid: $cert"
+    else
+        print_error "Certificate format is invalid: $cert"
+        exit 1
+    fi
+}
+
 print_header "Testing certificate installation"
 
+if [ "${DOTFILES_TEST_MODE:-}" = "1" ]; then
+    if [ -f "$SOURCE_CERT" ]; then
+        print_success "Source certificate found"
+    else
+        print_error "Source certificate not found: $SOURCE_CERT"
+        exit 1
+    fi
+
+    test_certificate_format "$SOURCE_CERT"
+    print_warning "System trust store checks are skipped in DOTFILES_TEST_MODE"
+    print_success "Portable certificate tests passed"
+    exit 0
+fi
+
 # Test 1: Check if certificate exists in ~/.certs
-if [ -f ~/.certs/root-ca.crt ]; then
+if [ -f "$USER_CERT" ]; then
     print_success "Certificate found in ~/.certs"
 else
     print_error "Certificate not found in ~/.certs"
@@ -54,7 +94,7 @@ else
 fi
 
 # Test 2: Check certificate permissions
-PERMS=$(stat -c "%a" ~/.certs/root-ca.crt)
+PERMS=$(file_permissions "$USER_CERT")
 if [ "$PERMS" = "644" ]; then
     print_success "Certificate has correct permissions (644)"
 else
@@ -63,20 +103,31 @@ else
 fi
 
 # Test 3: Verify certificate format
-if openssl x509 -in ~/.certs/root-ca.crt -text -noout &>/dev/null; then
-    print_success "Certificate format is valid"
-else
-    print_error "Certificate format is invalid"
-    exit 1
-fi
+test_certificate_format "$USER_CERT"
 
 # Test 4: Check if certificate is in system trust store
-if [ -f /usr/local/share/ca-certificates/root-ca.crt ]; then
-    print_success "Certificate found in system trust store"
-else
-    print_error "Certificate not found in system trust store"
-    exit 1
-fi
+case "$OS_TYPE" in
+    Linux)
+        if [ -f /usr/local/share/ca-certificates/root-ca.crt ]; then
+            print_success "Certificate found in Linux system trust store"
+        else
+            print_error "Certificate not found in Linux system trust store"
+            exit 1
+        fi
+        ;;
+    Darwin)
+        if security find-certificate -c "Group Root Certification Authority" /Library/Keychains/System.keychain >/dev/null 2>&1; then
+            print_success "Certificate found in MacOS System keychain"
+        else
+            print_error "Certificate not found in MacOS System keychain"
+            exit 1
+        fi
+        ;;
+    *)
+        print_error "Unsupported operating system: $OS_TYPE"
+        exit 1
+        ;;
+esac
 
 print_success "All tests passed successfully!"
 print_warning "Please verify the following manually:"

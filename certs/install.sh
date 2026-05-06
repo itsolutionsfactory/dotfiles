@@ -2,6 +2,13 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MODULE_NAME="certs"
+OS_TYPE="$(uname -s)"
+USER_CERT_DIR="$HOME/.certs"
+USER_CERT="$USER_CERT_DIR/root-ca.crt"
+ROOT_CA_SOURCE="$SCRIPT_DIR/root-ca.crt"
+
 # Catppuccin Mocha color scheme
 # Base colors
 BASE="\033[0m"
@@ -43,26 +50,59 @@ print_header() {
     echo -e "\n${MAUVE}=== $1 ===${BASE}\n"
 }
 
+install_linux_trust() {
+    print_status "Installing certificate in Linux system trust store..."
+    sudo mkdir -p /usr/local/share/ca-certificates
+    sudo cp "$USER_CERT" /usr/local/share/ca-certificates/root-ca.crt
+    sudo update-ca-certificates
+    print_success "Linux system trust store updated"
+}
+
+install_macos_trust() {
+    print_status "Installing certificate in MacOS System keychain..."
+
+    if ! command -v security >/dev/null 2>&1; then
+        print_error "MacOS security command not found"
+        exit 1
+    fi
+
+    sudo security add-trusted-cert \
+        -d \
+        -r trustRoot \
+        -k /Library/Keychains/System.keychain \
+        "$USER_CERT"
+
+    print_success "MacOS System keychain updated"
+}
+
 # Create necessary directories
 print_status "Creating necessary directories..."
-mkdir -p ~/.certs
-mkdir -p ~/.config/certs
+mkdir -p "$USER_CERT_DIR"
+mkdir -p "$HOME/.config/certs"
 
 # Copy root CA certificate from the module directory
 print_status "Copying root CA certificate..."
-cp "$(dirname "$0")/root-ca.crt" ~/.certs/
+cp "$ROOT_CA_SOURCE" "$USER_CERT"
 
-# Install certificate in system trust store (requires sudo)
-print_status "Installing certificate in system trust store..."
-sudo cp ~/.certs/root-ca.crt /usr/local/share/ca-certificates/
-sudo update-ca-certificates
+case "$OS_TYPE" in
+    Linux)
+        install_linux_trust
+        ;;
+    Darwin)
+        install_macos_trust
+        ;;
+    *)
+        print_error "Unsupported operating system: $OS_TYPE"
+        exit 1
+        ;;
+esac
 
 # Set proper permissions
 print_status "Setting proper permissions..."
-chmod 644 ~/.certs/root-ca.crt
+chmod 644 "$USER_CERT"
 
 # Create symlinks
 print_status "Creating symlinks..."
-stow -t ~ -d "$(dirname "$0")" .
+stow -t "$HOME" -d "$SCRIPT_DIR" .
 
-print_success "Certificate installation completed successfully!" 
+print_success "$MODULE_NAME installation completed successfully!"
