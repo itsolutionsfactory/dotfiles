@@ -5,6 +5,7 @@ set -e
 
 # Script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+OS_TYPE="$(uname -s)"
 
 # Dependencies
 declare -a REQUIRED_PACKAGES=(
@@ -36,19 +37,56 @@ command_exists() {
 install_package() {
     local package=$1
     print_info "Installing $package..."
-    sudo apt-get update
-    sudo apt-get install -y "$package"
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        if ! command_exists brew; then
+            print_error "Homebrew is required to install $package on MacOS"
+            exit 1
+        fi
+        brew install "$package"
+    else
+        sudo apt-get update
+        sudo apt-get install -y "$package"
+    fi
     print_success "$package installed successfully"
+}
+
+package_command() {
+    case "$1" in
+        neovim) echo "nvim" ;;
+        fd-find)
+            if [ "$OS_TYPE" = "Darwin" ]; then
+                echo "fd"
+            else
+                echo "fdfind"
+            fi
+            ;;
+        *) echo "$1" ;;
+    esac
+}
+
+package_name() {
+    case "$1" in
+        fd-find)
+            if [ "$OS_TYPE" = "Darwin" ]; then
+                echo "fd"
+            else
+                echo "fd-find"
+            fi
+            ;;
+        *) echo "$1" ;;
+    esac
 }
 
 # Check and install dependencies
 print_info "Checking dependencies..."
 for package in "${REQUIRED_PACKAGES[@]}"; do
-    if ! command_exists "$package"; then
-        print_info "$package not found. Installing..."
-        install_package "$package"
+    command_name="$(package_command "$package")"
+    install_name="$(package_name "$package")"
+    if ! command_exists "$command_name"; then
+        print_info "$command_name not found. Installing $install_name..."
+        install_package "$install_name"
     else
-        print_success "$package is already installed"
+        print_success "$command_name is already installed"
     fi
 done
 
@@ -65,4 +103,4 @@ print_success "Neovim configuration installed successfully!"
 print_info "First time setup:"
 print_info "1. Open Neovim with 'nvim'"
 print_info "2. Wait for plugins to install"
-print_info "3. Restart Neovim" 
+print_info "3. Restart Neovim"

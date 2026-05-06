@@ -7,6 +7,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BACKUP_DIR="$SCRIPT_DIR/../backup"
 MODULE_NAME="kitty"
+OS_TYPE="$(uname -s)"
 
 # Catppuccin Mocha color scheme
 # Base colors
@@ -67,7 +68,7 @@ if [ -d "$HOME/.config/kitty" ]; then
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
     tar -czf "$BACKUP_DIR/kitty_backup_$TIMESTAMP.tar.gz" -C "$HOME" .config/kitty
     print_success "Backup created at $BACKUP_DIR/kitty_backup_$TIMESTAMP.tar.gz"
-    
+
     # Remove existing configuration after backup
     print_status "Removing existing Kitty configuration..."
     rm -rf "$HOME/.config/kitty"
@@ -78,6 +79,13 @@ fi
 if [ -f /.dockerenv ]; then
     print_warning "Running in Docker environment - skipping Kitty installation"
     print_warning "Kitty requires a desktop environment and cannot be installed in Docker"
+elif [ "$OS_TYPE" = "Darwin" ]; then
+    if command -v brew >/dev/null 2>&1 && ! brew list --cask kitty >/dev/null 2>&1; then
+        print_status "Installing Kitty via Homebrew..."
+        brew install --cask kitty
+    else
+        print_status "Kitty is already installed or Homebrew is unavailable"
+    fi
 else
     # Install Kitty if not already installed
     if ! command -v kitty &> /dev/null; then
@@ -97,4 +105,4 @@ fi
 print_success "$MODULE_NAME configuration installed successfully!"
 if [ ! -f /.dockerenv ]; then
     print_warning "Please restart Kitty for the changes to take effect"
-fi 
+fi

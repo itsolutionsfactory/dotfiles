@@ -80,6 +80,21 @@ test_stow_link() {
 print_header "Testing $MODULE_NAME configuration"
 TEST_FAILURES=0
 
+if [ "${DOTFILES_TEST_MODE:-0}" = "1" ]; then
+    # shellcheck source=../scripts/test-lib.sh
+    . "$SCRIPT_DIR/../scripts/test-lib.sh"
+    test_stow_link_portable "$HOME/.config/hyfetch.json" "$SCRIPT_DIR/.config/hyfetch.json" || TEST_FAILURES=$((TEST_FAILURES + 1))
+    test_stow_link_portable "$HOME/.config/neowofetch" "$SCRIPT_DIR/.config/neowofetch" || TEST_FAILURES=$((TEST_FAILURES + 1))
+
+    if [ "$TEST_FAILURES" -gt 0 ]; then
+        print_error "$TEST_FAILURES test(s) failed"
+        exit 1
+    fi
+
+    print_success "Portable $MODULE_NAME tests completed"
+    exit 0
+fi
+
 # Test HyFetch installation
 if command -v hyfetch &> /dev/null; then
     print_success "hyfetch is installed"

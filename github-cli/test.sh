@@ -7,6 +7,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MODULE_NAME="github-cli"
 CONFIG_DIR="$HOME/.config/gh"
+OS_TYPE="$(uname -s)"
 
 # Catppuccin Mocha color scheme
 # Base colors
@@ -49,35 +50,15 @@ print_header() {
     echo -e "\n${MAUVE}=== $1 ===${BASE}\n"
 }
 
+# shellcheck source=../scripts/test-lib.sh
+. "$SCRIPT_DIR/../scripts/test-lib.sh"
+
 # Test functions
 test_stow_link() {
     local target="$1"
     local source="$2"
-    
-    print_status "Testing stow link: $target"
-    
-    # Check if the target is a symbolic link
-    if [ ! -L "$target" ]; then
-        print_error "$target is not a symbolic link"
-        return 1
-    fi
-    
-    # Get the absolute path of the source
-    local abs_source="$(cd "$(dirname "$source")" && pwd)/$(basename "$source")"
-    
-    # Get the absolute path of the target's link
-    local abs_target="$(readlink -f "$target")"
-    
-    # Compare the paths
-    if [ "$abs_target" = "$abs_source" ]; then
-        print_success "$target is properly linked by stow"
-        return 0
-    else
-        print_error "$target is not properly linked by stow"
-        print_error "Expected: $abs_source"
-        print_error "Got: $abs_target"
-        return 1
-    fi
+
+    test_stow_link_portable "$target" "$source"
 }
 
 test_file_exists() {
@@ -110,8 +91,15 @@ test_file_permissions() {
     local file="$1"
     local expected_perms="$2"
     print_status "Testing file permissions: $file"
-    
-    local actual_perms=$(stat -c "%a" "$file")
+
+    local actual_perms
+    file="$(resolve_path_portable "$file")"
+
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        actual_perms=$(stat -f "%Lp" "$file")
+    else
+        actual_perms=$(stat -c "%a" "$file")
+    fi
     if [ "$actual_perms" = "$expected_perms" ]; then
         print_success "File permissions correct: $file ($expected_perms)"
         return 0
@@ -139,14 +127,19 @@ test_dependency() {
 test_package_installed() {
     local package="$1"
     print_status "Testing package installation: $package"
-    
-    if dpkg -l "$package" &>/dev/null; then
+
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        if brew list "$package" >/dev/null 2>&1; then
+            print_success "Package installed: $package"
+            return 0
+        fi
+    elif dpkg -l "$package" &>/dev/null; then
         print_success "Package installed: $package"
         return 0
-    else
-        print_error "Package not installed: $package"
-        return 1
     fi
+
+    print_error "Package not installed: $package"
+    return 1
 }
 
 test_github_cli_version() {
@@ -176,7 +169,12 @@ test_github_cli_help() {
 
 test_apt_repository() {
     print_status "Testing GitHub CLI apt repository"
-    
+
+    if [ "$OS_TYPE" != "Linux" ]; then
+        print_warning "APT repository check is Linux-only, skipping"
+        return 0
+    fi
+
     if [ -f "/etc/apt/sources.list.d/github-cli.list" ]; then
         print_success "GitHub CLI apt repository configured"
         return 0
@@ -188,6 +186,15 @@ test_apt_repository() {
 
 # Main test execution
 print_header "Testing $MODULE_NAME configuration"
+
+if [ "${DOTFILES_TEST_MODE:-0}" = "1" ]; then
+    # shellcheck source=../scripts/test-lib.sh
+    . "$SCRIPT_DIR/../scripts/test-lib.sh"
+    test_stow_link_portable "$CONFIG_DIR" "$SCRIPT_DIR/.config/gh"
+    test_file_exists "$CONFIG_DIR/config.yml"
+    print_success "Portable $MODULE_NAME tests completed"
+    exit 0
+fi
 
 # Test dependencies
 test_dependency "gh"
@@ -206,7 +213,12 @@ test_directory_exists "$CONFIG_DIR"
 
 # Test stow links
 test_stow_link "$CONFIG_DIR/config.yml" "$SCRIPT_DIR/.config/gh/config.yml"
-test_stow_link "$CONFIG_DIR/hosts.yml" "$SCRIPT_DIR/.config/gh/hosts.yml"
+
+if [ -f "$SCRIPT_DIR/.config/gh/hosts.yml" ]; then
+    test_stow_link "$CONFIG_DIR/hosts.yml" "$SCRIPT_DIR/.config/gh/hosts.yml"
+else
+    print_warning "hosts.yml is not managed by this module; skipping stow link check"
+fi
 
 # Test configuration files if they exist
 if [ -f "$CONFIG_DIR/config.yml" ]; then

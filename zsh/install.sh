@@ -7,6 +7,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BACKUP_DIR="$SCRIPT_DIR/../backup"
 MODULE_NAME="zsh"
+OS_TYPE="$(uname -s)"
 
 # Catppuccin Mocha color scheme
 # Base colors
@@ -52,11 +53,34 @@ print_header() {
 # Function to check if a font is installed
 check_font_installed() {
     local font_name="$1"
-    if fc-list | grep -i "$font_name" &> /dev/null; then
-        return 0
-    else
-        return 1
+    case "$OS_TYPE" in
+        Darwin)
+            system_profiler SPFontsDataType 2>/dev/null | grep -i "$font_name" &> /dev/null
+            ;;
+        *)
+            fc-list | grep -i "$font_name" &> /dev/null
+            ;;
+    esac
+}
+
+install_brew_package() {
+    local package="$1"
+    if ! command -v brew >/dev/null 2>&1; then
+        print_error "Homebrew is required to install $package on MacOS"
+        exit 1
     fi
+
+    brew install "$package"
+}
+
+install_brew_cask() {
+    local cask="$1"
+    if ! command -v brew >/dev/null 2>&1; then
+        print_error "Homebrew is required to install $cask on MacOS"
+        exit 1
+    fi
+
+    brew install --cask "$cask"
 }
 
 # Print module header
@@ -74,8 +98,12 @@ mkdir -p "$BACKUP_DIR"
 # Install ZSH if not already installed
 if ! command -v zsh &> /dev/null; then
     print_status "Installing ZSH..."
-    sudo apt-get update
-    sudo apt-get install -y zsh
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        install_brew_package "zsh"
+    else
+        sudo apt-get update
+        sudo apt-get install -y zsh
+    fi
 fi
 
 # Remove Oh My Posh if installed
@@ -107,13 +135,17 @@ if check_font_installed "Hack Nerd Font"; then
     print_status "Hack Nerd Font is already installed"
 else
     print_status "Installing Hack Nerd Font..."
-    FONT_DIR="$HOME/.local/share/fonts"
-    mkdir -p "$FONT_DIR"
-    wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/Hack.zip -O /tmp/hack.zip
-    unzip -q /tmp/hack.zip -d /tmp/hack
-    cp /tmp/hack/*.ttf "$FONT_DIR"
-    rm -rf /tmp/hack /tmp/hack.zip
-    fc-cache -f -v
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        install_brew_cask "font-hack-nerd-font"
+    else
+        FONT_DIR="$HOME/.local/share/fonts"
+        mkdir -p "$FONT_DIR"
+        wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/Hack.zip -O /tmp/hack.zip
+        unzip -q /tmp/hack.zip -d /tmp/hack
+        cp /tmp/hack/*.ttf "$FONT_DIR"
+        rm -rf /tmp/hack /tmp/hack.zip
+        fc-cache -f -v
+    fi
 fi
 
 # Install ZSH plugins
@@ -158,18 +190,30 @@ if command -v fzf >/dev/null 2>&1; then
     print_status "fzf is already installed. Skipping installation."
 else
     print_status "Installing fzf..."
-    if [ -d "$HOME/.fzf" ]; then
-        print_warning "fzf directory already exists, removing it..."
-        rm -rf "$HOME/.fzf"
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        install_brew_package "fzf"
+    else
+        if [ -d "$HOME/.fzf" ]; then
+            print_warning "fzf directory already exists, removing it..."
+            rm -rf "$HOME/.fzf"
+        fi
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+        ~/.fzf/install --all
     fi
-    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-    ~/.fzf/install --all
 fi
 
 # Set ZSH as default shell if not already
 if [ "$SHELL" != "$(which zsh)" ]; then
     print_status "Setting ZSH as default shell..."
-    sudo chsh -s "$(which zsh)"
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        if ! grep -q "^$(which zsh)$" /etc/shells; then
+            print_status "Adding $(which zsh) to /etc/shells..."
+            echo "$(which zsh)" | sudo tee -a /etc/shells >/dev/null
+        fi
+        chsh -s "$(which zsh)"
+    else
+        sudo chsh -s "$(which zsh)"
+    fi
     print_warning "Please log out and log back in for the changes to take effect"
 fi
 
@@ -195,4 +239,4 @@ fi
 
 print_success "$MODULE_NAME configuration installed successfully!"
 print_warning "Please set your terminal emulator to use 'Hack Nerd Font' for the best experience"
-print_warning "You may need to restart your terminal for the font changes to take effect" 
+print_warning "You may need to restart your terminal for the font changes to take effect"

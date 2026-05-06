@@ -21,13 +21,23 @@ else
 fi
 
 # Path configuration
-export PATH=$PATH:$HOME/.local/bin
+path=("$HOME/.local/bin" "$HOME/go/bin" $path)
 
 # Editor configuration
-export EDITOR="/usr/bin/vim"
+if command -v nvim >/dev/null 2>&1; then
+    export EDITOR="$(command -v nvim)"
+elif command -v vim >/dev/null 2>&1; then
+    export EDITOR="$(command -v vim)"
+fi
 
 # FZF configuration
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+if command -v brew >/dev/null 2>&1 && [ -d "$(brew --prefix fzf 2>/dev/null)/shell" ]; then
+    FZF_HOMEBREW_SHELL="$(brew --prefix fzf)/shell"
+    [ -f "$FZF_HOMEBREW_SHELL/completion.zsh" ] && source "$FZF_HOMEBREW_SHELL/completion.zsh"
+    [ -f "$FZF_HOMEBREW_SHELL/key-bindings.zsh" ] && source "$FZF_HOMEBREW_SHELL/key-bindings.zsh"
+    unset FZF_HOMEBREW_SHELL
+fi
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 
@@ -79,7 +89,11 @@ alias ...='cd ../..'
 alias mkdir='mkdir -p'
 alias df='df -h'
 alias du='du -h'
-alias free='free -h'
+if command -v free >/dev/null 2>&1; then
+    alias free='free -h'
+elif command -v vm_stat >/dev/null 2>&1; then
+    alias free='vm_stat'
+fi
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -105,19 +119,24 @@ alias fzfp='fzf --preview "bat --color=always --style=numbers --line-range=:500 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-export PATH="$PATH:$HOME/.fzf/bin"
+[ -d "$HOME/.fzf/bin" ] && path=("$HOME/.fzf/bin" $path)
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+    . "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+elif command -v brew >/dev/null 2>&1 && [ -s "$(brew --prefix nvm 2>/dev/null)/nvm.sh" ]; then
+    NVM_HOMEBREW_PREFIX="$(brew --prefix nvm)"
+    . "$NVM_HOMEBREW_PREFIX/nvm.sh"
+    [ -s "$NVM_HOMEBREW_PREFIX/etc/bash_completion.d/nvm" ] && . "$NVM_HOMEBREW_PREFIX/etc/bash_completion.d/nvm"
+    unset NVM_HOMEBREW_PREFIX
+fi
 
 # Kitty and SSH
 # https://wiki.archlinux.org/title/Kitty#Terminal_issues_with_SSH
 [ "$TERM" = "xterm-kitty" ] && alias ssh="kitty +kitten ssh"
 
 # go
-export PATH=$PATH:/usr/local/go/bin
-
-# go bin
-export PATH=$PATH:~/go/bin
+for go_path in /usr/local/go/bin /opt/homebrew/opt/go/bin; do
+    [ -d "$go_path" ] && path=("$go_path" $path)
+done

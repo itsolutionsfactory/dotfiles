@@ -26,6 +26,25 @@ command_exists() {
 
 # Check if Neovim is installed
 print_info "Checking if Neovim is installed..."
+
+if [ "${DOTFILES_TEST_MODE:-0}" = "1" ]; then
+    CONFIG_FILES=(
+        "$HOME/.config/nvim/init.lua"
+        "$HOME/.config/nvim/lua/theme.lua"
+    )
+
+    for file in "${CONFIG_FILES[@]}"; do
+        if [ ! -f "$file" ]; then
+            print_error "Configuration file not found: $file"
+            exit 1
+        fi
+        print_success "Found $file"
+    done
+
+    print_success "Portable vim tests completed"
+    exit 0
+fi
+
 if ! command_exists nvim; then
     print_error "Neovim is not installed"
     exit 1

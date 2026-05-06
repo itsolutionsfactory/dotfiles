@@ -109,6 +109,15 @@ test_dependency() {
 # Main test execution
 print_header "Testing $MODULE_NAME configuration"
 
+if [ "${DOTFILES_TEST_MODE:-0}" = "1" ]; then
+    # shellcheck source=../scripts/test-lib.sh
+    . "$SCRIPT_DIR/../scripts/test-lib.sh"
+    test_stow_link_portable "$CONFIG_DIR" "$SCRIPT_DIR/.config/glab"
+    test_file_exists "$CONFIG_DIR/config.yml"
+    print_success "Portable $MODULE_NAME tests completed"
+    exit 0
+fi
+
 # Test stow links
 test_stow_link "$CONFIG_DIR" "$SCRIPT_DIR/.config/glab"
 

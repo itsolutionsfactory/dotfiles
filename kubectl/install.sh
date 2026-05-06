@@ -7,6 +7,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BACKUP_DIR="$SCRIPT_DIR/../backup"
 MODULE_NAME="kubectl"
+OS_TYPE="$(uname -s)"
 
 # Catppuccin Mocha color scheme
 # Base colors
@@ -68,7 +69,7 @@ detect_arch() {
         x86_64)
             echo "amd64"
             ;;
-        aarch64)
+        aarch64|arm64)
             echo "arm64"
             ;;
         armv7l)
@@ -84,27 +85,37 @@ detect_arch() {
 # Function to install kubectl
 install_kubectl() {
     local OS=$(detect_os)
+    local ARCH=$(detect_arch)
     print_status "Installing kubectl for $OS..."
-    
+
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        if ! command -v brew >/dev/null 2>&1; then
+            print_error "Homebrew is required to install kubectl on MacOS"
+            exit 1
+        fi
+        brew install kubectl
+        return 0
+    fi
+
     # Create temporary directory
     local TEMP_DIR=$(mktemp -d)
     cd "$TEMP_DIR"
-    
+
     # Download latest stable kubectl
     print_status "Downloading latest stable kubectl..."
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
+
     # Make it executable
     chmod +x kubectl
-    
+
     # Move to system directory
     print_status "Installing kubectl to system..."
     sudo mv kubectl /usr/local/bin/
-    
+
     # Cleanup
     cd - > /dev/null
     rm -rf "$TEMP_DIR"
-    
+
     # Verify installation
     if command -v kubectl &> /dev/null; then
         print_success "kubectl installed successfully!"
@@ -120,38 +131,45 @@ install_kubelogin() {
     local OS=$(detect_os)
     local ARCH=$(detect_arch)
     print_status "Installing kubelogin for $OS..."
-    
+
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        if ! command -v brew >/dev/null 2>&1; then
+            print_error "Homebrew is required to install kubelogin on MacOS"
+            exit 1
+        fi
+        brew install int128/kubelogin/kubelogin
+        return 0
+    fi
+
     # Create temporary directory
     local TEMP_DIR=$(mktemp -d)
     cd "$TEMP_DIR"
-    
+
     # Get latest version
     local LATEST_VERSION=$(curl -s https://api.github.com/repos/int128/kubelogin/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-    
+
     # Download kubelogin
     print_status "Downloading kubelogin version $LATEST_VERSION..."
     curl -LO "https://github.com/int128/kubelogin/releases/download/${LATEST_VERSION}/kubelogin_linux_${ARCH}.zip"
-    
+
     # Unzip and install
     print_status "Installing kubelogin..."
     unzip "kubelogin_linux_${ARCH}.zip"
     chmod +x kubelogin
-    
-    # Create krew bin directory for int128
-    print_status "Creating krew bin directory for int128..."
-    mkdir -p "$HOME/.kube/bin/"
-    
-    # Move kubelogin to krew bin directory
-    mv kubelogin "$HOME/.kube/bin/"
-    
+
+    # Install into the user's PATH so kubeconfig can use "command: kubelogin".
+    print_status "Installing kubelogin to user bin directory..."
+    mkdir -p "$HOME/.local/bin"
+    mv kubelogin "$HOME/.local/bin/kubelogin"
+
     # Cleanup
     cd - > /dev/null
     rm -rf "$TEMP_DIR"
-    
+
     # Verify installation
-    if [ -f "$HOME/.kube/bin/kubelogin" ]; then
+    if [ -f "$HOME/.local/bin/kubelogin" ]; then
         print_success "kubelogin installed successfully!"
-        "$HOME/.kube/bin/kubelogin" version
+        "$HOME/.local/bin/kubelogin" version
     else
         print_error "Failed to install kubelogin"
         exit 1
@@ -160,15 +178,30 @@ install_kubelogin() {
 
 # Function to backup existing config
 backup_config() {
-    if [ -f ~/.kube/config ]; then
+    local config_path="$HOME/.kube/config"
+
+    if [ -e "$config_path" ] || [ -L "$config_path" ]; then
         local BACKUP_DIR="$SCRIPT_DIR/../backup/modules/$MODULE_NAME"
         local TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-        local BACKUP_FILE="$BACKUP_DIR/$TIMESTAMP"
-        
+        local BACKUP_PATH="$BACKUP_DIR/$TIMESTAMP"
+
         print_status "Backing up existing kubectl config..."
-        mkdir -p "$BACKUP_DIR"
-        cp ~/.kube/config "$BACKUP_FILE"
-        print_success "Backup created at $BACKUP_FILE"
+        mkdir -p "$BACKUP_PATH"
+
+        if [ -L "$config_path" ]; then
+            local symlink_target
+            symlink_target="$(readlink "$config_path" || true)"
+            case "$symlink_target" in
+                "$SCRIPT_DIR"/*|../"$SCRIPT_DIR"/*)
+                    print_status "Removing existing repository-managed kubectl config symlink"
+                    rm "$config_path"
+                    return 0
+                    ;;
+            esac
+        fi
+
+        mv "$config_path" "$BACKUP_PATH/config"
+        print_success "Backup created at $BACKUP_PATH/config"
     fi
 }
 
@@ -182,7 +215,7 @@ if ! command -v kubectl &> /dev/null; then
 fi
 
 # Check if kubelogin is installed
-if [ ! -f "$HOME/.krew/bin/int128/kubelogin" ]; then
+if ! command -v kubelogin >/dev/null 2>&1 && [ ! -f "$HOME/.local/bin/kubelogin" ]; then
     print_warning "kubelogin is not installed."
     install_kubelogin
 fi
@@ -218,7 +251,7 @@ print_success "$MODULE_NAME configuration installed successfully!"
 # Display next steps
 print_header "Next Steps"
 print_warning "Please complete the following manually:"
-print_warning "1. Add krew bin to your PATH if not already done:"
-print_warning "   echo 'export PATH=\"\$PATH:\$HOME/.krew/bin\"' >> ~/.zshrc"
+print_warning "1. Ensure user binaries are in your PATH if not already done:"
+print_warning "   echo 'export PATH=\"\$PATH:\$HOME/.local/bin\"' >> ~/.zshrc"
 print_warning "2. Restart your shell or run 'source ~/.zshrc' to apply changes"
-print_warning "3. Test kubelogin: $HOME/.krew/bin/int128/kubelogin version" 
+print_warning "3. Test kubelogin: kubelogin version"

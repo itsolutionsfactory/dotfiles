@@ -79,6 +79,14 @@ test_stow_link() {
 
 print_header "Testing $MODULE_NAME configuration"
 
+if [ "${DOTFILES_TEST_MODE:-0}" = "1" ]; then
+    # shellcheck source=../scripts/test-lib.sh
+    . "$SCRIPT_DIR/../scripts/test-lib.sh"
+    test_stow_link_portable "$HOME/.config/kitty" "$SCRIPT_DIR/.config/kitty"
+    print_success "Portable $MODULE_NAME tests completed"
+    exit 0
+fi
+
 # Test Kitty installation if not in Docker
 if [ ! -f /.dockerenv ]; then
     if command -v kitty &> /dev/null; then
