@@ -1,4 +1,3 @@
-tap "homebrew/bundle"
 tap "int128/kubelogin"
 
 # Core tools used by the dotfiles installers
@@ -32,5 +31,5 @@ brew "mas"
 cask "kitty"
 cask "docker"
 cask "slack"
-cask "powershell"
+cask "powershell@preview"
 cask "font-hack-nerd-font"
