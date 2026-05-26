@@ -179,9 +179,67 @@ import_networkmanager_connection() {
     
     # Import the configuration to NetworkManager
     sudo nmcli connection import type wireguard file /etc/wireguard/itsf.conf
+    # Disable autoconnect — the VPN will be started conditionally by the dispatcher
+    sudo nmcli connection modify itsf connection.autoconnect no
     
     print_success "WireGuard connection imported to NetworkManager"
-    print_warning "You can now manage the connection through NetworkManager"
+    print_warning "Autoconnect disabled — VPN will start automatically via dispatcher (see below)"
+}
+
+# Function to install the NetworkManager dispatcher script
+install_dispatcher() {
+    print_header "NetworkManager Dispatcher Setup"
+    local DISPATCHER_FILE="/etc/NetworkManager/dispatcher.d/99-wireguard-itsf"
+    local VPN_NAME="itsf"
+    local CORP_SSID="ITSF-Wifi"
+    print_status "Installing dispatcher script: $DISPATCHER_FILE"
+    sudo tee "$DISPATCHER_FILE" > /dev/null << 'DISPATCHER'
+#!/bin/bash
+IFACE=$1
+EVENT=$2
+VPN_NAME="itsf"
+CORP_SSID="ITSF-Wifi"
+VPN_ENDPOINT="vpn-user.itsf.io"
+MAX_WAIT=20  # secondes max avant abandon
+
+wait_for_ip() {
+    local attempt=0
+    while [[ $attempt -lt $MAX_WAIT ]]; do
+        ip addr show "$IFACE" | grep -q 'inet ' && return 0
+        sleep 1
+        (( attempt++ ))
+    done
+    logger -t nm-dispatcher "itsf-vpn: timeout waiting for IP on $IFACE"
+    return 1
+}
+
+wait_for_connectivity() {
+    local attempt=0
+    while [[ $attempt -lt $MAX_WAIT ]]; do
+        ping -c 1 -W 1 "$VPN_ENDPOINT" &>/dev/null && return 0
+        sleep 1
+        (( attempt++ ))
+    done
+    logger -t nm-dispatcher "itsf-vpn: timeout waiting for connectivity to $VPN_ENDPOINT"
+    return 1
+}
+
+if [[ "$EVENT" == "up" && "$IFACE" =~ ^wl ]]; then
+    CURRENT_SSID=$(nmcli -t -f active,ssid dev wifi | grep '^yes' | cut -d: -f2)
+    if [[ "$CURRENT_SSID" != "$CORP_SSID" ]]; then
+        wait_for_ip || exit 1
+        wait_for_connectivity || exit 1
+        nmcli connection up "$VPN_NAME"
+        logger -t nm-dispatcher "itsf-vpn: VPN $VPN_NAME started on $IFACE (SSID: $CURRENT_SSID)"
+    else
+        logger -t nm-dispatcher "itsf-vpn: corporate network detected ($CORP_SSID), VPN skipped"
+    fi
+fi
+DISPATCHER
+    sudo chmod +x "$DISPATCHER_FILE"
+    print_success "Dispatcher script installed: $DISPATCHER_FILE"
+    print_status "The VPN '${VPN_NAME}' will auto-start on any WiFi except '${CORP_SSID}'."
+    print_warning "To add more corporate SSIDs, edit $DISPATCHER_FILE and extend the condition."
 }
 
 # Function to show WireGuard status
@@ -205,7 +263,8 @@ create_itsf_config
 
 # Import to NetworkManager
 import_networkmanager_connection
-
+# Install dispatcher for conditional autostart
+install_dispatcher
 # Show status
 show_wireguard_status
 
