@@ -199,8 +199,9 @@ IFACE=$1
 EVENT=$2
 VPN_NAME="itsf"
 CORP_SSID="ITSF-Wifi"
-VPN_ENDPOINT="vpn-user.itsf.io"
-MAX_WAIT=20  # secondes max avant abandon
+CORP_DNS_1="10.195.28.20"
+CORP_DNS_2="10.195.28.50"
+MAX_WAIT=20
 
 wait_for_ip() {
     local attempt=0
@@ -213,27 +214,39 @@ wait_for_ip() {
     return 1
 }
 
-wait_for_connectivity() {
+wait_for_dns() {
     local attempt=0
     while [[ $attempt -lt $MAX_WAIT ]]; do
-        ping -c 1 -W 1 "$VPN_ENDPOINT" &>/dev/null && return 0
+        # Résolution via les DNS assignés à l'interface (pas les DNS système)
+        if resolvectl query --interface="$IFACE" gitlab.steelhome.internal &>/dev/null; then
+            return 0
+        fi
         sleep 1
         (( attempt++ ))
     done
-    logger -t nm-dispatcher "itsf-vpn: timeout waiting for connectivity to $VPN_ENDPOINT"
+    logger -t nm-dispatcher "itsf-vpn: timeout waiting for DNS on $IFACE"
     return 1
+}
+
+is_on_corp_network() {
+    local active_dns
+    active_dns=$(nmcli dev show "$IFACE" 2>/dev/null | grep 'IP4.DNS' | awk '{print $2}')
+    echo "$active_dns" | grep -qE "^($CORP_DNS_1|$CORP_DNS_2)$"
 }
 
 if [[ "$EVENT" == "up" && "$IFACE" =~ ^wl ]]; then
     CURRENT_SSID=$(nmcli -t -f active,ssid dev wifi | grep '^yes' | cut -d: -f2)
-    if [[ "$CURRENT_SSID" != "$CORP_SSID" ]]; then
-        wait_for_ip || exit 1
-        wait_for_connectivity || exit 1
-        nmcli connection up "$VPN_NAME"
-        logger -t nm-dispatcher "itsf-vpn: VPN $VPN_NAME started on $IFACE (SSID: $CURRENT_SSID)"
-    else
-        logger -t nm-dispatcher "itsf-vpn: corporate network detected ($CORP_SSID), VPN skipped"
+
+    if [[ "$CURRENT_SSID" == "$CORP_SSID" ]] || is_on_corp_network; then
+        logger -t nm-dispatcher "itsf-vpn: corporate network detected, VPN skipped"
+        exit 0
     fi
+
+    wait_for_ip   || exit 1
+    wait_for_dns  || exit 1
+
+    nmcli connection up "$VPN_NAME"
+    logger -t nm-dispatcher "itsf-vpn: VPN $VPN_NAME started on $IFACE (SSID: $CURRENT_SSID)"
 fi
 DISPATCHER
     sudo chmod +x "$DISPATCHER_FILE"
