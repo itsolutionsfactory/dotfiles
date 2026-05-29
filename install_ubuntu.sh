@@ -13,7 +13,7 @@ declare -a REQUIRED_APT_PACKAGES=(
     "unzip"
     "fontconfig"
     "curl"
-    "libfuse2"
+    "libfuse2t64"  # FUSE2 runtime (AppImage); renamed from libfuse2 in the t64 transition. Present on 24.04+; the old "libfuse2" stub is dropped in 26.04.
 )
 
 declare -a REQUIRED_SNAP_PACKAGES=(
