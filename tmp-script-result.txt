@@ -1,0 +1,159 @@
+roman@laptop-rharmash:~/Documents$ ./tmp-verify-install.sh 
+
+=== Environnement ===
+
+[i] OS: Ubuntu 26.04 LTS (VERSION_ID=26.04)
+[✓] Ubuntu 26.04 confirmé
+[i] Repo vérifié: /home/roman/Documents
+
+=== Outils de base (apt requis) ===
+
+[✓] paquet apt stow
+[✓] paquet apt git
+[✓] paquet apt wget
+[✓] paquet apt unzip
+[✓] paquet apt fontconfig
+[✓] paquet apt curl
+[✓] paquet apt libfuse2t64 (FUSE2 — ex-libfuse2, requis sur 26.04)
+[✓] stow (commande 'stow' présente)
+[✓] git (commande 'git' présente)
+[✓] curl (commande 'curl' présente)
+
+=== Module apt-packages ===
+
+[✓] paquet apt wireguard
+[✓] paquet apt net-tools
+[✓] paquet apt git-flow
+[✓] WireGuard (wg) (commande 'wg' présente)
+
+=== Module certs ===
+
+[✓] Certificat utilisateur (/home/roman/.certs/root-ca.crt)
+[✓] Permissions du certificat (644)
+[✓] Format X.509 du certificat valide
+[✓] Certificat dans le trust store système (/usr/local/share/ca-certificates/root-ca.crt)
+[✓] Certificat présent dans /etc/ssl/certs (update-ca-certificates)
+
+=== Module zsh ===
+
+[✓] paquet apt zsh
+[✓] zsh (commande 'zsh' présente)
+[✓] Oh My Zsh (~/.oh-my-zsh)
+[✓] Thème Catppuccin Oh My Zsh
+[✓] Plugin zsh: zsh-autosuggestions
+[✓] Plugin zsh: zsh-syntax-highlighting
+[✓] Plugin zsh: zsh-z
+[✓] Plugin zsh: zsh-history-substring-search
+[✓] Plugin zsh: zsh-dirhistory
+[✓] fzf installé
+[✓] Police Hack Nerd Font installée
+[!] Configuration .zshrc — présent mais ne pointe pas vers ce clone (/home/roman/.zshrc -> /home/roman/dotfiles/zsh/.zshrc)
+[!] Shell de connexion = /bin/bash (attendu zsh — reconnexion requise ?)
+
+=== Module hyfetch ===
+
+[✓] hyfetch (commande 'hyfetch' présente)
+[!] Configuration hyfetch.json — présent mais ne pointe pas vers ce clone (/home/roman/.config/hyfetch.json -> /home/roman/dotfiles/hyfetch/.config/hyfetch.json)
+[!] Configuration neowofetch — présent mais ne pointe pas vers ce clone (/home/roman/.config/neowofetch/config.conf -> /home/roman/dotfiles/hyfetch/.config/neowofetch/config.conf)
+
+=== Module snap-config ===
+
+[✓] snapd.socket actif
+[✓] snap brave
+[✓] snap spotify
+[✓] snap signal-desktop
+[✓] snap zoom-client
+[✓] snap htop
+[✓] snap onlyoffice-desktopeditors
+[✓] snap freelens
+[✓] snap intellij-idea-ultimate
+[✓] snap datagrip
+[✓] snap bruno
+[✓] snap postman
+[✓] snap xmind
+[✓] snap glpi-agent
+[i] GLPI agent installé — vérifier la conf serveur: snap get glpi-agent server
+
+=== Module flatpak-config ===
+
+[✓] paquet apt flatpak
+[✓] flatpak (commande 'flatpak' présente)
+[✓] Remote Flathub configuré
+[✓] Teams for Linux (Flatpak) installé
+
+=== Module vim (neovim) ===
+
+[✓] paquet apt neovim
+[✓] Neovim (commande 'nvim' présente)
+[✓] ripgrep (rg) (commande 'rg' présente)
+[✓] fd-find (fdfind) (commande 'fdfind' présente)
+[!] Configuration Neovim (init.lua) — présent mais ne pointe pas vers ce clone (/home/roman/.config/nvim/init.lua -> /home/roman/dotfiles/vim/.config/nvim/init.lua)
+
+=== Module kitty ===
+
+[✓] paquet apt kitty
+[✓] kitty (commande 'kitty' présente)
+[!] Configuration Kitty — présent mais ne pointe pas vers ce clone (/home/roman/.config/kitty/kitty.conf -> /home/roman/dotfiles/kitty/.config/kitty/kitty.conf)
+
+=== Module kubectl ===
+
+[✓] kubectl (commande 'kubectl' présente)
+[✓] kubelogin installé
+[!] Configuration kubectl (config.zsh) — présent mais ne pointe pas vers ce clone (/home/roman/.config/kubectl/config.zsh -> /home/roman/dotfiles/kubectl/.config/kubectl/config.zsh)
+[✓] Complétion kubectl générée
+[!] Kubeconfig (~/.kube/config) — présent mais ne pointe pas vers ce clone (/home/roman/.kube/config -> /home/roman/dotfiles/kubectl/.kube/config)
+
+=== Module github-cli ===
+
+[✓] paquet apt gh (GitHub CLI)
+[✓] GitHub CLI (gh) (commande 'gh' présente)
+[✓] Dépôt apt GitHub CLI configuré
+[!] Configuration gh — présent mais ne pointe pas vers ce clone (/home/roman/.config/gh/config.yml -> /home/roman/dotfiles/github-cli/.config/gh/config.yml)
+
+=== Module slack ===
+
+[✓] paquet slack-desktop
+[✓] slack (commande 'slack' présente)
+
+=== Module docker ===
+
+[✓] paquet apt docker-ce
+[✓] paquet apt docker-ce-cli
+[✓] paquet apt containerd.io
+[✓] paquet apt docker-buildx-plugin
+[✓] paquet apt docker-compose-plugin
+[✓] docker (commande 'docker' présente)
+[✓] Plugin docker compose fonctionnel
+[✓] service docker actif
+[✓] Dépôt apt Docker configuré
+[i] Dépôt Docker sur le codename 'resolute' (26.04) — si vide, basculer sur 'noble'
+[!] Configuration Docker (config.json) — présent mais ne pointe pas vers ce clone (/home/roman/.docker/config.json -> /home/roman/dotfiles/docker/.docker/config.json)
+[!] Utilisateur hors du groupe docker (sudo usermod -aG docker $USER, puis reconnexion)
+
+=== Module nvm ===
+
+[✓] nvm installé (/home/roman/.nvm/nvm.sh)
+[✓] Node.js v24.16.0 (via nvm default)
+[!] Configuration .npmrc — présent mais ne pointe pas vers ce clone (/home/roman/.npmrc -> /home/roman/dotfiles/nvm/.npmrc)
+
+=== Module gitlab-cli ===
+
+[✓] snap glab (GitLab CLI)
+[✓] GitLab CLI (glab) (commande 'glab' présente)
+[!] Configuration glab — présent mais ne pointe pas vers ce clone (/home/roman/.config/glab/config.yml -> /home/roman/dotfiles/gitlab-cli/.config/glab/config.yml)
+
+=== Secrets à compléter (rappel) ===
+
+[!] JFrog npm (.npmrc) — placeholder « YOUR_JWT_TOKEN » encore présent dans /home/roman/.npmrc
+[!] JFrog npm (.npmrc) — placeholder « YOUR_BASE64_ENCODED_CREDENTIALS » encore présent dans /home/roman/.npmrc
+[!] JFrog npm (.npmrc) — placeholder « your.email@itsf.io » encore présent dans /home/roman/.npmrc
+[!] JFrog Docker (config.json) — placeholder « token from jfrog » encore présent dans /home/roman/.docker/config.json
+
+=== Résumé ===
+
+Réussis : 77   Avertissements : 17   Échecs : 0
+[✓] Tous les composants critiques sont installés.
+[!] Quelques avertissements à revoir (police, secrets, reconnexion…).
+roman@laptop-rharmash:~/Documents$ 
+
+
