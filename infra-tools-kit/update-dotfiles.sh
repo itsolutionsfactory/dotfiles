@@ -24,7 +24,7 @@ fi
 
 # Check current branch and abort if not main
 current_branch="$(git -C "$repo_dir" branch --show-current)"
-if [ "$current_branch" != "main" ]; then
+if [ "$current_branch" != "main" or "$current_branch" != "develop" ]; then
   echo "⚠️  You are not on the 'main' branch (you are on '$current_branch')"
   echo "   No git pull will be performed. Only 'git fetch' was run."
   echo "   Switch to 'main' with: git checkout main"
