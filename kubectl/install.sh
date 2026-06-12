@@ -176,6 +176,53 @@ install_kubelogin() {
     fi
 }
 
+# Function to install kubectx
+install_kubectx() {
+    local OS=$(detect_os)
+    local ARCH=$(detect_arch)
+    print_status "Installing kubectx for $OS..."
+
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        if ! command -v brew >/dev/null 2>&1; then
+            print_error "Homebrew is required to install kubectx on MacOS"
+            exit 1
+        fi
+        brew install kubectx
+        return 0
+    fi
+
+    # Create temporary directory
+    local TEMP_DIR=$(mktemp -d)
+    cd "$TEMP_DIR"
+
+    # Download kubectx (kubectl-context and kubectl-namespace)
+    print_status "Downloading kubectx..."
+    curl -LO "https://github.com/ahmetb/kubectx/releases/download/v0.9.5/kubectx"
+    curl -LO "https://github.com/ahmetb/kubectx/releases/download/v0.9.5/kubens"
+
+    # Make them executable
+    chmod +x kubectx kubens
+
+    # Install into the user's PATH
+    print_status "Installing kubectx and kubens to user bin directory..."
+    mkdir -p "$HOME/.local/bin"
+    mv kubectx "$HOME/.local/bin/kubectx"
+    mv kubens "$HOME/.local/bin/kubens"
+
+    # Cleanup
+    cd - > /dev/null
+    rm -rf "$TEMP_DIR"
+
+    # Verify installation
+    if [ -f "$HOME/.local/bin/kubectx" ] && [ -f "$HOME/.local/bin/kubens" ]; then
+        print_success "kubectx installed successfully!"
+        "$HOME/.local/bin/kubectx" --help
+    else
+        print_error "Failed to install kubectx"
+        exit 1
+    fi
+}
+
 # Function to backup existing config
 backup_config() {
     local config_path="$HOME/.kube/config"
@@ -220,6 +267,12 @@ if ! command -v kubelogin >/dev/null 2>&1 && [ ! -f "$HOME/.local/bin/kubelogin"
     install_kubelogin
 fi
 
+# Check if kubectx is installed
+if ! command -v kubectx >/dev/null 2>&1 && [ ! -f "$HOME/.local/bin/kubectx" ]; then
+    print_warning "kubectx is not installed."
+    install_kubectx
+fi
+
 # Create necessary directories
 print_status "Creating kubectl configuration directories..."
 mkdir -p ~/.kube/plugins
@@ -255,3 +308,5 @@ print_warning "1. Ensure user binaries are in your PATH if not already done:"
 print_warning "   echo 'export PATH=\"\$PATH:\$HOME/.local/bin\"' >> ~/.zshrc"
 print_warning "2. Restart your shell or run 'source ~/.zshrc' to apply changes"
 print_warning "3. Test kubelogin: kubelogin version"
+print_warning "4. Test kubectx: kubectx --help"
+print_warning "5. Test kubens: kubens --help"
