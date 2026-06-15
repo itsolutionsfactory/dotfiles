@@ -133,6 +133,7 @@ show_help() {
     echo -e "  ${BLUE}12.${BASE} docker"
     echo -e "  ${BLUE}13.${BASE} nvm"
     echo -e "  ${BLUE}14.${BASE} gitlab-cli"
+    echo -e "  ${BLUE}15.${BASE} infra-tools-kit"
     exit 0
 }
 
@@ -191,6 +192,7 @@ install_all_modules() {
         "docker"
         "nvm"
         "gitlab-cli"
+        "infra-tools-kit"
     )
 
     for module in "${MODULE_ORDER[@]}"; do

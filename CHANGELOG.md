@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.3.0]
+
+### Added
+- **WireGuard dispatcher** : automatic VPN startup via NetworkManager dispatcher
+  - VPN is skipped when connected to the corporate network (`ITSF-Wifi`)
+  - VPN waits for a valid IP assignment on the WiFi interface before attempting to connect
+  - VPN waits for actual connectivity to the WireGuard endpoint (`vpn-user.itsf.io`) before starting
+  - All dispatcher decisions are logged to the system journal (`journalctl -t nm-dispatcher`)
+
+### Changed
+- **WireGuard** : disabled NetworkManager `autoconnect` on the `itsf` connection — startup is now fully managed by the dispatcher
+
+## [1.2.0]
 
 ### Removed
 - **GNOME Configuration Module**: Removed entire gnome-config module due to installation issues
