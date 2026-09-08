@@ -94,6 +94,37 @@ if [ ! -f /.dockerenv ]; then
     else
         print_error "Kitty is not installed"
     fi
+
+    # The module installs the latest upstream release, so check we are on it.
+    if [ "$(uname -s)" = "Darwin" ]; then
+        KITTY_BIN="/Applications/kitty.app/Contents/MacOS/kitty"
+    else
+        KITTY_BIN="$HOME/.local/kitty.app/bin/kitty"
+        if [ -x "$KITTY_BIN" ]; then
+            print_success "Kitty installed from the upstream installer ($HOME/.local/kitty.app)"
+        else
+            print_error "Upstream Kitty not found at $KITTY_BIN"
+        fi
+        for desktop_file in "$HOME/.local/share/applications/kitty.desktop"; do
+            if [ -f "$desktop_file" ]; then
+                print_success "Desktop entry present: $desktop_file"
+            else
+                print_warning "Desktop entry missing: $desktop_file"
+            fi
+        done
+    fi
+
+    if [ -x "$KITTY_BIN" ]; then
+        INSTALLED_VERSION="$("$KITTY_BIN" --version 2>/dev/null | awk 'NR==1 {print $2}')"
+        LATEST_VERSION="$(curl -fsSL --max-time 10 https://sw.kovidgoyal.net/kitty/current-version.txt 2>/dev/null | tr -d '[:space:]')"
+        if [ -z "$LATEST_VERSION" ]; then
+            print_warning "Could not reach upstream to check the latest version (installed: ${INSTALLED_VERSION:-unknown})"
+        elif [ "$INSTALLED_VERSION" = "$LATEST_VERSION" ]; then
+            print_success "Kitty is at the latest version ($INSTALLED_VERSION)"
+        else
+            print_warning "Kitty ${INSTALLED_VERSION:-unknown} is behind the latest release $LATEST_VERSION - re-run kitty/install.sh"
+        fi
+    fi
 fi
 
 # Test configuration files

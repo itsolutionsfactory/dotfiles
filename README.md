@@ -183,24 +183,27 @@ On Ubuntu, this will install all modules in the following predefined order:
 5. **snap-config** - Snap package management
 6. **flatpak-config** - Flatpak package management and Teams for Linux
 7. **vim** - Neovim text editor
-8. **kitty** - Terminal emulator
+8. **kitty** - Terminal emulator (latest upstream release, installed to `~/.local/kitty.app`)
 9. **kubectl** - Kubernetes CLI tools
 10. **github-cli** - GitHub command-line interface
 11. **slack** - Slack desktop application
 12. **docker** - Docker configuration
 13. **nvm** - Node Version Manager
 14. **gitlab-cli** - GitLab command-line interface
+15. **infra-tools-kit** - Infrastructure tooling kit
+16. **claude-code** - Claude Code CLI (Anthropic agentic coding tool)
 
 On MacOS, this will install Homebrew packages from `Brewfile` and then install these shared modules:
 1. **zsh** - Enhanced shell configuration
 2. **certs** - Root CA certificate installation
 3. **hyfetch** - System information display
 4. **vim** - Neovim text editor
-5. **kitty** - Terminal emulator
+5. **kitty** - Terminal emulator (latest Homebrew cask release)
 6. **kubectl** - Kubernetes CLI tools
 7. **github-cli** - GitHub command-line interface
 8. **gitlab-cli** - GitLab command-line interface
 9. **nvm** - Node Version Manager
+10. **claude-code** - Claude Code CLI (Anthropic agentic coding tool)
 
 The MacOS installer intentionally skips Linux-specific modules: `apt-packages`, `snap-config`, `flatpak-config`, `appimaged`, `docker`, `slack`, and `powershell`.
 
@@ -259,6 +262,7 @@ This project includes the following configuration modules:
 - **Kubectl** - Kubernetes command-line tool configuration
 - **ZSH** - Enhanced shell with plugins and themes
 - **Kitty** - Modern terminal emulator configuration
+- **Claude Code** - Anthropic agentic coding CLI (latest release)
 - **Certificates** - SSL/TLS certificate management
 - **HyFetch** - System information display
 - **Snap** - Snap package configuration and management
@@ -433,10 +437,61 @@ cd kitty
 ./install.sh
 ```
 
+The module always installs the **latest upstream Kitty release**, not the distro package:
+
+- **Ubuntu/Linux** - the official binary installer from `sw.kovidgoyal.net` unpacks Kitty
+  into `~/.local/kitty.app`, then `kitty` and `kitten` are symlinked into `~/.local/bin`,
+  the `kitty.desktop` / `kitty-open.desktop` entries are copied into
+  `~/.local/share/applications` (with absolute `Exec`/`Icon` paths), and
+  `~/.config/xdg-terminals.list` is set so `xdg-terminal-exec` picks Kitty.
+  The apt package is intentionally **not** used: it lags several minor releases behind
+  upstream. If an apt-managed `kitty` is still present the script warns and prints the
+  removal command; `~/.local/bin` takes precedence in `PATH` in the meantime.
+- **MacOS** - `brew install --cask kitty`, or `brew upgrade --cask kitty` when already
+  installed. Homebrew refreshes its taps automatically, so the cask is the current release.
+
+Re-running `./install.sh` is the upgrade path: it compares the installed version against
+`https://sw.kovidgoyal.net/kitty/current-version.txt` and only re-downloads when a newer
+release exists. `./test.sh` reports whether the installed Kitty is behind upstream.
+
 After installation:
 1. Set Kitty as your default terminal emulator
 2. Configure your system to use Hack Nerd Font
-3. Restart Kitty to apply all changes
+3. Restart your shell so `~/.local/bin` is on `PATH`, then restart Kitty to apply all changes
+
+### Claude Code
+
+Claude Code is Anthropic's agentic coding CLI. The module installs it with the official
+Anthropic installer on both Ubuntu and MacOS:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+The installer downloads the release binary for the current platform, verifies its
+SHA-256 checksum against the release manifest, and runs `claude install` to place the
+`claude` launcher in `~/.local/bin`. State lives in `~/.claude` and is intentionally
+**not** stowed, so credentials and project history stay out of this repository.
+
+Because the same installer covers MacOS, the `Brewfile` needs no Claude Code entry.
+
+#### Installation
+```bash
+cd claude-code
+./install.sh
+```
+
+Re-running the script installs the latest release over the existing one and reports the
+version change, so it doubles as the update path (`claude update` works too).
+
+> **Never run this module with `sudo`.** Claude Code installs into `$HOME`; under `sudo`
+> it would land in root's home and `claude` would be missing from your own shell. Both
+> this script and the upstream installer refuse to run that way.
+
+After installation:
+1. Restart your shell so `~/.local/bin` is on `PATH`
+2. Run `claude` once to sign in
+3. Run `claude doctor` to check installation health
 
 ### Certificate Configuration
 
