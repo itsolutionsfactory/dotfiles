@@ -85,9 +85,10 @@ Légende : ✅ compatible (prouvé par analyse) · 🔧 corrigé · ⚠️ condi
 | flatpak + Flathub + Teams for Linux | apt + Flathub | ✅ Apps Flatpak indépendantes de l'OS | `flatpak` + remote `flathub` + `flatpak info` |
 | neovim, ripgrep, fd-find | apt | ✅ Standards | `command -v` (`nvim`/`rg`/`fdfind`) |
 | config Neovim (lazy.nvim) | `stow` (plugins au 1er lancement) | ✅ Plugins amont (GitHub) | Symlink `init.lua` (plugins = 1er `nvim`, manuel) |
-| kitty | apt | ✅ Standard | `dpkg` / `command -v` + config |
+| kitty | installeur binaire amont **« latest »** (`sw.kovidgoyal.net`) → `~/.local/kitty.app` | ✅ Indépendant de la version d'Ubuntu (binaire statique amont, pas de dépendance apt) | `~/.local/kitty.app/bin/kitty` + `command -v` + comparaison avec `current-version.txt` + `.desktop` + config |
 | kubectl, kubelogin | download **« latest »** (dl.k8s.io / GitHub) | ✅ « latest », indépendant de la version d'Ubuntu | `command -v` + `kubelogin` + configs + `~/.kube/config` |
 | gh (GitHub CLI) | dépôt apt `cli.github.com … stable main` | ✅ Dépôt **non indexé par codename** → insensible à la release | `dpkg`/`command -v` + dépôt + config |
+| claude-code | installeur officiel Anthropic **« latest »** (`claude.ai/install.sh`) → `~/.local/bin/claude` | ✅ Binaire autonome, indépendant de la version d'Ubuntu | `command -v claude` + `claude --version` + `~/.claude` |
 | slack-desktop | `.deb` direct `4.46.101` (figé) | ✅ Dépendances (gtk…) présentes ; version figée = obsolescence, **pas** incompatibilité | `dpkg slack-desktop` + `command -v` |
 | **docker-ce** & co | dépôt apt `download.docker.com`, codename **dynamique** (`resolute`) | ✅ **Confirmé à l'exécution** : dépôt `resolute` peuplé, install réussie sur le poste testé (2026-05-29). Fallback `noble` documenté si jamais vide. | 5 paquets + service + `docker compose` + dépôt — **tous `[✓]`** |
 | `.docker/config.json` | `stow` | ✅ — | Symlink + groupe `docker` |

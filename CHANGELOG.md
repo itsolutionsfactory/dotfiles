@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Claude Code module** (`claude-code`): installs Anthropic's agentic coding CLI via the
+  official installer (`curl -fsSL https://claude.ai/install.sh | bash`)
+  - Same installer on Ubuntu and MacOS, so no `Brewfile` entry is needed
+  - Added to the `--all` order of both `install_ubuntu.sh` (16.) and `install_macos.sh`
+  - Re-running the module updates to the latest release and reports the version change
+  - Refuses to run under `sudo`, which would install into root's home instead of `$HOME`
+  - No configuration is stowed: Claude Code state stays in the unmanaged `~/.claude`
+  - `claude-code/test.sh` and `tmp-verify-install.sh` verify the launcher, version and `~/.claude`
+
+### Changed
+- **Kitty**: the module now installs the **latest upstream release** instead of the distro package
+  - Ubuntu/Linux: uses the official installer from `sw.kovidgoyal.net` into `~/.local/kitty.app`
+    (apt ships 0.32.x while upstream is 0.48.x), then symlinks `kitty`/`kitten` into `~/.local/bin`,
+    installs the `.desktop` entries with absolute paths, and sets `~/.config/xdg-terminals.list`
+  - MacOS: `brew upgrade --cask kitty` when the cask is already installed
+  - Re-running `kitty/install.sh` upgrades in place: the installed version is compared against
+    `current-version.txt` and the download is skipped when already current
+  - A leftover apt-managed `kitty` package is reported with its removal command
+- **Kitty tests**: `kitty/test.sh` and `tmp-verify-install.sh` now check the upstream install
+  location and warn when the installed version is behind the latest release
+
 ## [1.3.0]
 
 ### Added

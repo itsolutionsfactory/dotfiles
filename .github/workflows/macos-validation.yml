@@ -25,6 +25,7 @@ jobs:
           bash -n zsh/install.sh hyfetch/install.sh vim/install.sh kitty/install.sh
           bash -n kubectl/install.sh github-cli/install.sh gitlab-cli/install.sh nvm/install.sh
           bash -n certs/install.sh certs/test.sh
+          bash -n claude-code/install.sh claude-code/test.sh
 
       - name: Validate Brewfile
         run: |

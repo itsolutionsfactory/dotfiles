@@ -236,8 +236,27 @@ check_stow "$HOME/.config/nvim/init.lua" "Configuration Neovim (init.lua)"
 # --- 9. kitty --------------------------------------------------------------
 
 header "Module kitty"
-check_dpkg kitty
+# Kitty vient de l'installeur binaire amont (~/.local/kitty.app), pas d'apt :
+# le module installe/met à jour toujours la dernière version publiée.
+if [ -x "$HOME/.local/kitty.app/bin/kitty" ]; then
+    pass "Kitty amont installé (~/.local/kitty.app)"
+    KITTY_LOCAL_VERSION="$("$HOME/.local/kitty.app/bin/kitty" --version 2>/dev/null | awk 'NR==1 {print $2}')"
+    KITTY_LATEST_VERSION="$(curl -fsSL --max-time 10 https://sw.kovidgoyal.net/kitty/current-version.txt 2>/dev/null | tr -d '[:space:]')"
+    if [ -z "$KITTY_LATEST_VERSION" ]; then
+        info "Version amont non vérifiable (réseau) — version locale: ${KITTY_LOCAL_VERSION:-inconnue}"
+    elif [ "$KITTY_LOCAL_VERSION" = "$KITTY_LATEST_VERSION" ]; then
+        pass "Kitty à jour ($KITTY_LOCAL_VERSION)"
+    else
+        warn "Kitty ${KITTY_LOCAL_VERSION:-inconnue} < dernière version $KITTY_LATEST_VERSION — relancer kitty/install.sh"
+    fi
+else
+    fail "Kitty amont absent — ~/.local/kitty.app/bin/kitty introuvable"
+fi
 check_cmd kitty
+check_file "$HOME/.local/share/applications/kitty.desktop" "Entrée de bureau Kitty"
+if dpkg-query -W -f='${Status}' kitty 2>/dev/null | grep -q "install ok installed"; then
+    warn "Paquet apt 'kitty' encore installé (version obsolète) — sudo apt-get remove -y kitty"
+fi
 check_stow "$HOME/.config/kitty/kitty.conf" "Configuration Kitty"
 
 # --- 10. kubectl -----------------------------------------------------------
@@ -303,7 +322,24 @@ check_snap glab "snap glab (GitLab CLI)"
 check_cmd glab "GitLab CLI (glab)"
 check_stow "$HOME/.config/glab/config.yml" "Configuration glab"
 
-# --- 16. Secrets / placeholders à compléter --------------------------------
+# --- 16. claude-code -------------------------------------------------------
+
+header "Module claude-code"
+# Claude Code est installé par l'installeur officiel Anthropic dans ~/.local/bin,
+# aucune configuration n'est gérée par stow (état dans ~/.claude).
+if have claude; then
+    pass "Claude Code (commande 'claude' présente)"
+    CLAUDE_VERSION="$(claude --version 2>/dev/null | awk 'NR==1 {print $1}')"
+    [ -n "$CLAUDE_VERSION" ] && info "Version Claude Code: $CLAUDE_VERSION"
+elif [ -x "$HOME/.local/bin/claude" ]; then
+    warn "Claude Code installé (~/.local/bin/claude) mais absent du PATH — relancer le shell"
+else
+    fail "Claude Code absent — relancer claude-code/install.sh"
+fi
+[ -d "$HOME/.claude" ] && pass "Répertoire de données Claude Code (~/.claude)" \
+    || warn "Aucun ~/.claude — lancer 'claude' une fois pour terminer la configuration"
+
+# --- 17. Secrets / placeholders à compléter --------------------------------
 
 header "Secrets à compléter (rappel)"
 ph_warn_start=$WARN
