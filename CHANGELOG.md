@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   produce and where, and the `main` / `develop` restriction of `update-dotfiles`.
 
 ### Changed
+- **Ubuntu 26.04 compatibility report and verification script** moved out of the repository root:
+  `tmp-UBUNTU-26.04-COMPATIBILITY.md` is now `docs/ubuntu-26.04-compatibility.md` and
+  `tmp-verify-install.sh` is now `scripts/verify-install.sh` (run it from the repository root:
+  `./scripts/verify-install.sh`). The raw output of the 2026-05-29 run, `tmp-script-result.txt`,
+  is deleted: its findings are summarised in section 6 of the report.
+### Changed
 - **README** : removed references to `test-docker.sh`, the Docker `--module` flag and an MIT
   `LICENSE` file that do not exist; Docker testing documented as `docker-compose up --build`;
   `infra-tools-kit` added to the Ubuntu `--all` order; the three manual modules (`appimaged`,

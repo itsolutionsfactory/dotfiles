@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# tmp-verify-install.sh — Post-install verification for Ubuntu (target: 26.04 "Resolute Raccoon")
+# verify-install.sh — Post-install verification for Ubuntu (target: 26.04 "Resolute Raccoon")
 #
 # Read-only health check: confirms that everything `./install.sh` (--all) lays down on
 # an Ubuntu laptop is actually present and correctly wired. Makes NO changes.
@@ -14,7 +14,8 @@
 #       independently of where this script is located.
 
 # Directory this script lives in — informational only (the symlink checks no longer depend on it).
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# The script lives in scripts/, the repository root is one level up
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 
 # Catppuccin Mocha color scheme
 BASE="\033[0m"
