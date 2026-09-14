@@ -61,5 +61,5 @@ Run the module test script:
 ## Notes
 
 - The commands are Linux only: they rely on `nmcli`, `journalctl`, `ip` and `lspci`.
-- `diag-network-report` pings `172.25.3.240` as its LAN target. The address is not documented in this repository yet; check it still answers on the office network before reading a failed LAN ping as a laptop problem.
+- `diag-network-report` pings `172.25.3.240` as its LAN target: the management interface of the Lyon office firewall (OPNsense), reachable from the Lyon LAN and WiFi. On any other site or from home the LAN ping fails by design; read the WiFi link, routing and public ping sections instead.
 - `diag-log-report` prints its section titles in French.
