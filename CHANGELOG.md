@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the three commands (`diag-network-report`, `diag-log-report`, `update-dotfiles`), what they
   produce and where, and the `main` / `develop` restriction of `update-dotfiles`.
 
+### Changed
+- **README** : removed references to `test-docker.sh`, the Docker `--module` flag and an MIT
+  `LICENSE` file that do not exist; Docker testing documented as `docker-compose up --build`;
+  `infra-tools-kit` added to the Ubuntu `--all` order; the three manual modules (`appimaged`,
+  `powershell`, `linux-config`) listed; the kubectl section says the shipped kubeconfig only
+  covers the two K8sv3 clusters.
+
 ### Fixed
 - **WireGuard dispatcher** : the `down` branch of `20-itsf-vpn` now only reacts to the WiFi
   interface (`wl*`), like the `up` branch already did. Any other interface going down (a
