@@ -166,6 +166,7 @@ DNS = 10.195.28.20, 10.195.28.50
 PublicKey = 9gPxIUJ1AZS0pgmKw6ulHH4y28CANsqWHzpS3azpVVo=
 AllowedIPs = 10.195.0.0/16, 172.16.0.0/12, 192.168.66.0/24, 195.78.27.214/32, 195.78.28.87/32, 195.78.28.79/32, 51.83.80.113/32
 Endpoint = vpn-user.itsf.io:5544
+PersistentKeepalive = 25
 EOF
     
     sudo chmod 600 "$config_file"
@@ -252,6 +253,9 @@ case "$EVENT" in
         logger -t nm-dispatcher "itsf-vpn: VPN $VPN_NAME started on $IFACE (SSID: $CURRENT_SSID)"
         ;;
     down)
+        # Only react to the WiFi interface going down: a veth, docker or
+        # bridge interface disappearing must not tear the tunnel down.
+        [[ "$IFACE" =~ ^wl ]] || exit 0
         if nmcli connection show --active | grep -q "$VPN_NAME"; then
             nmcli connection down "$VPN_NAME"
             logger -t nm-dispatcher "itsf-vpn: VPN $VPN_NAME arrêté après WiFi down"
