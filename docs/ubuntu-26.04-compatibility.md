@@ -27,7 +27,7 @@ Chaque composant est validé sur deux axes distincts :
 | Axe | Question | Comment c'est prouvé | Quand |
 |---|---|---|---|
 | **Compatibilité 26.04** | « L'installation va-t-elle réussir sur 26.04 ? » | Analyse statique des scripts + sources officielles | **Maintenant** (ce rapport) |
-| **Installation effective** | « Le composant est-il réellement posé et bien câblé ? » | `./tmp-verify-install.sh` (code de sortie `0`) | **Après exécution** sur le poste |
+| **Installation effective** | « Le composant est-il réellement posé et bien câblé ? » | `scripts/verify-install.sh` (code de sortie `0`) | **Après exécution** sur le poste |
 
 > Autrement dit : ce rapport prouve que *rien ne bloquera* l'install ; le script prouve que *tout est effectivement en place*. La section 5 relie chaque composant à sa preuve sur les deux axes. **Le script a été exécuté le 2026-05-29 — résultats en §6.**
 
@@ -40,7 +40,7 @@ Chaque composant est validé sur deux axes distincts :
 | 1 | **Correctif `libfuse2`** | Remplacé par `libfuse2t64` dans `install_ubuntu.sh:16` | Seul blocage dur sur 26.04. Le nom canonique `libfuse2t64` existe **aussi** sur 24.04/25.04/25.10 → **zéro régression** sur la flotte 24.04 existante. |
 | 2 | **Codename Docker** | Conservé **dynamique** (`$VERSION_CODENAME`), fallback `noble` documenté mais **non codé** | Le code est déjà correct (pas de codename en dur). Le fallback n'est utile que si le dépôt `resolute` est temporairement vide. |
 | 3 | **`Dockerfile` (`ubuntu:24.04`)** | Laissé tel quel | C'est le harnais de **test Docker**, sans effet sur le déploiement du laptop. |
-| 4 | **Méthode de vérification** | Script dédié `tmp-verify-install.sh`, **lecture seule**, **sans `set -e`** | Prouver l'état réel post-install sans rien modifier, en déroulant *tous* les contrôles (un `set -e` masquerait les checks suivant le premier échec). |
+| 4 | **Méthode de vérification** | Script dédié `scripts/verify-install.sh`, **lecture seule**, **sans `set -e`** | Prouver l'état réel post-install sans rien modifier, en déroulant *tous* les contrôles (un `set -e` masquerait les checks suivant le premier échec). |
 | 5 | **Périmètre** | `appimaged` **exclu** de la vérification | Il n'est pas dans l'ordre `--all` d'Ubuntu — `./install.sh` ne l'installe jamais. |
 | 6 | **Secrets** | Détection de placeholders en avertissement | `.npmrc` (JFrog/JWT) et `.docker/config.json` portent des placeholders à remplir manuellement. |
 
@@ -68,7 +68,7 @@ C'est précisément pourquoi le script tournait sans accroc sur les laptops 24.0
 
 Légende : ✅ compatible (prouvé par analyse) · 🔧 corrigé · ⚠️ conditionnel à l'amont.
 
-| Composant | Mécanisme d'installation | Compatibilité 26.04 — preuve statique | Preuve à l'exécution (`tmp-verify-install.sh`) |
+| Composant | Mécanisme d'installation | Compatibilité 26.04 — preuve statique | Preuve à l'exécution (`scripts/verify-install.sh`) |
 |---|---|---|---|
 | stow, git, curl, wget, unzip, fontconfig | apt | ✅ Paquets standards, inchangés en 26.04 | `dpkg` + `command -v` |
 | **libfuse2t64** | apt | 🔧 Vérifié sur packages.ubuntu.com (voir §4) | `dpkg libfuse2t64` |
@@ -100,7 +100,7 @@ Légende : ✅ compatible (prouvé par analyse) · 🔧 corrigé · ⚠️ condi
 
 ## 6. Résultat de la validation à l'exécution (2026-05-29)
 
-Script `tmp-verify-install.sh` exécuté sur le poste cible (`laptop-rharmash`, Ubuntu 26.04 LTS, `VERSION_ID=26.04`, utilisateur `roman`).
+Script `scripts/verify-install.sh` exécuté sur le poste cible (`laptop-rharmash`, Ubuntu 26.04 LTS, `VERSION_ID=26.04`, utilisateur `roman`).
 
 **Bilan : `Réussis : 77 · Avertissements : 17 · Échecs : 0` → code de sortie `0`.**
 
@@ -148,7 +148,7 @@ Ces points sont **non bloquants** et signalés en avertissement `[!]` par le scr
 ```bash
 git clone <repo-url> && cd dotfiles
 ./install.sh --all            # installe tout dans l'ordre prédéfini (Ubuntu)
-./tmp-verify-install.sh ; echo "exit=$?"
+./scripts/verify-install.sh ; echo "exit=$?"
 ```
 
 **Critère de succès : code de sortie `0`** (aucune ligne `[✗]`).
