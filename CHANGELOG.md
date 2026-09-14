@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **certs README** : says what `root-ca.crt` is (the Monaco Telecom Group Root CA, valid until
+  2041), which services chain up to it, and that the root alone is enough.
 - **infra-tools-kit README** : the module was the only one in `--all` without documentation;
   the three commands (`diag-network-report`, `diag-log-report`, `update-dotfiles`), what they
   produce and where, and the `main` / `develop` restriction of `update-dotfiles`.
