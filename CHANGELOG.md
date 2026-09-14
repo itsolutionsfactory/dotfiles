@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`fix-vpn` command** (`infra-tools-kit/fix-vpn.sh`): makes the `itsf` WireGuard connection always
+  on for a laptop that needs the VPN while at the office, where the dispatcher skips it on
+  `ITSF-Wifi` but some MT services only accept the VPN exit IP. Removes the dispatcher, adds
+  `PersistentKeepalive = 25` if missing, re-enables autoconnect; backups under
+  `~/.vpn-fix-backup/`. Whether the dispatcher should skip the VPN on the office WiFi at all
+  is still to be decided.
 - **certs README** : says what `root-ca.crt` is (the Monaco Telecom Group Root CA, valid until
   2041), which services chain up to it, and that the root alone is enough.
 - **infra-tools-kit README** : the module was the only one in `--all` without documentation;

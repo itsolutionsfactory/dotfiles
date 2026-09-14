@@ -32,6 +32,7 @@ Do not run the installer with `sudo`: the commands belong to the user.
 | `diag-network-report` | Collects the network state (interfaces, routes, DNS, WiFi link, NetworkManager), pings a LAN target, a public DNS resolver and a public IP, then downloads three 10 MB test files to measure throughput | `net_diagnose_<hostname>_<date>.log` in the current directory, also printed on screen |
 | `diag-log-report` | Reads `journalctl` for the current and the previous boot: critical errors, freezes and OOM kills, MCE and memory errors, fingerprint reader (`fprintd`), PAM and unlock, GPU and DRM, GNOME Shell and GDM, Wayland, thermal throttling, NVMe and I/O errors, USB and HID | `log-diag-<date>/report.txt` in the current directory |
 | `update-dotfiles` | Runs `git fetch origin` then `git pull --ff-only` on the repository this module lives in; refuses to pull when the checkout is not on `main` or `develop` | Git output |
+| `fix-vpn` | Makes the `itsf` WireGuard connection always on: removes the NetworkManager dispatcher that skips the VPN on `ITSF-Wifi`, adds `PersistentKeepalive = 25` if missing, re-enables autoconnect. For a laptop that needs the VPN while at the office (some MT services only accept the VPN exit IP). Run once, needs `sudo` | Backups in `~/.vpn-fix-backup/<timestamp>/` |
 
 Attach the report file to the support ticket rather than pasting it: both reports are long.
 
@@ -46,6 +47,9 @@ diag-log-report
 
 # Get the latest version of the dotfiles
 update-dotfiles
+
+# Laptop that keeps losing the VPN at the office
+fix-vpn
 ```
 
 `diag-log-report` needs `sudo` to read the full journal and `dmidecode`; run it as `sudo diag-log-report` if the plain run reports empty sections.
@@ -61,5 +65,6 @@ Run the module test script:
 ## Notes
 
 - The commands are Linux only: they rely on `nmcli`, `journalctl`, `ip` and `lspci`.
+- `fix-vpn` undoes the dispatcher installed by `apt-packages/wireguard-setup.sh`. Re-running that setup script puts the dispatcher back; run `fix-vpn` again afterwards if the laptop needs the always-on behaviour.
 - `diag-network-report` pings `172.25.3.240` as its LAN target: the management interface of the Lyon office firewall (OPNsense), reachable from the Lyon LAN and WiFi. On any other site or from home the LAN ping fails by design; read the WiFi link, routing and public ping sections instead.
 - `diag-log-report` prints its section titles in French.
