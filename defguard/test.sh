@@ -9,6 +9,8 @@ MODULE_NAME="defguard"
 DEFGUARD_GROUP="defguard"
 DEFGUARD_SERVICE="defguard-service"
 DEFGUARD_SOCKET="/var/run/defguard.socket"
+DEFGUARD_APP="/Applications/Defguard.app"
+DEFGUARD_MACOS_TEAM_ID="82GZ7KN29J"
 
 # Catppuccin Mocha color scheme
 # Base colors
@@ -129,6 +131,53 @@ test_group_membership() {
     fi
 }
 
+test_macos_app() {
+    local version
+    local team_id
+    print_status "Testing application: $DEFGUARD_APP"
+
+    if [ ! -d "$DEFGUARD_APP" ]; then
+        print_error "$DEFGUARD_APP is not installed"
+        return 1
+    fi
+
+    version="$(defaults read "$DEFGUARD_APP/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || true)"
+    if [ -f "$DEFGUARD_APP/Contents/_MASReceipt/receipt" ]; then
+        print_success "Defguard $version is installed (App Store)"
+    else
+        print_success "Defguard $version is installed"
+    fi
+
+    if ! codesign --verify --deep --strict "$DEFGUARD_APP" 2>/dev/null; then
+        print_error "Invalid code signature on $DEFGUARD_APP"
+        return 1
+    fi
+    team_id="$(codesign -dv "$DEFGUARD_APP" 2>&1 | sed -n 's/^TeamIdentifier=//p')"
+    if [ "$team_id" = "$DEFGUARD_MACOS_TEAM_ID" ]; then
+        print_success "Signed by Apple Developer team $team_id"
+    else
+        print_error "Signed by team '$team_id', expected $DEFGUARD_MACOS_TEAM_ID"
+        return 1
+    fi
+}
+
+test_macos_extension() {
+    print_status "Testing VPN extension"
+
+    # The GitHub DMG build ships a system extension; the App Store build an app extension instead
+    if [ ! -d "$DEFGUARD_APP/Contents/Library/SystemExtensions" ]; then
+        print_success "No system extension to approve for this build"
+        return 0
+    fi
+
+    if systemextensionsctl list 2>/dev/null | grep "net.defguard.VPNExtension" | grep -q "activated enabled"; then
+        print_success "The Defguard VPN system extension is activated and enabled"
+    else
+        print_warning "The Defguard VPN system extension is not approved yet"
+        print_warning "Launch Defguard and allow its VPN extension when MacOS asks"
+    fi
+}
+
 # Main test execution
 print_header "Testing $MODULE_NAME configuration"
 
@@ -138,7 +187,16 @@ if [ "${DOTFILES_TEST_MODE:-0}" = "1" ]; then
     exit 0
 fi
 
-if [ "$(uname -s)" = "Darwin" ] || [ -f /.dockerenv ]; then
+if [ "$(uname -s)" = "Darwin" ]; then
+    test_macos_app
+    test_macos_extension
+    print_success "Testing completed!"
+    print_warning "Please verify the following manually:"
+    print_warning "1. Launch Defguard and connect to your location"
+    exit 0
+fi
+
+if [ -f /.dockerenv ]; then
     print_warning "The Defguard client is only installed on a real Ubuntu host, skipping"
     exit 0
 fi

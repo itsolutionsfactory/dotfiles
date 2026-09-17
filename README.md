@@ -202,8 +202,9 @@ On MacOS, this will install Homebrew packages from `Brewfile` and then install t
 7. **github-cli** - GitHub command-line interface
 8. **gitlab-cli** - GitLab command-line interface
 9. **nvm** - Node Version Manager
+10. **defguard** - Defguard VPN desktop client (notarized DMG from GitHub, left alone when installed from the App Store)
 
-The MacOS installer intentionally skips Linux-specific modules: `apt-packages`, `snap-config`, `flatpak-config`, `appimaged`, `docker`, `slack`, `powershell`, and `defguard`.
+The MacOS installer intentionally skips Linux-specific modules: `apt-packages`, `snap-config`, `flatpak-config`, `appimaged`, `docker`, `slack`, and `powershell`.
 
 Three modules are not part of `--all` on either OS and are installed by hand from their directory (`cd <module> && ./install.sh`): `appimaged` (AppImage integration daemon), `powershell` (PowerShell Core with the Exchange Online and Teams modules) and `linux-config` (`upgrade_wifi.sh`, WiFi driver fixes for MediaTek and Intel chipsets).
 
@@ -273,7 +274,7 @@ This project includes the following configuration modules:
 - **GitHub CLI** - GitHub command-line interface
 - **Infra Tools Kit** - Infra team diagnostic and update commands
 - **Vim/Neovim** - Text editor configuration
-- **Defguard** - Defguard VPN desktop client, Ubuntu only, last module of `--all`, checks whether a reboot is required for the `defguard` group
+- **Defguard** - Defguard VPN desktop client, last module of `--all` on Ubuntu (checks whether a reboot is required for the `defguard` group) and on MacOS
 
 ### Kubectl Configuration
 

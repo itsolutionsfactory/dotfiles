@@ -9,12 +9,19 @@ MODULE_NAME="defguard"
 OS_TYPE="$(uname -s)"
 
 # Defguard desktop client, pinned release. To upgrade: bump the version and copy the sha256
-# digests of the two "ubuntu-22-04-lts" .deb assets from the GitHub release page.
-# The unsuffixed "_amd64.deb" asset targets Debian 13, not Ubuntu.
+# digests of the two "ubuntu-22-04-lts" .deb assets and of the universal .dmg from the GitHub
+# release page. The unsuffixed "_amd64.deb" asset targets Debian 13, not Ubuntu.
 DEFGUARD_VERSION="2.1.0"
 DEFGUARD_SHA256_AMD64="060723b5c606a22bcbccee0b244dfeecbedaecdf7a10b626038b4e386e0ec0cd"
 DEFGUARD_SHA256_ARM64="01b5c7aab3c84e493868fff33dbf7cbbf3a9f2e4f9b008c28fa20b3383889ffd"
+DEFGUARD_SHA256_DMG="fda54789cce9986b8899e1d8dcafce77bfc5756b8c61e097e4e28337932f6bed"
 DEFGUARD_RELEASE_URL="https://github.com/DefGuard/client/releases/download/v${DEFGUARD_VERSION}"
+
+# MacOS: the Homebrew cask is stuck on 1.5.x, so the notarized universal DMG is used. Both the
+# DMG and the App Store builds are signed by the vendor's Apple Developer team below.
+DEFGUARD_MACOS_TEAM_ID="82GZ7KN29J"
+DEFGUARD_MACOS_MIN_VERSION="13.5"
+DEFGUARD_APP="/Applications/Defguard.app"
 
 # What the package sets up: the client talks to the service through a socket owned by the group
 DEFGUARD_GROUP="defguard"
@@ -25,6 +32,7 @@ DEFGUARD_ENROLLMENT_URL="https://defguard.itsf.io"
 CURRENT_USER="$(id -un)"
 REBOOT_REQUIRED=0
 TMP_DIR=""
+DMG_MOUNT_DIR=""
 
 # Catppuccin Mocha color scheme
 # Base colors
@@ -70,11 +78,6 @@ print_header() {
 # Print module header
 print_header "Installing $MODULE_NAME"
 
-if [ "$OS_TYPE" = "Darwin" ]; then
-    print_warning "The Defguard client is not managed by this module on MacOS, skipping"
-    exit 0
-fi
-
 if [ -f /.dockerenv ]; then
     print_warning "Docker environment detected, skipping the Defguard client (desktop app and system service)"
     exit 0
@@ -85,17 +88,15 @@ if [ "$(id -u)" -eq 0 ]; then
     exit 1
 fi
 
-# Check if we have sudo privileges
-if ! sudo -n true 2>/dev/null; then
-    print_warning "This script requires sudo privileges. You may be prompted for your password."
-fi
-
 # Function to check if a command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
 cleanup() {
+    if [ -n "$DMG_MOUNT_DIR" ]; then
+        hdiutil detach -quiet "$DMG_MOUNT_DIR" || true
+    fi
     if [ -n "$TMP_DIR" ] && [ -d "$TMP_DIR" ]; then
         rm -rf "$TMP_DIR"
     fi
@@ -192,6 +193,88 @@ check_dns_tooling() {
     fi
 }
 
+# Succeeds when version $1 is greater than or equal to version $2
+version_at_least() {
+    [ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -1)" = "$2" ]
+}
+
+install_macos_client() {
+    local macos_version
+    local installed=""
+    local dmg="Defguard_${DEFGUARD_VERSION}_universal.dmg"
+    local mount_dir
+    local team_id
+
+    macos_version="$(sw_vers -productVersion)"
+    if ! version_at_least "$macos_version" "$DEFGUARD_MACOS_MIN_VERSION"; then
+        print_error "The Defguard client needs MacOS $DEFGUARD_MACOS_MIN_VERSION or later (this Mac runs $macos_version)"
+        exit 1
+    fi
+
+    if [ -d "$DEFGUARD_APP" ]; then
+        installed="$(defaults read "$DEFGUARD_APP/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || true)"
+        if [ -f "$DEFGUARD_APP/Contents/_MASReceipt/receipt" ]; then
+            print_success "Defguard $installed is installed from the App Store, which keeps it up to date"
+            return 0
+        fi
+        if [ -n "$installed" ] && version_at_least "$installed" "$DEFGUARD_VERSION"; then
+            print_success "Defguard $installed is already installed"
+            return 0
+        fi
+    fi
+
+    if pgrep -x defguard-client >/dev/null 2>&1; then
+        print_error "Defguard is running: quit it from its menu bar icon, then run this script again"
+        exit 1
+    fi
+
+    TMP_DIR="$(mktemp -d)"
+    mount_dir="$TMP_DIR/mnt"
+    mkdir -p "$mount_dir"
+
+    print_status "Downloading $dmg..."
+    curl -fL --retry 3 -o "$TMP_DIR/$dmg" "$DEFGUARD_RELEASE_URL/$dmg"
+
+    print_status "Verifying sha256 checksum..."
+    if ! echo "$DEFGUARD_SHA256_DMG  $TMP_DIR/$dmg" | shasum -a 256 -c --quiet -; then
+        print_error "Checksum mismatch for $dmg, aborting"
+        exit 1
+    fi
+    print_success "Checksum verified"
+
+    hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$mount_dir" "$TMP_DIR/$dmg" >/dev/null
+    DMG_MOUNT_DIR="$mount_dir"
+
+    print_status "Verifying the code signature..."
+    if ! codesign --verify --deep --strict "$mount_dir/Defguard.app"; then
+        print_error "Invalid code signature on Defguard.app, aborting"
+        exit 1
+    fi
+    team_id="$(codesign -dv "$mount_dir/Defguard.app" 2>&1 | sed -n 's/^TeamIdentifier=//p')"
+    if [ "$team_id" != "$DEFGUARD_MACOS_TEAM_ID" ]; then
+        print_error "Defguard.app is signed by team '$team_id', expected $DEFGUARD_MACOS_TEAM_ID, aborting"
+        exit 1
+    fi
+    if ! spctl --assess --type execute "$mount_dir/Defguard.app" 2>/dev/null; then
+        print_error "Gatekeeper rejects Defguard.app (not notarized?), aborting"
+        exit 1
+    fi
+    print_success "Signed by Apple Developer team $team_id and accepted by Gatekeeper"
+
+    if [ -n "$installed" ]; then
+        print_status "Replacing Defguard $installed with $DEFGUARD_VERSION..."
+    fi
+    if [ -w /Applications ]; then
+        rm -rf "$DEFGUARD_APP"
+        ditto "$mount_dir/Defguard.app" "$DEFGUARD_APP"
+    else
+        print_warning "/Applications is not writable by $CURRENT_USER. You may be prompted for your password."
+        sudo rm -rf "$DEFGUARD_APP"
+        sudo ditto "$mount_dir/Defguard.app" "$DEFGUARD_APP"
+    fi
+    print_success "Defguard $DEFGUARD_VERSION installed in /Applications"
+}
+
 # Prints the Groups line of /proc/<pid>/status and succeeds when it holds the given gid
 process_has_gid() {
     local pid="$1"
@@ -258,6 +341,26 @@ ask_reboot() {
 }
 
 # Main installation process
+if [ "$OS_TYPE" = "Darwin" ]; then
+    install_macos_client
+
+    print_success "$MODULE_NAME installation completed successfully!"
+
+    # Display next steps
+    print_header "Next Steps"
+    print_warning "Please complete the following manually:"
+    print_warning "1. Launch Defguard from /Applications"
+    print_warning "2. Allow its VPN extension and VPN configuration when MacOS asks"
+    print_warning "3. Choose 'Add instance' and paste the enrollment URL and token you received ($DEFGUARD_ENROLLMENT_URL)"
+    print_warning "4. Connect to your location and enter the MFA code (TOTP or e-mail, as enabled on your account)"
+    exit 0
+fi
+
+# Check if we have sudo privileges
+if ! sudo -n true 2>/dev/null; then
+    print_warning "This script requires sudo privileges. You may be prompted for your password."
+fi
+
 check_dependencies
 detect_package
 

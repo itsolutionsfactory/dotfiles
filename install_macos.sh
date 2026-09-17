@@ -26,6 +26,7 @@ declare -a MACOS_MODULE_ORDER=(
     "github-cli"
     "gitlab-cli"
     "nvm"
+    "defguard"
 )
 
 declare -a MACOS_SKIP_MODULES=(
@@ -36,7 +37,6 @@ declare -a MACOS_SKIP_MODULES=(
     "docker"
     "slack"
     "powershell"
-    "defguard"
 )
 
 print_success() {
