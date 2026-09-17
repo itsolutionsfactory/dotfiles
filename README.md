@@ -118,7 +118,6 @@ Each directory in this repository represents a specific tool or configuration se
 ├── Brewfile            # Homebrew bundle for MacOS packages
 ├── test-all.sh         # Test script for all configurations
 ├── test-macos.sh       # Lightweight MacOS validation script
-├── test-docker.sh      # Script to test in Docker environment
 ├── Dockerfile          # Docker configuration for testing
 ├── docker-compose.yml  # Docker Compose configuration
 ├── entrypoint.sh       # Docker entrypoint script
@@ -190,6 +189,8 @@ On Ubuntu, this will install all modules in the following predefined order:
 12. **docker** - Docker configuration
 13. **nvm** - Node Version Manager
 14. **gitlab-cli** - GitLab command-line interface
+15. **infra-tools-kit** - Infra team diagnostic commands (`diag-network-report`, `diag-log-report`, `update-dotfiles`)
+16. **defguard** - Defguard VPN desktop client; asks for a reboot at the end when the `defguard` group is not active yet (no prompt during `--all`)
 
 On MacOS, this will install Homebrew packages from `Brewfile` and then install these shared modules:
 1. **zsh** - Enhanced shell configuration
@@ -201,8 +202,11 @@ On MacOS, this will install Homebrew packages from `Brewfile` and then install t
 7. **github-cli** - GitHub command-line interface
 8. **gitlab-cli** - GitLab command-line interface
 9. **nvm** - Node Version Manager
+10. **defguard** - Defguard VPN desktop client (notarized DMG from GitHub, left alone when installed from the App Store)
 
 The MacOS installer intentionally skips Linux-specific modules: `apt-packages`, `snap-config`, `flatpak-config`, `appimaged`, `docker`, `slack`, and `powershell`.
+
+Three modules are not part of `--all` on either OS and are installed by hand from their directory (`cd <module> && ./install.sh`): `appimaged` (AppImage integration daemon), `powershell` (PowerShell Core with the Exchange Online and Teams modules) and `linux-config` (`upgrade_wifi.sh`, WiFi driver fixes for MediaTek and Intel chipsets).
 
 For MacOS, `Brewfile` installs command-line tools such as WireGuard tools (`wg` and `wg-quick`) and app casks such as Docker Desktop, Slack, Microsoft Teams, Kitty, and PowerShell. Those casks only install the applications; they do not run the Linux module configuration scripts. Add a dedicated MacOS module later if an app needs Mac-specific configuration beyond installation.
 
@@ -240,17 +244,16 @@ To run the lightweight MacOS validation checks:
 This validates MacOS installer syntax, the `Brewfile`, and the expected shared module layout. When run on MacOS with Homebrew available, it also asks `brew bundle` to validate the bundle file.
 
 ### Docker Testing
-To test the configuration in a Docker environment:
+To test the configuration in a Docker environment (Ubuntu 24.04):
 
 ```bash
-./test-docker.sh
+docker-compose up --build
 ```
 
-This will:
-1. Build and start a Docker container
-2. Run the installation script
-3. Run all tests
-4. Provide an interactive ZSH shell for manual testing
+The container entrypoint (`entrypoint.sh`) will:
+1. Run `./install.sh --all` as the `testuser` account
+2. Run `./test-all.sh`
+3. Leave you in an interactive Bash shell for manual checks
 
 ## Available Configurations
 
@@ -269,7 +272,9 @@ This project includes the following configuration modules:
 - **NVM** - Node Version Manager for Node.js
 - **GitLab CLI** - GitLab command-line interface
 - **GitHub CLI** - GitHub command-line interface
+- **Infra Tools Kit** - Infra team diagnostic and update commands
 - **Vim/Neovim** - Text editor configuration
+- **Defguard** - Defguard VPN desktop client, last module of `--all` on Ubuntu (checks whether a reboot is required for the `defguard` group) and on MacOS
 
 ### Kubectl Configuration
 
@@ -319,6 +324,8 @@ After installation:
 1. Verify the installation with `./test.sh`
 2. Configure your OIDC credentials if needed
 3. Test cluster access with `kubectl cluster-info`
+
+The shipped `~/.kube/config` only carries the two K8sv3 clusters run by Monaco Telecom (`NJJ-K8SV3-PRD` and `NJJ-K8SV3-STG`, contexts `v3-prd` and `v3-stg`), with OIDC login through `kubelogin`. Access to the RKE2 clusters is not part of this module: ask the Infra team for a kubeconfig.
 
 ### ZSH Configuration
 
@@ -973,4 +980,4 @@ Feel free to submit issues and enhancement requests.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+No license file ships with this repository: it is an internal ITSF project.

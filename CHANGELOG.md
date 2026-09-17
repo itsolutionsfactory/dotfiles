@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **`fix-vpn` command** (`infra-tools-kit/fix-vpn.sh`): makes the `itsf` WireGuard connection always
+  on for a laptop that needs the VPN while at the office, where the dispatcher skips it on
+  `ITSF-Wifi` but some MT services only accept the VPN exit IP. Removes the dispatcher, adds
+  `PersistentKeepalive = 25` if missing, re-enables autoconnect; backups under
+  `~/.vpn-fix-backup/`. Whether the dispatcher should skip the VPN on the office WiFi at all
+  is still to be decided.
+- **certs README** : says what `root-ca.crt` is (the Monaco Telecom Group Root CA, valid until
+  2041), which services chain up to it, and that the root alone is enough.
+- **infra-tools-kit README** : the module was the only one in `--all` without documentation;
+  the three commands (`diag-network-report`, `diag-log-report`, `update-dotfiles`), what they
+  produce and where, and the `main` / `develop` restriction of `update-dotfiles`.
+- **Defguard module** (`defguard/`, last module of `--all` on Ubuntu and MacOS). On Ubuntu, installs the Defguard desktop client
+  2.1.0 from the pinned `ubuntu-22-04-lts` GitHub release package, checked against its sha256,
+  makes sure the user is in the `defguard` group and `defguard-service` is running, and warns
+  when `resolvconf` is missing. It then reads the `Groups:` line of `/proc/<pid>/status` for the
+  user's systemd manager and the running client: the client can only reach the service once the
+  session carries the group, and a logout and login is not always enough on Ubuntu, so the
+  script tells whether a reboot is required and asks before rebooting, except during `--all`
+  (`install_ubuntu.sh` exports `DOTFILES_INSTALL_ALL=1`), where it only warns. On MacOS, installs the
+  notarized universal DMG of the same release (the Homebrew cask is stuck on 1.5.x), checked against
+  its sha256, the vendor's Apple Developer team and Gatekeeper, and leaves an App Store install alone.
+  Skipped in Docker.
+
+### Changed
+- **Ubuntu 26.04 compatibility report and verification script** moved out of the repository root:
+  `tmp-UBUNTU-26.04-COMPATIBILITY.md` is now `docs/ubuntu-26.04-compatibility.md` and
+  `tmp-verify-install.sh` is now `scripts/verify-install.sh` (run it from the repository root:
+  `./scripts/verify-install.sh`). The raw output of the 2026-05-29 run, `tmp-script-result.txt`,
+  is deleted: its findings are summarised in section 6 of the report.
+### Changed
+- **README** : removed references to `test-docker.sh`, the Docker `--module` flag and an MIT
+  `LICENSE` file that do not exist; Docker testing documented as `docker-compose up --build`;
+  `infra-tools-kit` added to the Ubuntu `--all` order; the three manual modules (`appimaged`,
+  `powershell`, `linux-config`) listed; the kubectl section says the shipped kubeconfig only
+  covers the two K8sv3 clusters.
+
+### Fixed
+- **WireGuard dispatcher** : the `down` branch of `20-itsf-vpn` now only reacts to the WiFi
+  interface (`wl*`), like the `up` branch already did. Any other interface going down (a
+  Docker bridge, a `veth`, a USB adapter) used to stop the `itsf` connection.
+- **WireGuard client config** : `PersistentKeepalive = 25` added to the `[Peer]` block of
+  `/etc/wireguard/itsf.conf`, so the tunnel survives NAT mappings expiring while idle.
+  Re-run `apt-packages/wireguard-setup.sh` on an existing laptop to get both fixes: with a
+  private key already present it only refreshes the dispatcher and the NetworkManager
+  connection.
+
 ## [1.3.0]
 
 ### Added

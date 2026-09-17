@@ -134,6 +134,7 @@ show_help() {
     echo -e "  ${BLUE}13.${BASE} nvm"
     echo -e "  ${BLUE}14.${BASE} gitlab-cli"
     echo -e "  ${BLUE}15.${BASE} infra-tools-kit"
+    echo -e "  ${BLUE}16.${BASE} defguard"
     exit 0
 }
 
@@ -193,7 +194,11 @@ install_all_modules() {
         "nvm"
         "gitlab-cli"
         "infra-tools-kit"
+        "defguard"
     )
+
+    # Modules must not prompt during --all (the defguard module asks before rebooting otherwise)
+    export DOTFILES_INSTALL_ALL=1
 
     for module in "${MODULE_ORDER[@]}"; do
         if [ -d "$SCRIPT_DIR/$module" ]; then
