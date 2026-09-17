@@ -42,14 +42,14 @@ docker-compose up --build
 
 **OS dispatch.** `install.sh` is a thin dispatcher: it switches on `uname -s` and `exec`s `install_ubuntu.sh` (Linux) or `install_macos.sh` (Darwin), forwarding all args. The two OS installers are the real entry points and share the same flags (`--all`, `--backup`, `--update`, `--help`). `install_old.sh` is a pre-split legacy monolith — **not used**; do not edit it.
 
-**Modules.** Every top-level directory that contains an `install.sh` is a module (e.g. `kitty/`, `zsh/`, `kubectl/`). The installers and `test-all.sh` discover modules by globbing for `install.sh`, excluding `.cursor`, `backup`, and `scripts`. A module typically holds: `install.sh`, `test.sh`, an optional `README.md`, the stowed payload, and a `.stow-local-ignore`. Fifteen modules are in the Ubuntu `--all` order (`infra-tools-kit` last, it symlinks diagnostic scripts into `~/.local/bin`); three are manual only: `appimaged`, `powershell`, `linux-config` (WiFi driver fixes).
+**Modules.** Every top-level directory that contains an `install.sh` is a module (e.g. `kitty/`, `zsh/`, `kubectl/`). The installers and `test-all.sh` discover modules by globbing for `install.sh`, excluding `.cursor`, `backup`, and `scripts`. A module typically holds: `install.sh`, `test.sh`, an optional `README.md`, the stowed payload, and a `.stow-local-ignore`. Sixteen modules are in the Ubuntu `--all` order, ending with `infra-tools-kit` (it symlinks diagnostic scripts into `~/.local/bin`) and `defguard` (last, so its reboot warning is the final output); three are manual only: `appimaged`, `powershell`, `linux-config` (WiFi driver fixes).
 
 **Two Stow link patterns** — match the one a sibling module already uses:
 - **`.config` payload** (kitty, hyfetch, vim, kubectl, github-cli, gitlab-cli): files live in `module/.config/<name>/`, stowed with `stow -t "$HOME/.config" .config` → `~/.config/<name>`.
 - **`$HOME` payload** (zsh, nvm, certs): files like `.zshrc` live at the module root, stowed with `stow -t "$HOME" .`. These need a `.stow-local-ignore` listing `install.sh`/`test.sh` so the scripts aren't symlinked into `$HOME`.
 - `kubectl` does **both** (`.config/kubectl` and a `.kube/` payload).
 
-**Install order matters.** Ubuntu installs in a fixed list in `install_ubuntu.sh` (`apt-packages` first — it provides `stow`/deps — then `certs`, `zsh`, …). macOS uses a different, smaller list in `install_macos.sh` (`MACOS_MODULE_ORDER`) and **skips Linux-only modules** (`MACOS_SKIP_MODULES`: apt-packages, snap-config, flatpak-config, appimaged, docker, slack, powershell). On macOS, packages come from `Brewfile` via `brew bundle` (Homebrew is bootstrapped if missing); the skipped modules' apps are installed as Brew casks instead of running their Linux scripts.
+**Install order matters.** Ubuntu installs in a fixed list in `install_ubuntu.sh` (`apt-packages` first — it provides `stow`/deps — then `certs`, `zsh`, …). macOS uses a different, smaller list in `install_macos.sh` (`MACOS_MODULE_ORDER`) and **skips Linux-only modules** (`MACOS_SKIP_MODULES`: apt-packages, snap-config, flatpak-config, appimaged, docker, slack, powershell). On macOS, packages come from `Brewfile` via `brew bundle` (Homebrew is bootstrapped if missing); the skipped modules' apps are installed as Brew casks instead of running their Linux scripts. `defguard` is the exception: it runs its own installer on macOS too (last in `MACOS_MODULE_ORDER`), because the Homebrew cask is stuck on 1.5.x; it installs the notarized release DMG and leaves an App Store install alone.
 
 **Testing layers.**
 - `test-all.sh` — runs each module's `test.sh` for real. Used inside Docker (`entrypoint.sh`).
@@ -64,13 +64,14 @@ docker-compose up --build
 - **Never copy config files — always Stow symlinks.** (The one exception is `certs`, which must `cp` the CA into the system trust store, then stows the rest.)
 - Installers must be **idempotent** and guard the environment: skip GUI/privileged steps when `[ -f /.dockerenv ]`, branch on `uname -s` for macOS vs Linux (and `uname -m` for arch), and `command -v` / `brew list` before installing.
 - All code, comments, and output in **English**.
+- **No prompt during `--all`.** `install_ubuntu.sh --all` exports `DOTFILES_INSTALL_ALL=1`; a module that would ask a question checks it and only warns instead (see `ask_reboot` in `defguard/install.sh`).
 - A new module needs `install.sh` + `test.sh` (give `test.sh` a `DOTFILES_TEST_MODE` branch so it joins macOS CI), and a `.stow-local-ignore` if it stows into `$HOME`. To make it part of `--all`, add it to the order array(s) in the OS installer(s).
 
 ## Known drift (don't be misled)
 
 - The WireGuard dispatcher (`apt-packages/wireguard-setup.sh`, changelog 1.3.0) **skips the VPN on the `ITSF-Wifi` SSID** and stops it when the WiFi goes down. From the office some Monaco Telecom services are only reachable through the tunnel (they allow the VPN exit IP, not the office one), which is why `infra-tools-kit/fix-vpn.sh` (command `fix-vpn`) removes the dispatcher and re-enables autoconnect. Whether the dispatcher should skip the VPN on the office WiFi at all is an open question for the Infra team; do not "fix" one script to match the other without that decision.
 - `infra-tools-kit/diag-network-report` pings `172.25.3.240`, the Lyon office firewall GUI: the LAN check only means something in Lyon.
-- The `kitty-latest-and-claude-code` branch (2026-09-08, unmerged) adds a `claude-code` module (16th in `--all`, 10th on macOS) and installs Kitty from upstream instead of apt. The `add-flux-cli` branch (2025-12, unmerged) adds a `flux-cli` module and is far behind `main`.
+- The `kitty-latest-and-claude-code` branch (2026-09-08, unmerged) adds a `claude-code` module (16th in `--all`, 10th on macOS, the slots `defguard` now takes: renumber when merging) and installs Kitty from upstream instead of apt. The `add-flux-cli` branch (2025-12, unmerged) adds a `flux-cli` module and is far behind `main`.
 - `kubectl/.kube/config` only carries the two K8sv3 clusters (`v3-prd`, `v3-stg`, OIDC via `kubelogin`); no RKE2 context is shipped.
 - `snap-config/` has an `install.sh` but **no `test.sh`**, so `test-all.sh` would error if it reaches that module (it's root-only and skipped in Docker/macOS).
 - `docker/.docker/config.json` and `nvm/.npmrc` are stowed with placeholders (JFrog token, e-mail, `cafile` path): filling them is a manual step after `--all`, and `scripts/verify-install.sh` reports them as `[!]` until done.
