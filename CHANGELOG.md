@@ -19,13 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **infra-tools-kit README** : the module was the only one in `--all` without documentation;
   the three commands (`diag-network-report`, `diag-log-report`, `update-dotfiles`), what they
   produce and where, and the `main` / `develop` restriction of `update-dotfiles`.
-- **Defguard module** (`defguard/`, manual, Ubuntu only): installs the Defguard desktop client
+- **Defguard module** (`defguard/`, Ubuntu only, last module of `--all`): installs the Defguard desktop client
   2.1.0 from the pinned `ubuntu-22-04-lts` GitHub release package, checked against its sha256,
   makes sure the user is in the `defguard` group and `defguard-service` is running, and warns
   when `resolvconf` is missing. It then reads the `Groups:` line of `/proc/<pid>/status` for the
   user's systemd manager and the running client: the client can only reach the service once the
   session carries the group, and a logout and login is not always enough on Ubuntu, so the
-  script tells whether a reboot is required and asks before rebooting. Skipped on MacOS and in Docker.
+  script tells whether a reboot is required and asks before rebooting, except during `--all`
+  (`install_ubuntu.sh` exports `DOTFILES_INSTALL_ALL=1`), where it only warns. Skipped on MacOS
+  and in Docker.
 
 ### Changed
 - **Ubuntu 26.04 compatibility report and verification script** moved out of the repository root:

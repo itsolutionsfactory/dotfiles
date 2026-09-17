@@ -1,6 +1,6 @@
 # Defguard client
 
-Installs the [Defguard](https://github.com/DefGuard/client) desktop client on Ubuntu (24.04 and 26.04, amd64 and arm64). Manual module: it is not part of `--all`, and it is skipped on MacOS and in Docker.
+Installs the [Defguard](https://github.com/DefGuard/client) desktop client on Ubuntu (24.04 and 26.04, amd64 and arm64). Last module of `./install.sh --all`, so its reboot warning is the last thing printed; skipped on MacOS and in Docker.
 
 ```bash
 cd defguard && ./install.sh
@@ -13,7 +13,7 @@ cd defguard && ./install.sh
 2. Installs it with `apt-get install`, which pulls the dependencies. The package postinst creates the `defguard` group, adds the user running `sudo` to it, then enables and starts `defguard-service`.
 3. Makes sure the user is in the `defguard` group, the service is running and the socket `/var/run/defguard.socket` exists.
 4. Warns when `resolvconf` is missing: the client needs it to apply the DNS servers of a location.
-5. Checks whether a reboot is required (below), then asks before rebooting.
+5. Checks whether a reboot is required (below), then asks before rebooting. During `./install.sh --all` (`DOTFILES_INSTALL_ALL=1`) it does not ask and only warns.
 
 Running it again is safe: an installed pinned version is not reinstalled, a newer one is kept, and the group and reboot checks run every time.
 

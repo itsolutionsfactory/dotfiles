@@ -241,7 +241,8 @@ check_reboot_required() {
 ask_reboot() {
     local answer=""
 
-    if [ -t 0 ]; then
+    # No prompt during ./install.sh --all, which runs without questions
+    if [ -t 0 ] && [ "${DOTFILES_INSTALL_ALL:-0}" != "1" ]; then
         read -r -p "$(echo -e "${SUBTEXT}Reboot now? [y/N]: ${BASE}")" answer || true
     fi
 
@@ -251,7 +252,7 @@ ask_reboot() {
             sudo systemctl reboot
             ;;
         *)
-            print_warning "Reboot before using Defguard, then run this script again to confirm the group is active"
+            print_warning "Reboot before using Defguard (once the installation is over), then run this script again to confirm the group is active"
             ;;
     esac
 }

@@ -190,6 +190,7 @@ On Ubuntu, this will install all modules in the following predefined order:
 13. **nvm** - Node Version Manager
 14. **gitlab-cli** - GitLab command-line interface
 15. **infra-tools-kit** - Infra team diagnostic commands (`diag-network-report`, `diag-log-report`, `update-dotfiles`)
+16. **defguard** - Defguard VPN desktop client; asks for a reboot at the end when the `defguard` group is not active yet (no prompt during `--all`)
 
 On MacOS, this will install Homebrew packages from `Brewfile` and then install these shared modules:
 1. **zsh** - Enhanced shell configuration
@@ -272,7 +273,7 @@ This project includes the following configuration modules:
 - **GitHub CLI** - GitHub command-line interface
 - **Infra Tools Kit** - Infra team diagnostic and update commands
 - **Vim/Neovim** - Text editor configuration
-- **Defguard** - Defguard VPN desktop client, Ubuntu only, manual module (`cd defguard && ./install.sh`), checks whether a reboot is required for the `defguard` group
+- **Defguard** - Defguard VPN desktop client, Ubuntu only, last module of `--all`, checks whether a reboot is required for the `defguard` group
 
 ### Kubectl Configuration
 
